@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">AgriApp</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="combine_type">Combine Type</string>
+    <string name="am">am</string>
+    <string name="pm">pm</string>
+    <string name="_1">1</string>
+</resources>

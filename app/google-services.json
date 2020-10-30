@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "827189695833",
+    "firebase_url": "https://agriapp-e7b8f.firebaseio.com",
+    "project_id": "agriapp-e7b8f",
+    "storage_bucket": "agriapp-e7b8f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:827189695833:android:800771a519990700f1a848",
+        "android_client_info": {
+          "package_name": "com.shivaconsulting.agriapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "827189695833-qdosbhufal91nvc88theve08knmbjs8d.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.shivaconsulting.agriapp",
+            "certificate_hash": "a29548382bde798c2f43ce0231b1fdd1193cbe52"
+          }
+        },
+        {
+          "client_id": "827189695833-gu5n7hqnsm9apjmsj6ol9ljkspfqhhp0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAOBH00zaQurDVKrjcAu4M32BrVJItjQ-A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "827189695833-gu5n7hqnsm9apjmsj6ol9ljkspfqhhp0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

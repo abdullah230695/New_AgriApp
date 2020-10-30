@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/parent_layout"
+    android:padding="10dp">
+
+    <ImageView
+        android:id="@+id/place"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_marginTop="10dp"
+        android:src="@drawable/ic_place" />
+
+    <TextView
+        android:id="@+id/map_locality"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="10dp"
+        android:layout_toRightOf="@+id/place"
+        android:text="Chetpet"
+        android:textColor="@color/places_text_black_alpha_87"
+        android:textSize="17sp" />
+
+    <TextView
+        android:id="@+id/map_address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/map_locality"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="10dp"
+        android:layout_toRightOf="@+id/place"
+        android:text="27 P.c hostel Road "
+        android:textColor="@color/places_text_black_alpha_87"
+        android:textSize="15sp" />
+
+
+
+
+</RelativeLayout>
