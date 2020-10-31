@@ -7,6 +7,7 @@ import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
+import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
@@ -53,6 +54,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.GeoPoint;
 import com.shivaconsulting.agriapp.Adapter.AreaAdapter;
 import com.shivaconsulting.agriapp.Adapter.PlacesAutoCompleteAdapter;
 import com.shivaconsulting.agriapp.Adapter.TimeAdapter;
@@ -90,8 +92,8 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback , View.OnClickListener,TimeAdapter.OnItemSelectedListener,
-AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener{
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, View.OnClickListener, TimeAdapter.OnItemSelectedListener,
+        AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener {
 
     //Const
     private static final String TAG = "MapsActivity";
@@ -119,24 +121,25 @@ AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener{
     private PlacesAutoCompleteAdapter mAutoCompleteAdapter;
 
     //Id's
-    private ImageView home,booking_history,profile;
+    private ImageView home, booking_history, profile;
     private Button booking_button;
     private ImageView gps_button;
     private ConstraintLayout bookContraint;
-    private CardView cardView1,cardView2,cardView3;
-    private TextView combine_text,pick_time_text,pick_date_text,pick_area_text,tot_Type,belt_Type;
-    private RecyclerView time_picker_recyclerview,area_picker_recyclerview,map_search_recyler;
-    private ImageView tot_image_1,tot_image_2,belt_image_1,belt_image_2,belt_image_3,
-            combine_image_3,combine_image_2,combine_image_1;
+    private CardView cardView1, cardView2, cardView3;
+    private TextView combine_text, pick_time_text, pick_date_text, pick_area_text, tot_Type, belt_Type;
+    private RecyclerView time_picker_recyclerview, area_picker_recyclerview, map_search_recyler;
+    private ImageView tot_image_1, tot_image_2, belt_image_1, belt_image_2, belt_image_3,
+            combine_image_3, combine_image_2, combine_image_1;
     private EditText autoCompleteTextView;
     private DatePickerTimeline datePickerTimeline;
     private AreaAdapter.OnAreaItemSelectedListener areaItemSelectedListener;
     private ProgressBar progressBar;
-    String phone ;
+    String phone;
     String time;
     String area;
     String ServiceType;
     String ServiceID;
+    double lat, lon;
 
 
     @Override
@@ -148,23 +151,21 @@ AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener{
 
         String UUID = FirebaseAuth.getInstance().getUid();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference dr=db.collection("Users").document(UUID);
+        DocumentReference dr = db.collection("Users").document(UUID);
 
         dr.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                if(error!=null) {
-                    Toast.makeText(getApplicationContext(),"Unable to fetch user Number"+error.getMessage(),Toast.LENGTH_SHORT).show();
+                if (error != null) {
+                    Toast.makeText(getApplicationContext(), "Unable to fetch user Number" + error.getMessage(), Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if(value!=null && value.exists()) {
+                if (value != null && value.exists()) {
 
-                    phone =value.getData().get("Contact Number").toString();
+                    phone = value.getData().get("Contact Number").toString();
                 }
             }
         });
-
-
 
 
         Places.initialize(this, getResources().getString(R.string.google_maps_key));
@@ -178,11 +179,11 @@ AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener{
         mAutoCompleteAdapter.notifyDataSetChanged();
 
         Calendar c = Calendar.getInstance();
-       int year = c.get(Calendar.YEAR);
+        int year = c.get(Calendar.YEAR);
         int month = c.get(Calendar.MONTH);
         int day = c.get(Calendar.DAY_OF_MONTH);
 
-        datePickerTimeline.setInitialDate(year, month,day );
+        datePickerTimeline.setInitialDate(year, month, day);
 
 
         datePickerTimeline.setDateTextColor(Color.RED);
@@ -214,14 +215,13 @@ AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener{
             @Override
             public void onClick(View view) {
                 Log.d(TAG, "onClick: Clicked when gps is turned off");
-                if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+                if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                    Toast.makeText(mContext, "Please Enable GPS First", Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "onClick: Gps not enabled");
                     enableLoc();
                     //TODO:NEED TO IMPLEMENT LIKE SWIGGY ONCE GPS TURNED ON
 
-                }
-
-                else {
+                } else {
                     Log.d(TAG, "onClick: Clicked after Gps Is On");
                     getDeviceLocation();
                 }
@@ -230,13 +230,13 @@ AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener{
         tot_Type.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast toast = Toast.makeText(mContext,"Selected service Type is TOT", Toast.LENGTH_SHORT);
+                Toast toast = Toast.makeText(mContext, "Selected service Type is TOT", Toast.LENGTH_SHORT);
                 toast.setGravity(Gravity.CENTER, 0, 0);
                 toast.show();
 
 //                /Toast.makeText(getApplicationContext(),"Selected service Type is TOT",Toast.LENGTH_SHORT).show();
-                ServiceType="TOT Type";
-                ServiceID="TOT";
+                ServiceType = "TOT Type";
+                ServiceID = "TOT";
                 cardView1.setVisibility(View.GONE);
                 cardView2.setVisibility(View.GONE);
                 cardView3.setVisibility(View.GONE);
@@ -261,13 +261,13 @@ AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener{
 
             @Override
             public void onClick(View v) {
-                Toast toast = Toast.makeText(mContext,"Selected service Type is Belt", Toast.LENGTH_SHORT);
+                Toast toast = Toast.makeText(mContext, "Selected service Type is Belt", Toast.LENGTH_SHORT);
                 toast.setGravity(Gravity.CENTER, 0, 0);
                 toast.show();
 
                 //Toast.makeText(getApplicationContext(),"Selected service Type is Belt",Toast.LENGTH_SHORT).show();
-                ServiceType="Belt Type";
-                ServiceID="BLT";
+                ServiceType = "Belt Type";
+                ServiceID = "BLT";
                 cardView1.setVisibility(View.GONE);
                 cardView2.setVisibility(View.GONE);
                 cardView3.setVisibility(View.GONE);
@@ -287,20 +287,19 @@ AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener{
                 pick_area_text.setTextSize(14);
             }
         });
-
 
 
         combine_text.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.d(TAG, "onClick: Clicked");
-                Toast toast = Toast.makeText(mContext,"Selected service Type is Combined", Toast.LENGTH_SHORT);
+                Toast toast = Toast.makeText(mContext, "Selected service Type is Combined", Toast.LENGTH_SHORT);
                 toast.setGravity(Gravity.CENTER, 0, 0);
                 toast.show();
 
                 //Toast.makeText(getApplicationContext(),"Selected service Type is Combined",Toast.LENGTH_SHORT).show();
-                ServiceType="Combined Type";
-                ServiceID="CMB";
+                ServiceType = "Combined Type";
+                ServiceID = "CMB";
                 cardView1.setVisibility(View.GONE);
                 cardView2.setVisibility(View.GONE);
                 cardView3.setVisibility(View.GONE);
@@ -322,89 +321,89 @@ AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener{
         });
 
 
-                datePickerTimeline.setOnDateSelectedListener(new OnDateSelectedListener() {
-                    @Override
-                    public void onDateSelected(int year, int month, int day, int dayOfWeek) {
+        datePickerTimeline.setOnDateSelectedListener(new OnDateSelectedListener() {
+            @Override
+            public void onDateSelected(int year, int month, int day, int dayOfWeek) {
 
-                         month=month+1;
-                         selectedDate = day + "/" + month + "/" + year;
+                month = month + 1;
+                selectedDate = day + "/" + month + "/" + year;
 
-                        Toast toast = Toast.makeText(mContext,"Date "+selectedDate+" selected", Toast.LENGTH_SHORT);
-                        toast.setGravity(Gravity.CENTER, 0, 0);
-                        toast.show();
+                Toast toast = Toast.makeText(mContext, "Date " + selectedDate + " selected", Toast.LENGTH_SHORT);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
 
                         /*Log.d(TAG, "onDateSelected: date: " + year + month + day);
                         Log.d(TAG, "onDateSelected: SelectedDate reform: " + selectedDate);*/
 
-                        datePickerTimeline.setVisibility(View.INVISIBLE);
-                        area_picker_recyclerview.setVisibility(View.INVISIBLE);
-                        time_picker_recyclerview.setVisibility(View.VISIBLE);
-                        pick_time_text.setTextSize(18);
-                        pick_date_text.setTextSize(14);
-                        pick_area_text.setTextSize(14);
+                datePickerTimeline.setVisibility(View.INVISIBLE);
+                area_picker_recyclerview.setVisibility(View.INVISIBLE);
+                time_picker_recyclerview.setVisibility(View.VISIBLE);
+                pick_time_text.setTextSize(18);
+                pick_date_text.setTextSize(14);
+                pick_area_text.setTextSize(14);
 
-                    }
+            }
 
-                    @Override
-                    public void onDisabledDateSelected(int year, int month, int day, int dayOfWeek, boolean isDisabled) {
+            @Override
+            public void onDisabledDateSelected(int year, int month, int day, int dayOfWeek, boolean isDisabled) {
 
-                    }
-                });
+            }
+        });
 
 
 //                final long selectedDate = calendarView.getDate();
 
 //                Log.d(TAG, "onClick: Booked Date :" + selectedDate);
 
-                    final ArrayList<TimeAmPm> ArList=new ArrayList<>();
-                ArList.add(new TimeAmPm("6","AM"));
-                ArList.add(new TimeAmPm("7","AM"));
-                ArList.add(new TimeAmPm("8","AM"));
-                ArList.add(new TimeAmPm("9","AM"));
-                ArList.add(new TimeAmPm("10","AM"));
-                ArList.add(new TimeAmPm("11","AM"));
-                ArList.add(new TimeAmPm("12","PM"));
-                ArList.add(new TimeAmPm("1","PM"));
-                ArList.add(new TimeAmPm("2","PM"));
-                ArList.add(new TimeAmPm("3","PM"));
-                ArList.add(new TimeAmPm("4","PM"));
-                ArList.add(new TimeAmPm("5","PM"));
-                ArList.add(new TimeAmPm("6","PM"));
-                ArList.add(new TimeAmPm("7","PM"));
-                ArList.add(new TimeAmPm("8","PM"));
-                TimeAdapterNew adapter=new TimeAdapterNew(ArList,getApplicationContext());
-                time_picker_recyclerview.setAdapter(adapter);
-                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext(),LinearLayoutManager.HORIZONTAL, false);
-                time_picker_recyclerview.setLayoutManager(linearLayoutManager);
+        final ArrayList<TimeAmPm> ArList = new ArrayList<>();
+        ArList.add(new TimeAmPm("6", "AM"));
+        ArList.add(new TimeAmPm("7", "AM"));
+        ArList.add(new TimeAmPm("8", "AM"));
+        ArList.add(new TimeAmPm("9", "AM"));
+        ArList.add(new TimeAmPm("10", "AM"));
+        ArList.add(new TimeAmPm("11", "AM"));
+        ArList.add(new TimeAmPm("12", "PM"));
+        ArList.add(new TimeAmPm("1", "PM"));
+        ArList.add(new TimeAmPm("2", "PM"));
+        ArList.add(new TimeAmPm("3", "PM"));
+        ArList.add(new TimeAmPm("4", "PM"));
+        ArList.add(new TimeAmPm("5", "PM"));
+        ArList.add(new TimeAmPm("6", "PM"));
+        ArList.add(new TimeAmPm("7", "PM"));
+        ArList.add(new TimeAmPm("8", "PM"));
+        TimeAdapterNew adapter = new TimeAdapterNew(ArList, getApplicationContext());
+        time_picker_recyclerview.setAdapter(adapter);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false);
+        time_picker_recyclerview.setLayoutManager(linearLayoutManager);
 
-                time_picker_recyclerview.addOnItemTouchListener(new RecyclerItemClickListener(getApplicationContext(),
-                        time_picker_recyclerview, new RecyclerItemClickListener.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View view, int position) {
-                        Toast toast = Toast.makeText(mContext,"Time "+ArList.get(position).getTime()+ArList.get(position).getAmpm()+" selected", Toast.LENGTH_SHORT);
-                        toast.setGravity(Gravity.CENTER, 0, 0);
-                        toast.show();
-                        //Toast.makeText(mContext, ArList.get(position).getTime()+ArList.get(position).getAmpm() +" Clicked",Toast.LENGTH_SHORT).show();
-                        time = String.valueOf(ArList.get(position).getTime()+" " +ArList.get(position).getAmpm());
+        time_picker_recyclerview.addOnItemTouchListener(new RecyclerItemClickListener(getApplicationContext(),
+                time_picker_recyclerview, new RecyclerItemClickListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Toast toast = Toast.makeText(mContext, "Time " + ArList.get(position).getTime() + ArList.get(position).getAmpm() + " selected", Toast.LENGTH_SHORT);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
+                //Toast.makeText(mContext, ArList.get(position).getTime()+ArList.get(position).getAmpm() +" Clicked",Toast.LENGTH_SHORT).show();
+                time = String.valueOf(ArList.get(position).getTime() + " " + ArList.get(position).getAmpm());
 
-                        datePickerTimeline.setVisibility(View.INVISIBLE);
-                        area_picker_recyclerview.setVisibility(View.VISIBLE);
-                        time_picker_recyclerview.setVisibility(View.INVISIBLE);
-                        pick_time_text.setTextSize(14);
-                        pick_date_text.setTextSize(14);
-                        pick_area_text.setTextSize(18);
-                    }
+                datePickerTimeline.setVisibility(View.INVISIBLE);
+                area_picker_recyclerview.setVisibility(View.VISIBLE);
+                time_picker_recyclerview.setVisibility(View.INVISIBLE);
+                pick_time_text.setTextSize(14);
+                pick_date_text.setTextSize(14);
+                pick_area_text.setTextSize(18);
+            }
 
-                    @Override
-                    public void onLongItemClick(View view, int position) {
+            @Override
+            public void onLongItemClick(View view, int position) {
 
-                    }
-                }));
+            }
+        }));
         area_picker_recyclerview.addOnItemTouchListener(new RecyclerItemClickListener(getApplicationContext(),
                 area_picker_recyclerview, new RecyclerItemClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                Toast toast = Toast.makeText(mContext,"Area "+areaList.get(position)+" selected", Toast.LENGTH_SHORT);
+                Toast toast = Toast.makeText(mContext, "Area " + areaList.get(position) + " selected", Toast.LENGTH_SHORT);
                 toast.setGravity(Gravity.CENTER, 0, 0);
                 toast.show();
                 area = String.valueOf(areaList.get(position));
@@ -415,57 +414,58 @@ AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener{
                 pick_date_text.setTextSize(14);
                 pick_area_text.setTextSize(18);
             }
+
             @Override
             public void onLongItemClick(View view, int position) {
             }
         }));
         booking_button.setOnClickListener(new View.OnClickListener() {
-                    @RequiresApi(api = Build.VERSION_CODES.N)
-                    @Override
-                    public void onClick(final View view) {
-                        Random r = new Random();
-                        Long id =(long) r.nextInt(999999999);
-                        Toast.makeText(MapsActivity.this, "Processing", Toast.LENGTH_SHORT).show();
-                        cardView1.setVisibility(View.VISIBLE);
-                        cardView2.setVisibility(View.VISIBLE);
-                        cardView3.setVisibility(View.VISIBLE);
-                        bookContraint.setVisibility(View.GONE);
-                        //Booking booking = new Booking();
-                        Map<String, Object> post = new HashMap<>();
-                        post.put("Booking_Date",new Timestamp(new Date()));
-                        post.put("Delivery_Date",selectedDate);
-                        post.put("Booking_Id",ServiceID+id);
-                        post.put("Contact_Number", phone);
-                        post.put("Delivery_Time", time);
-                        post.put("Area", area);
-                        post.put("Service_Type", ServiceType);
-                        post.put("Location", "Fetching");
-                        post.put("PicUrl" , "https://i.pinimg.com/originals/c9/f5/fb/c9f5fba683ab296eb94c62de0b0e703c.png");
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            @Override
+            public void onClick(final View view) {
+                Random r = new Random();
+                Long id = (long) r.nextInt(999999999);
+                Toast.makeText(MapsActivity.this, "Processing", Toast.LENGTH_SHORT).show();
+                cardView1.setVisibility(View.VISIBLE);
+                cardView2.setVisibility(View.VISIBLE);
+                cardView3.setVisibility(View.VISIBLE);
+                bookContraint.setVisibility(View.GONE);
+                //Booking booking = new Booking();
+                Map<String, Object> post = new HashMap<>();
+                post.put("Booking_Date", new Timestamp(new Date()));
+                post.put("Delivery_Date", selectedDate);
+                post.put("Booking_Id", ServiceID + id);
+                post.put("Contact_Number", phone);
+                post.put("Delivery_Time", time);
+                post.put("Area", area);
+                post.put("Service_Type", ServiceType);
+                post.put("Location", new GeoPoint(lat, lon));
+                post.put("PicUrl", "https://i.pinimg.com/originals/c9/f5/fb/c9f5fba683ab296eb94c62de0b0e703c.png");
                        /* booking.setDate(selectedDate);
                         booking.setService_name("shiva51");
                         booking.setStatus(false);
                         booking.setService_provider("test");*/
-                        String UUID1 = FirebaseAuth.getInstance().getUid();
-                        FirebaseFirestore db1 = FirebaseFirestore.getInstance();
-                        progressBar.setVisibility(View.VISIBLE);
-                  db1.collection("Bookings").document(UUID1).collection("Booking Details")
-                                .document(ServiceID+id)
-                                .set(post).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                progressBar.setVisibility(View.INVISIBLE);
-                                Toast.makeText(MapsActivity.this, "Service Booked", Toast.LENGTH_SHORT).show();
+                String UUID1 = FirebaseAuth.getInstance().getUid();
+                FirebaseFirestore db1 = FirebaseFirestore.getInstance();
+                progressBar.setVisibility(View.VISIBLE);
+                db1.collection("Bookings").document(UUID1).collection("Booking Details")
+                        .document(ServiceID + id)
+                        .set(post).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        progressBar.setVisibility(View.INVISIBLE);
+                        Toast.makeText(MapsActivity.this, "Service Booked", Toast.LENGTH_SHORT).show();
 
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                progressBar.setVisibility(View.INVISIBLE);
-                                Toast.makeText(MapsActivity.this, "Failed to book!", Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        progressBar.setVisibility(View.INVISIBLE);
+                        Toast.makeText(MapsActivity.this, "Failed to book!", Toast.LENGTH_SHORT).show();
                     }
                 });
+            }
+        });
 
 
        /* LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mContext,LinearLayoutManager.HORIZONTAL, false);
@@ -514,10 +514,10 @@ AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener{
         });
 
 
-        LinearLayoutManager linearLayoutManager1 = new LinearLayoutManager(mContext,LinearLayoutManager.HORIZONTAL,false);
+        LinearLayoutManager linearLayoutManager1 = new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false);
         area_picker_recyclerview.setLayoutManager(linearLayoutManager1);
         areaList = new ArrayList<>();
-        areaAdapter = new AreaAdapter(areaList,mContext,this);
+        areaAdapter = new AreaAdapter(areaList, mContext, this);
         area_picker_recyclerview.setAdapter(areaAdapter);
         areaList.add(1);
         areaList.add(2);
@@ -540,13 +540,11 @@ AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener{
         });
 
 
-
-
     }
 
 
-    private void moveCamera(LatLng latLng, float zoom, String tittle){
-        Log.d(TAG, "location: moving the camera to: lat: " + latLng.latitude + ", lng: " + latLng.longitude );
+    private void moveCamera(LatLng latLng, float zoom, String tittle) {
+        Log.d(TAG, "location: moving the camera to: lat: " + latLng.latitude + ", lng: " + latLng.longitude);
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
 //        MarkerOptions options = new MarkerOptions()
 //                .position(latLng)
@@ -613,7 +611,6 @@ AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener{
             });
 
 
-
             mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                 @Override
                 public void onMapClick(LatLng latLng) {
@@ -634,18 +631,25 @@ AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener{
         public void afterTextChanged(Editable s) {
             if (!s.toString().equals("")) {
                 mAutoCompleteAdapter.getFilter().filter(s.toString());
-                if (map_search_recyler.getVisibility() == View.GONE) {map_search_recyler.setVisibility(View.VISIBLE);}
+                if (map_search_recyler.getVisibility() == View.GONE) {
+                    map_search_recyler.setVisibility(View.VISIBLE);
+                }
             } else {
-                if (map_search_recyler.getVisibility() == View.VISIBLE) {map_search_recyler.setVisibility(View.GONE);}
+                if (map_search_recyler.getVisibility() == View.VISIBLE) {
+                    map_search_recyler.setVisibility(View.GONE);
+                }
             }
         }
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-        public void onTextChanged(CharSequence s, int start, int before, int count) { }
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
     };
 
 
-
-    private void initMap(){
+    private void initMap() {
         Log.d(TAG, "initMap: initializing map");
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
 
@@ -655,7 +659,6 @@ AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener{
 
 
     private void enableLoc() {
-
 
 
         LocationRequest locationRequest = LocationRequest.create();
@@ -712,27 +715,28 @@ AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener{
     }
 
 
-    private void getDeviceLocation(){
-
+    private void getDeviceLocation() {
 
 
         Log.d(TAG, "getDeviceLocation: getting the devices current location");
 
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
-        try{
-            if(mLocationPermissionsGranted ){
+        try {
+            if (mLocationPermissionsGranted) {
 
                 final Task location = mFusedLocationProviderClient.getLastLocation();
                 location.addOnCompleteListener(new OnCompleteListener() {
                     @Override
                     public void onComplete(@NonNull Task task) {
-                        if(task.isSuccessful()){
+                        if (task.isSuccessful()) {
                             Log.d(TAG, "onComplete: found location!");
                             Location currentLocation = (Location) task.getResult();
 
                             moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
-                                    DEFAULT_ZOOM,"My Location");
+                                    DEFAULT_ZOOM, "My Location");
+                            lat = currentLocation.getLatitude();
+                            lon = currentLocation.getLongitude();
 
                             tot_image_1.setVisibility(View.VISIBLE);
                             tot_image_2.setVisibility(View.VISIBLE);
@@ -743,52 +747,55 @@ AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener{
                             belt_image_2.setVisibility(View.VISIBLE);
                             belt_image_3.setVisibility(View.VISIBLE);
 
-                        }else{
+                        } else {
                             Log.d(TAG, "onComplete: current location is null");
                             Toast.makeText(MapsActivity.this, "unable to get current location", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
             }
-        }catch (SecurityException e){
-            Log.e(TAG, "getDeviceLocation: SecurityException: " + e.getMessage() );
+        } catch (SecurityException e) {
+            Log.e(TAG, "getDeviceLocation: SecurityException: " + e.getMessage());
         }
     }
 
 
-    private void getLocationPermission(){
+    private void getLocationPermission() {
         Log.d(TAG, "getLocationPermission: getting location permissions");
         String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION};
 
-        if(ContextCompat.checkSelfPermission(this.getApplicationContext(),
-                FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
-            if(ContextCompat.checkSelfPermission(this.getApplicationContext(),
-                    COURSE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+        if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                    COURSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 mLocationPermissionsGranted = true;
                 initMap();
-            }else{
+            } else {
                 ActivityCompat.requestPermissions(this,
                         permissions,
                         LOCATION_PERMISSION_REQUEST_CODE);
             }
-        }else{
+        } else {
             ActivityCompat.requestPermissions(this,
                     permissions,
                     LOCATION_PERMISSION_REQUEST_CODE);
         }
     }
 
+
+
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         Log.d(TAG, "onRequestPermissionsResult: called.");
         mLocationPermissionsGranted = false;
 
-        switch(requestCode){
-            case LOCATION_PERMISSION_REQUEST_CODE:{
-                if(grantResults.length > 0){
-                    for(int i = 0; i < grantResults.length; i++){
-                        if(grantResults[i] != PackageManager.PERMISSION_GRANTED){
+        switch (requestCode) {
+            case LOCATION_PERMISSION_REQUEST_CODE: {
+                if (grantResults.length > 0) {
+                    for (int i = 0; i < grantResults.length; i++) {
+                        if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
                             mLocationPermissionsGranted = false;
                             Log.d(TAG, "onRequestPermissionsResult: permission failed");
                             return;
@@ -810,11 +817,11 @@ AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener{
     @Override
     public void onClick(View view) {
 
-        switch (view.getId()){
+        switch (view.getId()) {
             case R.id.booking_history:
-               Intent intent = new Intent(mContext,BookingHistoryActivity.class);
-               startActivity(intent);
-               break;
+                Intent intent = new Intent(mContext, BookingHistoryActivity.class);
+                startActivity(intent);
+                break;
 
             case R.id.profile:
                 Intent intent1 = new Intent(mContext, ProfileActivity.class);
@@ -833,18 +840,19 @@ AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener{
      * checks to see if the @param 'user' is logged in
      * @param user
      */
-    private void checkCurrentUser(FirebaseUser user){
+    private void checkCurrentUser(FirebaseUser user) {
         Log.d(TAG, "checkCurrentUser: checking if user is logged in.");
 
-        if(user == null){
+        if (user == null) {
             Intent intent = new Intent(mContext, LoginActivity.class);
             startActivity(intent);
         }
     }
+
     /**
      * Setup the firebase auth object
      */
-    private void setupFirebaseAuth(){
+    private void setupFirebaseAuth() {
         Log.d(TAG, "setupFirebaseAuth: setting up firebase auth.");
 
         mAuth = FirebaseAuth.getInstance();

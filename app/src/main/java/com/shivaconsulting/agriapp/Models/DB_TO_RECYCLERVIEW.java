@@ -1,13 +1,18 @@
 package com.shivaconsulting.agriapp.Models;
 
+import android.location.Location;
+
+import com.google.firebase.firestore.GeoPoint;
+
 import java.sql.Timestamp;
 import java.util.Date;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class DB_TO_RECYCLERVIEW {
-    String Delivery_Date,Booking_Id,Area,Service_Type,PicUrl,Contact_Number,Delivery_Time,Location;
+    String Delivery_Date,Booking_Id,Area,Service_Type,PicUrl,Contact_Number,Delivery_Time;
     Date Booking_Date;
+    GeoPoint Location;
 
     public String getDelivery_Date() {
         return Delivery_Date;
@@ -65,14 +70,6 @@ public class DB_TO_RECYCLERVIEW {
         Delivery_Time = delivery_Time;
     }
 
-    public String getLocation() {
-        return Location;
-    }
-
-    public void setLocation(String location) {
-        Location = location;
-    }
-
     public Date getBooking_Date() {
         return Booking_Date;
     }
@@ -81,7 +78,15 @@ public class DB_TO_RECYCLERVIEW {
         Booking_Date = booking_Date;
     }
 
-    public DB_TO_RECYCLERVIEW(String delivery_Date, String booking_Id, String area, String service_Type, String picUrl, String contact_Number, String delivery_Time, String location, Timestamp booking_Date) {
+    public GeoPoint getLocation() {
+        return Location;
+    }
+
+    public void setLocation(GeoPoint location) {
+        Location = location;
+    }
+
+    public DB_TO_RECYCLERVIEW(String delivery_Date, String booking_Id, String area, String service_Type, String picUrl, String contact_Number, String delivery_Time, Date booking_Date, GeoPoint location) {
         Delivery_Date = delivery_Date;
         Booking_Id = booking_Id;
         Area = area;
@@ -89,8 +94,8 @@ public class DB_TO_RECYCLERVIEW {
         PicUrl = picUrl;
         Contact_Number = contact_Number;
         Delivery_Time = delivery_Time;
-        Location = location;
         Booking_Date = booking_Date;
+        Location = location;
     }
 
     DB_TO_RECYCLERVIEW() {
