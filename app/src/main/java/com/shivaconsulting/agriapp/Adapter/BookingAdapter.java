@@ -54,7 +54,7 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
         public BookingViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            name_text = itemView.findViewById(R.id.name_text);
+            //name_text = itemView.findViewById(R.id.name_text);
 
         }
     }

@@ -10,15 +10,18 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,6 +43,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.DayOfWeek;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
@@ -67,6 +71,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -76,6 +81,7 @@ import java.util.Random;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -125,6 +131,7 @@ AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener{
     private EditText autoCompleteTextView;
     private DatePickerTimeline datePickerTimeline;
     private AreaAdapter.OnAreaItemSelectedListener areaItemSelectedListener;
+    private ProgressBar progressBar;
     String phone ;
     String time;
     String area;
@@ -170,8 +177,12 @@ AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener{
         map_search_recyler.setAdapter(mAutoCompleteAdapter);
         mAutoCompleteAdapter.notifyDataSetChanged();
 
+        Calendar c = Calendar.getInstance();
+       int year = c.get(Calendar.YEAR);
+        int month = c.get(Calendar.MONTH);
+        int day = c.get(Calendar.DAY_OF_MONTH);
 
-        datePickerTimeline.setInitialDate(2020, 9, 22);
+        datePickerTimeline.setInitialDate(year, month,day );
 
 
         datePickerTimeline.setDateTextColor(Color.RED);
@@ -219,7 +230,11 @@ AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener{
         tot_Type.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(),"Selected service Type is TOT",Toast.LENGTH_SHORT).show();
+                Toast toast = Toast.makeText(mContext,"Selected service Type is TOT", Toast.LENGTH_SHORT);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
+
+//                /Toast.makeText(getApplicationContext(),"Selected service Type is TOT",Toast.LENGTH_SHORT).show();
                 ServiceType="TOT Type";
                 ServiceID="TOT";
                 cardView1.setVisibility(View.GONE);
@@ -246,7 +261,11 @@ AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener{
 
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(),"Selected service Type is Belt",Toast.LENGTH_SHORT).show();
+                Toast toast = Toast.makeText(mContext,"Selected service Type is Belt", Toast.LENGTH_SHORT);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
+
+                //Toast.makeText(getApplicationContext(),"Selected service Type is Belt",Toast.LENGTH_SHORT).show();
                 ServiceType="Belt Type";
                 ServiceID="BLT";
                 cardView1.setVisibility(View.GONE);
@@ -275,7 +294,11 @@ AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener{
             @Override
             public void onClick(View view) {
                 Log.d(TAG, "onClick: Clicked");
-                Toast.makeText(getApplicationContext(),"Selected service Type is Combined",Toast.LENGTH_SHORT).show();
+                Toast toast = Toast.makeText(mContext,"Selected service Type is Combined", Toast.LENGTH_SHORT);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
+
+                //Toast.makeText(getApplicationContext(),"Selected service Type is Combined",Toast.LENGTH_SHORT).show();
                 ServiceType="Combined Type";
                 ServiceID="CMB";
                 cardView1.setVisibility(View.GONE);
@@ -298,12 +321,17 @@ AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener{
             }
         });
 
+
                 datePickerTimeline.setOnDateSelectedListener(new OnDateSelectedListener() {
                     @Override
                     public void onDateSelected(int year, int month, int day, int dayOfWeek) {
 
                          month=month+1;
                          selectedDate = day + "/" + month + "/" + year;
+
+                        Toast toast = Toast.makeText(mContext,"Date "+selectedDate+" selected", Toast.LENGTH_SHORT);
+                        toast.setGravity(Gravity.CENTER, 0, 0);
+                        toast.show();
 
                         /*Log.d(TAG, "onDateSelected: date: " + year + month + day);
                         Log.d(TAG, "onDateSelected: SelectedDate reform: " + selectedDate);*/
@@ -353,7 +381,10 @@ AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener{
                         time_picker_recyclerview, new RecyclerItemClickListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
-                        Toast.makeText(mContext, ArList.get(position).getTime()+ArList.get(position).getAmpm() +" Clicked",Toast.LENGTH_SHORT).show();
+                        Toast toast = Toast.makeText(mContext,"Time "+ArList.get(position).getTime()+ArList.get(position).getAmpm()+" selected", Toast.LENGTH_SHORT);
+                        toast.setGravity(Gravity.CENTER, 0, 0);
+                        toast.show();
+                        //Toast.makeText(mContext, ArList.get(position).getTime()+ArList.get(position).getAmpm() +" Clicked",Toast.LENGTH_SHORT).show();
                         time = String.valueOf(ArList.get(position).getTime()+" " +ArList.get(position).getAmpm());
 
                         datePickerTimeline.setVisibility(View.INVISIBLE);
@@ -373,10 +404,10 @@ AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener{
                 area_picker_recyclerview, new RecyclerItemClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-
-                Toast.makeText(mContext, areaList.get(position) +" Clicked",Toast.LENGTH_SHORT).show();
+                Toast toast = Toast.makeText(mContext,"Area "+areaList.get(position)+" selected", Toast.LENGTH_SHORT);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
                 area = String.valueOf(areaList.get(position));
-
                 datePickerTimeline.setVisibility(View.INVISIBLE);
                 area_picker_recyclerview.setVisibility(View.VISIBLE);
                 time_picker_recyclerview.setVisibility(View.INVISIBLE);
@@ -384,59 +415,52 @@ AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener{
                 pick_date_text.setTextSize(14);
                 pick_area_text.setTextSize(18);
             }
-
             @Override
             public void onLongItemClick(View view, int position) {
-
             }
         }));
-
-
-
         booking_button.setOnClickListener(new View.OnClickListener() {
+                    @RequiresApi(api = Build.VERSION_CODES.N)
                     @Override
-                    public void onClick(View view) {
+                    public void onClick(final View view) {
                         Random r = new Random();
                         Long id =(long) r.nextInt(999999999);
-
-                        Toast.makeText(MapsActivity.this, "Service selected wait for confirmation", Toast.LENGTH_SHORT).show();
-
+                        Toast.makeText(MapsActivity.this, "Processing", Toast.LENGTH_SHORT).show();
                         cardView1.setVisibility(View.VISIBLE);
                         cardView2.setVisibility(View.VISIBLE);
                         cardView3.setVisibility(View.VISIBLE);
-
                         bookContraint.setVisibility(View.GONE);
-
-
-
-
                         //Booking booking = new Booking();
                         Map<String, Object> post = new HashMap<>();
-                        post.put("Booking Date",new Timestamp(new Date()));
-                        post.put("Delivery Date",selectedDate);
-                        post.put("Booking Id",ServiceID+id);
-                        post.put("Contact Number", phone);
-                        post.put("Delivery Time", time);
+                        post.put("Booking_Date",new Timestamp(new Date()));
+                        post.put("Delivery_Date",selectedDate);
+                        post.put("Booking_Id",ServiceID+id);
+                        post.put("Contact_Number", phone);
+                        post.put("Delivery_Time", time);
                         post.put("Area", area);
-
+                        post.put("Service_Type", ServiceType);
+                        post.put("Location", "Fetching");
+                        post.put("PicUrl" , "https://i.pinimg.com/originals/c9/f5/fb/c9f5fba683ab296eb94c62de0b0e703c.png");
                        /* booking.setDate(selectedDate);
                         booking.setService_name("shiva51");
                         booking.setStatus(false);
                         booking.setService_provider("test");*/
                         String UUID1 = FirebaseAuth.getInstance().getUid();
                         FirebaseFirestore db1 = FirebaseFirestore.getInstance();
-
-                        db1.collection("Bookings").document(UUID1).collection("Booking Date")
-                                .document("Service Type").collection(ServiceType)
+                        progressBar.setVisibility(View.VISIBLE);
+                  db1.collection("Bookings").document(UUID1).collection("Booking Details")
                                 .document(ServiceID+id)
                                 .set(post).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                Toast.makeText(MapsActivity.this, "Booked", Toast.LENGTH_SHORT).show();
+                                progressBar.setVisibility(View.INVISIBLE);
+                                Toast.makeText(MapsActivity.this, "Service Booked", Toast.LENGTH_SHORT).show();
+
                             }
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
+                                progressBar.setVisibility(View.INVISIBLE);
                                 Toast.makeText(MapsActivity.this, "Failed to book!", Toast.LENGTH_SHORT).show();
                             }
                         });
@@ -910,6 +934,7 @@ AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener{
         autoCompleteTextView = findViewById(R.id.autoCompleteTextView);
         tot_Type=findViewById(R.id.totType);
         belt_Type=findViewById(R.id.beltType);
+        progressBar=findViewById(R.id.pb1);
 
     }
 }
