@@ -11,13 +11,21 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.shivaconsulting.agriapp.Home.MapsActivity;
 import com.shivaconsulting.agriapp.databinding.ActivityParticularBookingHistoryBinding;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class ParticularBookingHistory extends AppCompatActivity {
+public class ParticularBookingHistory extends AppCompatActivity implements OnMapReadyCallback {
 ActivityParticularBookingHistoryBinding binding;
+
+private GoogleMap mMap;
     String[] data={"Booked","Confirmed","Arriving","Over"};
     int currenState=0;
     String status="Booked";
@@ -30,6 +38,10 @@ CircleImageView img;
         super.onCreate(savedInstanceState);
         binding=ActivityParticularBookingHistoryBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        SupportMapFragment mapFragment=(SupportMapFragment)getSupportFragmentManager()
+        .findFragmentById(R.id.mapView);
+        mapFragment.getMapAsync(this);
 back=findViewById(R.id.imgback1);
 ok=findViewById(R.id.ok);
         BKid=findViewById(R.id.BKid);
@@ -108,5 +120,13 @@ ok=findViewById(R.id.ok);
         });*/
 
 
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap=googleMap;
+        LatLng chennai=new LatLng(13,80);
+        mMap.addMarker(new MarkerOptions().position(chennai).title("Marker in Chennai"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(chennai));
     }
 }

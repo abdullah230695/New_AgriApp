@@ -197,13 +197,14 @@
         app:layout_constraintEnd_toEndOf="@+id/down"
         app:layout_constraintTop_toTopOf="@+id/ok" />
 
-    <com.google.android.gms.maps.MapView
+    <fragment
         android:id="@+id/mapView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="37dp"
         android:layout_marginBottom="36dp"
         android:padding="5dp"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
         app:layout_constraintBottom_toTopOf="@+id/up1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
