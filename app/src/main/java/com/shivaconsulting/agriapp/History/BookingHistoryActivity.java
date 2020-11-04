@@ -3,36 +3,28 @@ package com.shivaconsulting.agriapp.History;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreSettings;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.shivaconsulting.agriapp.Adapter.BookingAdapter;
-import com.shivaconsulting.agriapp.Adapter.DBAdapter_TO_RecylerView;
-import com.shivaconsulting.agriapp.Home.MapsActivity;
-import com.shivaconsulting.agriapp.Models.Booking;
-import com.shivaconsulting.agriapp.Models.DB_TO_RECYCLERVIEW;
-import com.shivaconsulting.agriapp.Profile.ProfileActivity;
-import com.shivaconsulting.agriapp.R;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.shivaconsulting.agriapp.Adapter.BookingAdapter;
+import com.shivaconsulting.agriapp.Adapter.DBAdapter_TO_RecylerView;
+import com.shivaconsulting.agriapp.Classes.RecyclerItemClickListener;
+import com.shivaconsulting.agriapp.Home.MapsActivity;
+import com.shivaconsulting.agriapp.Models.Booking;
+import com.shivaconsulting.agriapp.Models.DB_TO_RECYCLERVIEW;
+import com.shivaconsulting.agriapp.ParticularBookingHistory;
+import com.shivaconsulting.agriapp.Profile.ProfileActivity;
+import com.shivaconsulting.agriapp.R;
+
+import java.util.List;
 
 public class BookingHistoryActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -46,8 +38,10 @@ public class BookingHistoryActivity extends AppCompatActivity implements View.On
 
     //Id's
     private ImageView home,booking_history,profile;
-    private RecyclerView RVbooking_history;
+    RecyclerView RVbooking_history;
     DBAdapter_TO_RecylerView adapter;
+    Context context;
+    ImageView back;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +51,7 @@ public class BookingHistoryActivity extends AppCompatActivity implements View.On
         String UUID = FirebaseAuth.getInstance().getUid();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference cr=db.collection("Bookings").document(UUID).collection("Booking Details");
-
+back=findViewById(R.id.imgback2);
         home = findViewById(R.id.home);
         booking_history = findViewById(R.id.booking_history);
         profile = findViewById(R.id.profile);
@@ -76,6 +70,26 @@ public class BookingHistoryActivity extends AppCompatActivity implements View.On
 
         adapter=new DBAdapter_TO_RecylerView(options);
         RVbooking_history.setAdapter(adapter);
+        RVbooking_history.addOnItemTouchListener(new RecyclerItemClickListener(getApplicationContext(), RVbooking_history, new RecyclerItemClickListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                /*CircleImageView img=findViewById(R.id.circleImage1);
+                Glide.with(img.getContext()).load(adapter.getItem(position).getPicUrl()).into(img);*/
+
+                Intent intent = new Intent(getApplicationContext(), ParticularBookingHistory.class);
+                intent.putExtra("id",adapter.getItem(position).getBooking_Id());
+                intent.putExtra("svType",adapter.getItem(position).getService_Type());
+                intent.putExtra("DateTime",adapter.getItem(position).getDelivery_Date()+"&"+adapter.getItem(position).getDelivery_Time());
+                intent.putExtra("img",adapter.getItem(position).getPicUrl().toString());
+                intent.putExtra("svProv",adapter.getItem(position).getService_Provider());
+                startActivity(intent);
+            }
+
+            @Override
+            public void onLongItemClick(View view, int position) {
+
+            }
+        }));
 
       /*  bookingList = new ArrayList<>();
 
@@ -88,6 +102,14 @@ public class BookingHistoryActivity extends AppCompatActivity implements View.On
         profile.setOnClickListener(this);
 
         booking_history.setImageResource(R.drawable.ic_baseline_file_copy);
+
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getApplicationContext(), MapsActivity.class));
+                finishAffinity();
+            }
+        });
 
         // Configure recycler adapter options:
 //  * query is the Query object defined above.
@@ -140,6 +162,7 @@ public class BookingHistoryActivity extends AppCompatActivity implements View.On
         }
 
     }
+
 
     @Override
     protected void onStart() {

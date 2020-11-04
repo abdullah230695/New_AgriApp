@@ -10,6 +10,10 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -20,14 +24,11 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.shivaconsulting.agriapp.Home.MapsActivity;
 import com.shivaconsulting.agriapp.R;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
 
 public class SignUpActivity extends AppCompatActivity {
 
@@ -107,11 +108,11 @@ public class SignUpActivity extends AppCompatActivity {
                                 DocumentReference  userRef = mFirestore.collection("Users").document(UUID);
 
                                 final Map<String, Object> user_details = new HashMap<>();
-                                user_details.put("Name", name);
-                                user_details.put("Email ID", emailId);
-                                user_details.put("User ID", UUID);
-                                user_details.put("User image URL", "");
-                                user_details.put("Contact Number",phone_number);
+                                user_details.put("user_name", name);
+                                user_details.put("user_email_id", emailId);
+                                user_details.put("user_id", UUID);
+                                user_details.put("user_image_url", "");
+                                user_details.put("phone_number",phone_number);
 
                                 userRef.set(user_details).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
@@ -119,7 +120,7 @@ public class SignUpActivity extends AppCompatActivity {
 
                                         FirebaseAuth.getInstance().signOut();
 
-                                        Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
+                                        Intent intent = new Intent(SignUpActivity.this, MapsActivity.class);
                                         startActivity(intent);
                                         finish();
 

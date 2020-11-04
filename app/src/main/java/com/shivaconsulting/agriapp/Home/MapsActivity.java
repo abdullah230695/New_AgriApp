@@ -7,7 +7,6 @@ import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
-import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
@@ -17,7 +16,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -25,6 +23,17 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
@@ -39,12 +48,12 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
-import com.google.android.libraries.places.api.model.DayOfWeek;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
@@ -61,7 +70,6 @@ import com.shivaconsulting.agriapp.Adapter.TimeAdapter;
 import com.shivaconsulting.agriapp.Adapter.TimeAdapterNew;
 import com.shivaconsulting.agriapp.Classes.RecyclerItemClickListener;
 import com.shivaconsulting.agriapp.History.BookingHistoryActivity;
-import com.shivaconsulting.agriapp.Models.Booking;
 import com.shivaconsulting.agriapp.Models.TimeAmPm;
 import com.shivaconsulting.agriapp.Profile.LoginActivity;
 import com.shivaconsulting.agriapp.Profile.ProfileActivity;
@@ -69,9 +77,6 @@ import com.shivaconsulting.agriapp.R;
 import com.vivekkaushik.datepicker.DatePickerTimeline;
 import com.vivekkaushik.datepicker.OnDateSelectedListener;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -80,17 +85,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, View.OnClickListener, TimeAdapter.OnItemSelectedListener,
         AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener {
@@ -154,21 +148,24 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         DocumentReference dr = db.collection("Users").document(UUID);
 
         dr.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+
                 if (error != null) {
                     Toast.makeText(getApplicationContext(), "Unable to fetch user Number" + error.getMessage(), Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (value != null && value.exists()) {
 
-                    phone = value.getData().get("Contact Number").toString();
+                    phone = value.getData().get("phone_number").toString();
                 }
             }
         });
 
 
         Places.initialize(this, getResources().getString(R.string.google_maps_key));
+
 
         autoCompleteTextView.addTextChangedListener(filterTextWatcher);
 
@@ -371,6 +368,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         ArList.add(new TimeAmPm("6", "PM"));
         ArList.add(new TimeAmPm("7", "PM"));
         ArList.add(new TimeAmPm("8", "PM"));
+
         TimeAdapterNew adapter = new TimeAdapterNew(ArList, getApplicationContext());
         time_picker_recyclerview.setAdapter(adapter);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false);
@@ -441,6 +439,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 post.put("Service_Type", ServiceType);
                 post.put("Location", new GeoPoint(lat, lon));
                 post.put("PicUrl", "https://i.pinimg.com/originals/c9/f5/fb/c9f5fba683ab296eb94c62de0b0e703c.png");
+                post.put("Status", "Pending");
+                post.put("Service_Provider", "Efi-Digi-Pro");
+
                        /* booking.setDate(selectedDate);
                         booking.setService_name("shiva51");
                         booking.setStatus(false);
@@ -546,10 +547,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void moveCamera(LatLng latLng, float zoom, String tittle) {
         Log.d(TAG, "location: moving the camera to: lat: " + latLng.latitude + ", lng: " + latLng.longitude);
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
-//        MarkerOptions options = new MarkerOptions()
-//                .position(latLng)
-//                .title(tittle);
-//        mMap.addMarker(options);
+      MarkerOptions options = new MarkerOptions()
+             .position(latLng)
+                .title(tittle);
+        mMap.addMarker(options);
     }
 
 
@@ -575,7 +576,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return;
             }
             mMap.setMyLocationEnabled(true);
-            mMap.getUiSettings().setMyLocationButtonEnabled(false);
+            mMap.getUiSettings().setMyLocationButtonEnabled(true);
             mMap.getUiSettings().setTiltGesturesEnabled(true);
 
 
@@ -944,5 +945,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         belt_Type=findViewById(R.id.beltType);
         progressBar=findViewById(R.id.pb1);
 
+
     }
+
+
 }

@@ -1,18 +1,29 @@
 package com.shivaconsulting.agriapp.Models;
 
-import android.location.Location;
-
 import com.google.firebase.firestore.GeoPoint;
 
-import java.sql.Timestamp;
 import java.util.Date;
 
-import de.hdodenhof.circleimageview.CircleImageView;
-
 public class DB_TO_RECYCLERVIEW {
-    String Delivery_Date,Booking_Id,Area,Service_Type,PicUrl,Contact_Number,Delivery_Time;
+    String Delivery_Date;
+    String Booking_Id;
+    String Area;
+    String Service_Type;
+    String PicUrl;
+    String Status;
+    String Delivery_Time;
+    String Service_Provider;
+
+
     Date Booking_Date;
     GeoPoint Location;
+    public String getService_Provider() {
+        return Service_Provider;
+    }
+
+    public void setService_Provider(String service_Provider) {
+        Service_Provider = service_Provider;
+    }
 
     public String getDelivery_Date() {
         return Delivery_Date;
@@ -54,12 +65,12 @@ public class DB_TO_RECYCLERVIEW {
         PicUrl = picUrl;
     }
 
-    public String getContact_Number() {
-        return Contact_Number;
+    public String getStatus() {
+        return Status;
     }
 
-    public void setContact_Number(String contact_Number) {
-        Contact_Number = contact_Number;
+    public void setStatus(String status) {
+        this.Status = status;
     }
 
     public String getDelivery_Time() {
@@ -86,14 +97,16 @@ public class DB_TO_RECYCLERVIEW {
         Location = location;
     }
 
-    public DB_TO_RECYCLERVIEW(String delivery_Date, String booking_Id, String area, String service_Type, String picUrl, String contact_Number, String delivery_Time, Date booking_Date, GeoPoint location) {
+    public DB_TO_RECYCLERVIEW(String delivery_Date, String booking_Id, String area, String service_Type, String picUrl,
+                              String status, String delivery_Time, String service_Provider, Date booking_Date, GeoPoint location) {
         Delivery_Date = delivery_Date;
         Booking_Id = booking_Id;
         Area = area;
         Service_Type = service_Type;
         PicUrl = picUrl;
-        Contact_Number = contact_Number;
+        Status = status;
         Delivery_Time = delivery_Time;
+        Service_Provider = service_Provider;
         Booking_Date = booking_Date;
         Location = location;
     }

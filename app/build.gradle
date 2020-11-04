@@ -22,6 +22,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    viewBinding
+            {
+                enabled = true;
+            }
 }
 
 dependencies {
@@ -31,6 +35,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
     implementation 'com.google.android.material:material:1.2.0'
     implementation 'androidx.coordinatorlayout:coordinatorlayout:1.1.0'
+    implementation 'org.jetbrains:annotations-java5:15.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
@@ -80,5 +85,8 @@ dependencies {
 
     //calendar
     implementation 'com.vivekkaushik.datepicker:datePickerTimeline:0.0.4'
+//for Indicator
+    implementation 'com.anton46:stepsview:0.0.2'
+
 
 }
