@@ -1,7 +1,9 @@
 package com.shivaconsulting.agriapp.Home;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
@@ -64,6 +66,7 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.shivaconsulting.agriapp.Adapter.AreaAdapter;
 import com.shivaconsulting.agriapp.Adapter.PlacesAutoCompleteAdapter;
 import com.shivaconsulting.agriapp.Adapter.TimeAdapter;
@@ -77,6 +80,7 @@ import com.shivaconsulting.agriapp.R;
 import com.vivekkaushik.datepicker.DatePickerTimeline;
 import com.vivekkaushik.datepicker.OnDateSelectedListener;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -85,6 +89,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+
+import static java.lang.String.valueOf;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, View.OnClickListener, TimeAdapter.OnItemSelectedListener,
         AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener {
@@ -113,6 +119,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private AreaAdapter areaAdapter;
     private List<Integer> areaList;
     private PlacesAutoCompleteAdapter mAutoCompleteAdapter;
+    private Location currentLocation;
+
 
     //Id's
     private ImageView home, booking_history, profile;
@@ -131,6 +139,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     String phone;
     String time;
     String area;
+    String address;
     String ServiceType;
     String ServiceID;
     double lat, lon;
@@ -140,6 +149,26 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        final Map<String, Object> post = new HashMap<>();
+
+        //Setting up Notification from firebase FCM
+
+        FirebaseMessaging.getInstance().subscribeToTopic("Booking")
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+
+                           String msg="Done";
+                           startActivity(new Intent(getApplicationContext(),BookingHistoryActivity.class));
+                            if (!task.isSuccessful()) {
+                                msg = "Failed";
+                            }
+                            Log.d(TAG, msg);
+                            Toast.makeText(MapsActivity.this,msg, Toast.LENGTH_SHORT).show();
+                        }
+
+                });
 
         setupID();
 
@@ -166,6 +195,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         Places.initialize(this, getResources().getString(R.string.google_maps_key));
 
+/*autoCompleteTextView.setFocusable(false);
+autoCompleteTextView.setOnClickListener(new View.OnClickListener() {
+    @Override
+    public void onClick(View v) {
+        //Initialize place fiel
+        List<Place.Field> fieldList= Arrays.asList(Place.Field.ADDRESS,Place.Field.LAT_LNG,Place.Field.NAME);
+        //Create intent
+        Intent intent=new Autocomplete().IntentBuilder(AutocompleteActivityMode.OVERLAY,fieldList).build(MapsActivity.this);
+        startActivityForResult(intent,100);
+    }
+});*/
 
         autoCompleteTextView.addTextChangedListener(filterTextWatcher);
 
@@ -208,6 +248,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapFragment.getMapAsync(this);
 
 
+
+
         gps_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -222,6 +264,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Log.d(TAG, "onClick: Clicked after Gps Is On");
                     getDeviceLocation();
                 }
+
+
             }
         });
         tot_Type.setOnClickListener(new View.OnClickListener() {
@@ -331,7 +375,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                         /*Log.d(TAG, "onDateSelected: date: " + year + month + day);
                         Log.d(TAG, "onDateSelected: SelectedDate reform: " + selectedDate);*/
-
                 datePickerTimeline.setVisibility(View.INVISIBLE);
                 area_picker_recyclerview.setVisibility(View.INVISIBLE);
                 time_picker_recyclerview.setVisibility(View.VISIBLE);
@@ -382,7 +425,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 toast.setGravity(Gravity.CENTER, 0, 0);
                 toast.show();
                 //Toast.makeText(mContext, ArList.get(position).getTime()+ArList.get(position).getAmpm() +" Clicked",Toast.LENGTH_SHORT).show();
-                time = String.valueOf(ArList.get(position).getTime() + " " + ArList.get(position).getAmpm());
+                time = valueOf(ArList.get(position).getTime() + " " + ArList.get(position).getAmpm());
 
                 datePickerTimeline.setVisibility(View.INVISIBLE);
                 area_picker_recyclerview.setVisibility(View.VISIBLE);
@@ -404,7 +447,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Toast toast = Toast.makeText(mContext, "Area " + areaList.get(position) + " selected", Toast.LENGTH_SHORT);
                 toast.setGravity(Gravity.CENTER, 0, 0);
                 toast.show();
-                area = String.valueOf(areaList.get(position));
+                area = valueOf(areaList.get(position));
                 datePickerTimeline.setVisibility(View.INVISIBLE);
                 area_picker_recyclerview.setVisibility(View.VISIBLE);
                 time_picker_recyclerview.setVisibility(View.INVISIBLE);
@@ -420,52 +463,113 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         booking_button.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
-            public void onClick(final View view) {
-                Random r = new Random();
-                Long id = (long) r.nextInt(999999999);
-                Toast.makeText(MapsActivity.this, "Processing", Toast.LENGTH_SHORT).show();
-                cardView1.setVisibility(View.VISIBLE);
-                cardView2.setVisibility(View.VISIBLE);
-                cardView3.setVisibility(View.VISIBLE);
-                bookContraint.setVisibility(View.GONE);
-                //Booking booking = new Booking();
-                Map<String, Object> post = new HashMap<>();
-                post.put("Booking_Date", new Timestamp(new Date()));
-                post.put("Delivery_Date", selectedDate);
-                post.put("Booking_Id", ServiceID + id);
-                post.put("Contact_Number", phone);
-                post.put("Delivery_Time", time);
-                post.put("Area", area);
-                post.put("Service_Type", ServiceType);
-                post.put("Location", new GeoPoint(lat, lon));
-                post.put("PicUrl", "https://i.pinimg.com/originals/c9/f5/fb/c9f5fba683ab296eb94c62de0b0e703c.png");
-                post.put("Status", "Pending");
-                post.put("Service_Provider", "Efi-Digi-Pro");
+            public void onClick(View view) {
 
-                       /* booking.setDate(selectedDate);
-                        booking.setService_name("shiva51");
-                        booking.setStatus(false);
-                        booking.setService_provider("test");*/
-                String UUID1 = FirebaseAuth.getInstance().getUid();
-                FirebaseFirestore db1 = FirebaseFirestore.getInstance();
-                progressBar.setVisibility(View.VISIBLE);
-                db1.collection("Bookings").document(UUID1).collection("Booking Details")
-                        .document(ServiceID + id)
-                        .set(post).addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        progressBar.setVisibility(View.INVISIBLE);
-                        Toast.makeText(MapsActivity.this, "Service Booked", Toast.LENGTH_SHORT).show();
+                if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) |
+                        selectedDate == null | time == null | area == null |
+                        autoCompleteTextView.length()==0) {
 
+                    if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+
+                        Toast.makeText(mContext, "Please Enable GPS First", Toast.LENGTH_SHORT).show();
+                        try{
+                        enableLoc();
+                        }catch(Exception e) {
+                            Toast.makeText(mContext,"Error",Toast.LENGTH_SHORT).show();
+                        }
+                    } else if(selectedDate == null | time == null | area == null) {
+                        Toast.makeText(mContext, "Please select Date,Time,Area", Toast.LENGTH_SHORT).show();
+                        try {
+                        getDeviceLocation();
+                        }catch(Exception e) {
+                            Toast.makeText(mContext,"Error",Toast.LENGTH_SHORT).show();
+                        }
+                    } else if(autoCompleteTextView.length()==0) {
+                        Toast.makeText(mContext, "Please check your delivery address above", Toast.LENGTH_SHORT).show();
+                        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                            Toast.makeText(mContext, "Please Enable GPS First", Toast.LENGTH_SHORT).show();
+                            enableLoc();
+
+                        }
+                        else {
+                            getDeviceLocation();
+                             getAddress();
+
+                        }
                     }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        progressBar.setVisibility(View.INVISIBLE);
-                        Toast.makeText(MapsActivity.this, "Failed to book!", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                }
+
+                else  {
+
+                        final AlertDialog.Builder builder=new AlertDialog.Builder(mContext);
+                        builder.setTitle("Confirm Booking");
+                        builder.setMessage("Selected service type is "+ServiceType+ ". Do you want to proceed ?");
+                        builder.setCancelable(false);
+                        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Random r = new Random();
+                                Long id = (long) r.nextInt(999999999);
+                                Toast.makeText(MapsActivity.this, "Processing", Toast.LENGTH_SHORT).show();
+                                cardView1.setVisibility(View.VISIBLE);
+                                cardView2.setVisibility(View.VISIBLE);
+                                cardView3.setVisibility(View.VISIBLE);
+                                bookContraint.setVisibility(View.GONE);
+                                //Booking booking = new Booking();
+                               // Map<String, Object> post = new HashMap<>();
+                                post.put("Booking_Date", new Timestamp(new Date()));
+                                post.put("Delivery_Date", selectedDate);
+                                post.put("Booking_Id", ServiceID + id);
+                                post.put("Contact_Number", phone);
+                                post.put("Delivery_Time", time);
+                                post.put("Area", area);
+                                post.put("Service_Type", ServiceType);
+                                post.put("Location", new GeoPoint(lat, lon));
+                                post.put("Address:", address);
+                                post.put("PicUrl", "https://i.pinimg.com/originals/c9/f5/fb/c9f5fba683ab296eb94c62de0b0e703c.png");
+                                post.put("Status", "Pending");
+                                post.put("Service_Provider", "Efi-Digi-Pro");
+
+                                String UUID1 = FirebaseAuth.getInstance().getUid();
+                                FirebaseFirestore db1 = FirebaseFirestore.getInstance();
+                                progressBar.setVisibility(View.VISIBLE);
+                                db1.collection("Bookings").document(UUID1).collection("Booking Details")
+                                        .document(ServiceID + id)
+                                        .set(post).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        progressBar.setVisibility(View.INVISIBLE);
+                                        Toast.makeText(MapsActivity.this, "Service Booked, Please check history tab for vehicle confirmation", Toast.LENGTH_SHORT).show();
+                                        selectedDate=null;time=null;area=null;
+                                        autoCompleteTextView.setText(null);
+
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        progressBar.setVisibility(View.INVISIBLE);
+                                        Toast.makeText(MapsActivity.this, "Failed to book!", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+
+
+                            }
+                        }).setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Toast.makeText(mContext,"Booking Cancelled",Toast.LENGTH_SHORT).show();
+                                dialog.cancel();
+                            }
+                        }).setIcon(R.drawable.ic_baseline_commute_24);
+                    //Creating dialog box
+                    AlertDialog alert = builder.create();
+                    //Setting the title manually
+                    alert.show();
+
+                }
             }
+
+
         });
 
 
@@ -543,6 +647,22 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
+   /* @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode==100 && resultCode=RESULT_OK) {
+            //if success
+            //Initialize place
+                Place place=Autocomplete.getPlaceFromIntent(data);
+                //set address in autoCompleteView
+            autoCompleteTextView.setText(place.getAddress());
+            //Get Locality name String locality=place.getName;
+            //Get LatLng id double LatLng=place.getLatLng;
+        } else if (resultCode==AutocompleteActivity.RESULT_ERROR) {
+           Status status=Autocomplete.getStatusFromIntent(data);
+            Toast.makeText(getApplicationContext(),status.getStatusMessage(),Toast.LENGTH_SHORT).show();
+        }
+    }*/
 
     private void moveCamera(LatLng latLng, float zoom, String tittle) {
         Log.d(TAG, "location: moving the camera to: lat: " + latLng.latitude + ", lng: " + latLng.longitude);
@@ -733,11 +853,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         if (task.isSuccessful()) {
                             Log.d(TAG, "onComplete: found location!");
                             Location currentLocation = (Location) task.getResult();
-
+try {
                             moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
                                     DEFAULT_ZOOM, "My Location");
+}catch(Exception e) {
+    Toast.makeText(mContext,"Error",Toast.LENGTH_SHORT).show();
+}
                             lat = currentLocation.getLatitude();
                             lon = currentLocation.getLongitude();
+
 
                             tot_image_1.setVisibility(View.VISIBLE);
                             tot_image_2.setVisibility(View.VISIBLE);
@@ -945,8 +1069,19 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         belt_Type=findViewById(R.id.beltType);
         progressBar=findViewById(R.id.pb1);
 
+    }
+    private void getAddress() {
+        Geocoder geocoder = new Geocoder(mContext, Locale.getDefault());
+        try {
+
+            List<Address> addresses = geocoder.getFromLocation( lat,lon, 1);
+            address = addresses.get(0).getAddressLine(0);
+            Toast.makeText(mContext, "Your Delivery address is " + address, Toast.LENGTH_SHORT).show();
+            autoCompleteTextView.setText(address);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     }
 
-
-}
