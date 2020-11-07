@@ -160,12 +160,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     public void onComplete(@NonNull Task<Void> task) {
 
                            String msg="Done";
-                           startActivity(new Intent(getApplicationContext(),BookingHistoryActivity.class));
+                          // startActivity(new Intent(getApplicationContext(),BookingHistoryActivity.class));
                             if (!task.isSuccessful()) {
                                 msg = "Failed";
                             }
                             Log.d(TAG, msg);
-                            Toast.makeText(MapsActivity.this,msg, Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(MapsActivity.this,msg, Toast.LENGTH_SHORT).show();
                         }
 
                 });
