@@ -143,7 +143,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     String ServiceType;
     String ServiceID;
     double lat, lon;
-
+    String UUID = FirebaseAuth.getInstance().getUid();
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    DocumentReference dr = db.collection("Users").document(UUID);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -172,9 +174,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         setupID();
 
-        String UUID = FirebaseAuth.getInstance().getUid();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference dr = db.collection("Users").document(UUID);
+
 
         dr.addSnapshotListener(new EventListener<DocumentSnapshot>() {
 
@@ -460,6 +460,8 @@ autoCompleteTextView.setOnClickListener(new View.OnClickListener() {
             public void onLongItemClick(View view, int position) {
             }
         }));
+
+        //Booking Event
         booking_button.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
@@ -486,14 +488,17 @@ autoCompleteTextView.setOnClickListener(new View.OnClickListener() {
                         }
                     } else if(autoCompleteTextView.length()==0) {
                         Toast.makeText(mContext, "Please check your delivery address above", Toast.LENGTH_SHORT).show();
-                        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                            Toast.makeText(mContext, "Please Enable GPS First", Toast.LENGTH_SHORT).show();
-                            enableLoc();
+                        try {
+                            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                                Toast.makeText(mContext, "Please Enable GPS First", Toast.LENGTH_SHORT).show();
+                                enableLoc();
 
-                        }
-                        else {
-                            getDeviceLocation();
-                             getAddress();
+                            } else {
+                                getDeviceLocation();
+                                getAddress();
+
+                            }
+                        }catch(Exception e) {
 
                         }
                     }
@@ -510,6 +515,25 @@ autoCompleteTextView.setOnClickListener(new View.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 Random r = new Random();
                                 Long id = (long) r.nextInt(999999999);
+
+                                IDCheck();
+
+                                db.collection("Bookings").document(UUID)
+                                        .collection("Booking Details").document(ServiceID+id).get()
+                                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                if(task.getResult().exists()){
+                                                    Toast.makeText(mContext,"Bookind ID Already Exist",Toast.LENGTH_SHORT).show();
+                                                    Random r = new Random();
+                                                    Long idNew = (long) r.nextInt(999999999);
+                                                }
+                                                else {
+                                                    Toast.makeText(mContext,"This is new Booking ID",Toast.LENGTH_SHORT).show();
+                                                }
+                                            }
+                                        });
+
                                 Toast.makeText(MapsActivity.this, "Processing", Toast.LENGTH_SHORT).show();
                                 cardView1.setVisibility(View.VISIBLE);
                                 cardView2.setVisibility(View.VISIBLE);
@@ -519,7 +543,7 @@ autoCompleteTextView.setOnClickListener(new View.OnClickListener() {
                                // Map<String, Object> post = new HashMap<>();
                                 post.put("Booking_Date", new Timestamp(new Date()));
                                 post.put("Delivery_Date", selectedDate);
-                                post.put("Booking_Id", ServiceID + id);
+                                post.put("Booking_Id",  ServiceID+id);
                                 post.put("Contact_Number", phone);
                                 post.put("Delivery_Time", time);
                                 post.put("Area", area);
@@ -531,9 +555,9 @@ autoCompleteTextView.setOnClickListener(new View.OnClickListener() {
                                 post.put("Service_Provider", "Efi-Digi-Pro");
 
                                 String UUID1 = FirebaseAuth.getInstance().getUid();
-                                FirebaseFirestore db1 = FirebaseFirestore.getInstance();
-                                progressBar.setVisibility(View.VISIBLE);
-                                db1.collection("Bookings").document(UUID1).collection("Booking Details")
+
+                            progressBar.setVisibility(View.VISIBLE);
+                                db.collection("Bookings").document(UUID1).collection("Booking Details")
                                         .document(ServiceID + id)
                                         .set(post).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
@@ -663,6 +687,8 @@ autoCompleteTextView.setOnClickListener(new View.OnClickListener() {
             Toast.makeText(getApplicationContext(),status.getStatusMessage(),Toast.LENGTH_SHORT).show();
         }
     }*/
+
+
 
     private void moveCamera(LatLng latLng, float zoom, String tittle) {
         Log.d(TAG, "location: moving the camera to: lat: " + latLng.latitude + ", lng: " + latLng.longitude);
@@ -859,18 +885,22 @@ try {
 }catch(Exception e) {
     Toast.makeText(mContext,"Error",Toast.LENGTH_SHORT).show();
 }
-                            lat = currentLocation.getLatitude();
-                            lon = currentLocation.getLongitude();
+try {
+    lat = currentLocation.getLatitude();
+    lon = currentLocation.getLongitude();
+}catch (Exception e) {
+    Log.d(TAG,"error is "+e.getMessage());
+}
 
 
-                            tot_image_1.setVisibility(View.VISIBLE);
+                            /*tot_image_1.setVisibility(View.VISIBLE);
                             tot_image_2.setVisibility(View.VISIBLE);
                             combine_image_1.setVisibility(View.VISIBLE);
                             combine_image_2.setVisibility(View.VISIBLE);
                             combine_image_3.setVisibility(View.VISIBLE);
                             belt_image_1.setVisibility(View.VISIBLE);
                             belt_image_2.setVisibility(View.VISIBLE);
-                            belt_image_3.setVisibility(View.VISIBLE);
+                            belt_image_3.setVisibility(View.VISIBLE);*/
 
                         } else {
                             Log.d(TAG, "onComplete: current location is null");
@@ -935,6 +965,7 @@ try {
         }
     }
 
+
         /*
     ---------------------------------------BottomNavBar-------------------------------------------------
      */
@@ -977,6 +1008,8 @@ try {
     /**
      * Setup the firebase auth object
      */
+
+
     private void setupFirebaseAuth() {
         Log.d(TAG, "setupFirebaseAuth: setting up firebase auth.");
 
@@ -1017,6 +1050,28 @@ try {
         }
     }
 
+    //Alert Dialogue Box on Exit
+
+    @Override
+    public void onBackPressed() {
+         AlertDialog.Builder builderExit=new AlertDialog.Builder(mContext);
+        builderExit.setTitle("Exit ?");
+        builderExit.setMessage("Do you want to exit ?");
+        builderExit.setCancelable(false);
+
+        builderExit.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+finish();
+            }
+        }).setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        }).setIcon(R.drawable.ic_baseline_commute_24).show();
+    }
+
     @Override
     public void OnSelectedListener(Integer time_number) {
 
@@ -1038,6 +1093,8 @@ try {
     public void click(Place place) {
         moveCamera(new LatLng(place.getLatLng().latitude,place.getLatLng().longitude), DEFAULT_ZOOM, "Selected Location");
     }
+
+    //ID setups
     public void  setupID() {
         home = findViewById(R.id.home);
         booking_history = findViewById(R.id.booking_history);
@@ -1070,6 +1127,8 @@ try {
         progressBar=findViewById(R.id.pb1);
 
     }
+
+
     private void getAddress() {
         Geocoder geocoder = new Geocoder(mContext, Locale.getDefault());
         try {
@@ -1082,6 +1141,28 @@ try {
             e.printStackTrace();
         }
     }
+    //checking Bookind ID exist
+    public void IDCheck() {
+//db is FirebaseFirestore.getInstance();
+     db.collection("Bookings").document(UUID)
+                .collection("Booking Details").document(ServiceID).get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(task.getResult().exists()){
+                            Toast.makeText(mContext,"Bookind ID Already Exist",Toast.LENGTH_SHORT).show();
+                            Random r = new Random();
+                            Long idNew = (long) r.nextInt(999999999);
+                        }
+                        else {
+                            Toast.makeText(mContext,"This is new Booking ID",Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
 
     }
+
+    }
+
+
 

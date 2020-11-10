@@ -52,8 +52,7 @@
             android:name=".Home.MapsActivity"
             android:label="@string/title_activity_maps"></activity>
         <service
-            android:name=".FCM.MyFirebaseMessagingService"
-            android:exported="false">
+            android:name=".FCM.MyFirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
