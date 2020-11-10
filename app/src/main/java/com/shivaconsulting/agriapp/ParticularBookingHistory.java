@@ -129,4 +129,8 @@ ok=findViewById(R.id.ok);
         mMap.addMarker(new MarkerOptions().position(chennai).title("Marker in Chennai"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(chennai));
     }
+
+    public void onBackPressed() {
+       finish();
+    }
 }

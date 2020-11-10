@@ -1,6 +1,8 @@
 package com.shivaconsulting.agriapp.Profile;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -58,13 +60,30 @@ public class LoginActivity extends AppCompatActivity {
         setupFirebaseAuth();
         init();
     }
-
-    @Override
     public void onBackPressed() {
+        AlertDialog.Builder builderExit=new AlertDialog.Builder(mContext);
+        builderExit.setTitle("Exit ?");
+        builderExit.setMessage("Do you want to exit ?");
+        builderExit.setCancelable(false);
+
+        builderExit.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        }).setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        }).setIcon(R.drawable.ic_baseline_commute_24).show();
+    }
+    //@Override
+    /*//public void onBackPressed() {
         super.onBackPressed();
         finishAffinity();
     }
-
+*/
     private boolean isStringNull(String string){
         return string.equals("");
     }

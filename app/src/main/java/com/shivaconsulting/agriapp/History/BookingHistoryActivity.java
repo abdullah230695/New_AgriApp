@@ -162,7 +162,8 @@ back=findViewById(R.id.imgback2);
         }
 
     }
-
+    public void onBackPressed() {
+        startActivity(new Intent(getApplicationContext(),MapsActivity.class));    }
 
     @Override
     protected void onStart() {

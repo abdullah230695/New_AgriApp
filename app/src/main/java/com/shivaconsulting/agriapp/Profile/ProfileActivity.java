@@ -92,7 +92,10 @@ db=FirebaseFirestore.getInstance();
          /*
     ---------------------------------------BottomNavBar-------------------------------------------------
      */
+         public void onBackPressed() {
+             startActivity(new Intent(getApplicationContext(),MapsActivity.class));
 
+         }
     @Override
     public void onClick(View view) {
 

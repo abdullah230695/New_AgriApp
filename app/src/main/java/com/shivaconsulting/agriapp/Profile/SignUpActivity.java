@@ -183,6 +183,9 @@ public class SignUpActivity extends AppCompatActivity {
         };
     }
 
+    public void onBackPressed() {
+finish();
+    }
     @Override
     public void onStart() {
         super.onStart();

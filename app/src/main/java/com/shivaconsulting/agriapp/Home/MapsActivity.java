@@ -143,16 +143,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     String ServiceType;
     String ServiceID;
     double lat, lon;
+    public Long idNew=Long.valueOf(123456);
     String UUID = FirebaseAuth.getInstance().getUid();
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     DocumentReference dr = db.collection("Users").document(UUID);
-
+    final Map<String, Object> post = new HashMap<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-        final Map<String, Object> post = new HashMap<>();
+
 
         //Setting up Notification from firebase FCM
 
@@ -513,70 +514,22 @@ autoCompleteTextView.setOnClickListener(new View.OnClickListener() {
                         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                Random r = new Random();
-                                Long id = (long) r.nextInt(999999999);
-
-                                IDCheck();
-
+                                //Checking Booking id Existance
                                 db.collection("Bookings").document(UUID)
-                                        .collection("Booking Details").document(ServiceID+id).get()
+                                        .collection("Booking Details").document(ServiceID+idNew).get()
                                         .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                             @Override
                                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                                 if(task.getResult().exists()){
                                                     Toast.makeText(mContext,"Bookind ID Already Exist",Toast.LENGTH_SHORT).show();
-                                                    Random r = new Random();
-                                                    Long idNew = (long) r.nextInt(999999999);
+                                                    InsertData();
                                                 }
                                                 else {
                                                     Toast.makeText(mContext,"This is new Booking ID",Toast.LENGTH_SHORT).show();
+                                                    InsertData();
                                                 }
                                             }
-                                        });
-
-                                Toast.makeText(MapsActivity.this, "Processing", Toast.LENGTH_SHORT).show();
-                                cardView1.setVisibility(View.VISIBLE);
-                                cardView2.setVisibility(View.VISIBLE);
-                                cardView3.setVisibility(View.VISIBLE);
-                                bookContraint.setVisibility(View.GONE);
-                                //Booking booking = new Booking();
-                               // Map<String, Object> post = new HashMap<>();
-                                post.put("Booking_Date", new Timestamp(new Date()));
-                                post.put("Delivery_Date", selectedDate);
-                                post.put("Booking_Id",  ServiceID+id);
-                                post.put("Contact_Number", phone);
-                                post.put("Delivery_Time", time);
-                                post.put("Area", area);
-                                post.put("Service_Type", ServiceType);
-                                post.put("Location", new GeoPoint(lat, lon));
-                                post.put("Address:", address);
-                                post.put("PicUrl", "https://i.pinimg.com/originals/c9/f5/fb/c9f5fba683ab296eb94c62de0b0e703c.png");
-                                post.put("Status", "Pending");
-                                post.put("Service_Provider", "Efi-Digi-Pro");
-
-                                String UUID1 = FirebaseAuth.getInstance().getUid();
-
-                            progressBar.setVisibility(View.VISIBLE);
-                                db.collection("Bookings").document(UUID1).collection("Booking Details")
-                                        .document(ServiceID + id)
-                                        .set(post).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        progressBar.setVisibility(View.INVISIBLE);
-                                        Toast.makeText(MapsActivity.this, "Service Booked, Please check history tab for vehicle confirmation", Toast.LENGTH_SHORT).show();
-                                        selectedDate=null;time=null;area=null;
-                                        autoCompleteTextView.setText(null);
-
-                                    }
-                                }).addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        progressBar.setVisibility(View.INVISIBLE);
-                                        Toast.makeText(MapsActivity.this, "Failed to book!", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-
-
+                                        });   //Checking Booking id Existance
                             }
                         }).setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
                             @Override
@@ -670,6 +623,8 @@ autoCompleteTextView.setOnClickListener(new View.OnClickListener() {
 
 
     }
+
+
 
    /* @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -1062,7 +1017,7 @@ try {
         builderExit.setPositiveButton("YES", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-finish();
+finishAffinity();
             }
         }).setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
             @Override
@@ -1126,7 +1081,7 @@ finish();
         belt_Type=findViewById(R.id.beltType);
         progressBar=findViewById(R.id.pb1);
 
-    }
+    }//ID setups
 
 
     private void getAddress() {
@@ -1141,28 +1096,58 @@ finish();
             e.printStackTrace();
         }
     }
-    //checking Bookind ID exist
-    public void IDCheck() {
-//db is FirebaseFirestore.getInstance();
-     db.collection("Bookings").document(UUID)
-                .collection("Booking Details").document(ServiceID).get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if(task.getResult().exists()){
-                            Toast.makeText(mContext,"Bookind ID Already Exist",Toast.LENGTH_SHORT).show();
-                            Random r = new Random();
-                            Long idNew = (long) r.nextInt(999999999);
-                        }
-                        else {
-                            Toast.makeText(mContext,"This is new Booking ID",Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
 
-    }
+  //Adding Booking details to firestore
+    private void InsertData(){
 
-    }
+        Random r = new Random();
+        Long id = (long) r.nextInt(999999999);
+
+        Toast.makeText(MapsActivity.this, "Processing", Toast.LENGTH_SHORT).show();
+        cardView1.setVisibility(View.VISIBLE);
+        cardView2.setVisibility(View.VISIBLE);
+        cardView3.setVisibility(View.VISIBLE);
+        bookContraint.setVisibility(View.GONE);
+         //Map<String, Object> post = new HashMap<>();
+        post.put("Booking_Date", new Timestamp(new Date()));
+        post.put("Delivery_Date", selectedDate);
+        post.put("Booking_Id",  ServiceID+ id);
+        post.put("Contact_Number", phone);
+        post.put("Delivery_Time", time);
+        post.put("Area", area);
+        post.put("Service_Type", ServiceType);
+        post.put("Location", new GeoPoint(lat, lon));
+        post.put("Address:", address);
+        post.put("PicUrl", "https://i.pinimg.com/originals/c9/f5/fb/c9f5fba683ab296eb94c62de0b0e703c.png");
+        post.put("Status", "Pending");
+        post.put("Service_Provider", "Efi-Digi-Pro");
+
+        String UUID1 = FirebaseAuth.getInstance().getUid();
+
+        progressBar.setVisibility(View.VISIBLE);
+        db.collection("Bookings").document(UUID1).collection("Booking Details")
+                .document(ServiceID + id)
+                .set(post).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                progressBar.setVisibility(View.INVISIBLE);
+                Toast.makeText(MapsActivity.this, "Service Booked, Please check history tab for vehicle confirmation", Toast.LENGTH_SHORT).show();
+                selectedDate=null;time=null;area=null;
+                autoCompleteTextView.setText(null);
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                progressBar.setVisibility(View.INVISIBLE);
+                Toast.makeText(MapsActivity.this, "Failed to book!", Toast.LENGTH_SHORT).show();
+            }
+        });
+    } //Adding Booking details to firestore
+
+
+
+}
 
 
 
