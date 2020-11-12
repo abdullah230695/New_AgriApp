@@ -12,12 +12,14 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -143,18 +145,19 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     String ServiceType;
     String ServiceID;
     double lat, lon;
-    Random rnd=new Random();
-    final Long ID=(long)rnd.nextInt(99999999);
+    Random rnd = new Random(); //generating random booking id
+    final Long ID = (long) rnd.nextInt(99999999); //generating random booking id
     String UUID = FirebaseAuth.getInstance().getUid();
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     DocumentReference dr = db.collection("Users").document(UUID);
     final Map<String, Object> post = new HashMap<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-
+        enableData();
 
 
         //Setting up Notification from firebase FCM
@@ -163,17 +166,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                          //startActivity(new Intent(getApplicationContext(),BookingHistoryActivity.class));
-                            if (task.isSuccessful()) {
-                                Toast.makeText(MapsActivity.this,"subscribed to topic", Toast.LENGTH_SHORT).show();
-                            }
-
+                        //startActivity(new Intent(getApplicationContext(),BookingHistoryActivity.class));
+                        if (task.isSuccessful()) {
+                            Toast.makeText(MapsActivity.this, "subscribed to topic", Toast.LENGTH_SHORT).show();
                         }
+
+                    }
 
                 });
 
         setupID();
-
 
 
         dr.addSnapshotListener(new EventListener<DocumentSnapshot>() {
@@ -246,8 +248,6 @@ autoCompleteTextView.setOnClickListener(new View.OnClickListener() {
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-
 
 
         gps_button.setOnClickListener(new View.OnClickListener() {
@@ -469,24 +469,24 @@ autoCompleteTextView.setOnClickListener(new View.OnClickListener() {
 
                 if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) |
                         selectedDate == null | time == null | area == null |
-                        autoCompleteTextView.length()==0) {
+                        autoCompleteTextView.length() == 0) {
 
-                    if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                    if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
 
                         Toast.makeText(mContext, "Please Enable GPS First", Toast.LENGTH_SHORT).show();
-                        try{
-                        enableLoc();
-                        }catch(Exception e) {
-                            Toast.makeText(mContext,"Error",Toast.LENGTH_SHORT).show();
+                        try {
+                            enableLoc();
+                        } catch (Exception e) {
+                            Toast.makeText(mContext, "Error", Toast.LENGTH_SHORT).show();
                         }
-                    } else if(selectedDate == null | time == null | area == null) {
+                    } else if (selectedDate == null | time == null | area == null) {
                         Toast.makeText(mContext, "Please select Date,Time,Area", Toast.LENGTH_SHORT).show();
                         try {
-                        getDeviceLocation();
-                        }catch(Exception e) {
-                            Toast.makeText(mContext,"Error",Toast.LENGTH_SHORT).show();
+                            getDeviceLocation();
+                        } catch (Exception e) {
+                            Toast.makeText(mContext, "Error", Toast.LENGTH_SHORT).show();
                         }
-                    } else if(autoCompleteTextView.length()==0) {
+                    } else if (autoCompleteTextView.length() == 0) {
                         Toast.makeText(mContext, "Please check your delivery address above", Toast.LENGTH_SHORT).show();
                         try {
                             if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -498,45 +498,49 @@ autoCompleteTextView.setOnClickListener(new View.OnClickListener() {
                                 getAddress();
 
                             }
-                        }catch(Exception e) {
+                        } catch (Exception e) {
 
                         }
                     }
-                }
+                } else {
 
-                else  {
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                    builder.setTitle("Confirm Booking");
+                    builder.setMessage("Selected service type is " + ServiceType + ". Do you want to proceed ?");
+                    builder.setCancelable(false);
+                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            //Checking Booking id Existance
+                            db.collection("All Booking ID").document(ServiceID+ID).get()
+                                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
-                        final AlertDialog.Builder builder=new AlertDialog.Builder(mContext);
-                        builder.setTitle("Confirm Booking");
-                        builder.setMessage("Selected service type is "+ServiceType+ ". Do you want to proceed ?");
-                        builder.setCancelable(false);
-                        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                //Checking Booking id Existance
-                                db.collection("Bookings").document(UUID)
-                                        .collection("Booking Details").document(ServiceID+ID).get()
-                                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                if(task.getResult().exists()){
-                                                    Toast.makeText(mContext,"Bookind ID Already Exist",Toast.LENGTH_SHORT).show();
-                                                    InsertData();
+                                            if (task.getResult().exists()) {
+                                                Toast.makeText(mContext, "Booking ID Already Exist", Toast.LENGTH_SHORT).show();
+                                                try {
+                                                    InsertData1();
+                                                }catch(Exception e) {
                                                 }
-                                                else {
-                                                    Toast.makeText(mContext,"This is new Booking ID",Toast.LENGTH_SHORT).show();
-                                                    InsertData();
-                                                }
+                                            } else {
+                                                Toast.makeText(mContext, "This is new Booking ID", Toast.LENGTH_SHORT).show();
+                                                try {
+                                                InsertData2();
+                                            }catch(Exception e) {
+
                                             }
-                                        });   //Checking Booking id Existance
-                            }
-                        }).setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                Toast.makeText(mContext,"Booking Cancelled",Toast.LENGTH_SHORT).show();
-                                dialog.cancel();
-                            }
-                        }).setIcon(R.drawable.ic_baseline_commute_24);
+                                            }
+                                        }
+                                    });
+                        }
+                    }).setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Toast.makeText(mContext, "Booking Cancelled", Toast.LENGTH_SHORT).show();
+                            dialog.cancel();
+                        }
+                    }).setIcon(R.drawable.ic_baseline_commute_24);
                     //Creating dialog box
                     AlertDialog alert = builder.create();
                     //Setting the title manually
@@ -643,12 +647,11 @@ autoCompleteTextView.setOnClickListener(new View.OnClickListener() {
     }*/
 
 
-
     private void moveCamera(LatLng latLng, float zoom, String tittle) {
         Log.d(TAG, "location: moving the camera to: lat: " + latLng.latitude + ", lng: " + latLng.longitude);
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
-      MarkerOptions options = new MarkerOptions()
-             .position(latLng)
+        MarkerOptions options = new MarkerOptions()
+                .position(latLng)
                 .title(tittle);
         mMap.addMarker(options);
     }
@@ -833,18 +836,18 @@ autoCompleteTextView.setOnClickListener(new View.OnClickListener() {
                         if (task.isSuccessful()) {
                             Log.d(TAG, "onComplete: found location!");
                             Location currentLocation = (Location) task.getResult();
-try {
-                            moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
-                                    DEFAULT_ZOOM, "My Location");
-}catch(Exception e) {
-    Toast.makeText(mContext,"Error",Toast.LENGTH_SHORT).show();
-}
-try {
-    lat = currentLocation.getLatitude();
-    lon = currentLocation.getLongitude();
-}catch (Exception e) {
-    Log.d(TAG,"error is "+e.getMessage());
-}
+                            try {
+                                moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
+                                        DEFAULT_ZOOM, "My Location");
+                            } catch (Exception e) {
+                                Toast.makeText(mContext, "Error", Toast.LENGTH_SHORT).show();
+                            }
+                            try {
+                                lat = currentLocation.getLatitude();
+                                lon = currentLocation.getLongitude();
+                            } catch (Exception e) {
+                                Log.d(TAG, "error is " + e.getMessage());
+                            }
 
 
                             /*tot_image_1.setVisibility(View.VISIBLE);
@@ -891,8 +894,6 @@ try {
                     LOCATION_PERMISSION_REQUEST_CODE);
         }
     }
-
-
 
 
     @Override
@@ -948,6 +949,7 @@ try {
 
     /**
      * checks to see if the @param 'user' is logged in
+     *
      * @param user
      */
     private void checkCurrentUser(FirebaseUser user) {
@@ -1008,7 +1010,7 @@ try {
 
     @Override
     public void onBackPressed() {
-         AlertDialog.Builder builderExit=new AlertDialog.Builder(mContext);
+        AlertDialog.Builder builderExit = new AlertDialog.Builder(mContext);
         builderExit.setTitle("Exit ?");
         builderExit.setMessage("Do you want to exit ?");
         builderExit.setCancelable(false);
@@ -1016,7 +1018,7 @@ try {
         builderExit.setPositiveButton("YES", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-finishAffinity();
+                finishAffinity();
             }
         }).setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
             @Override
@@ -1040,16 +1042,16 @@ finishAffinity();
     @Override
     public void OnSelectedAreaListener(Integer area_number) {
 
-        Log.e(TAG, "OnSelectedAreaListener: Area_selected: " + area_number );
+        Log.e(TAG, "OnSelectedAreaListener: Area_selected: " + area_number);
     }
 
     @Override
     public void click(Place place) {
-        moveCamera(new LatLng(place.getLatLng().latitude,place.getLatLng().longitude), DEFAULT_ZOOM, "Selected Location");
+        moveCamera(new LatLng(place.getLatLng().latitude, place.getLatLng().longitude), DEFAULT_ZOOM, "Selected Location");
     }
 
     //ID setups
-    public void  setupID() {
+    public void setupID() {
         home = findViewById(R.id.home);
         booking_history = findViewById(R.id.booking_history);
         profile = findViewById(R.id.profile);
@@ -1076,9 +1078,9 @@ finishAffinity();
         belt_image_3 = findViewById(R.id.belt_image_3);
         map_search_recyler = findViewById(R.id.map_search_recyler);
         autoCompleteTextView = findViewById(R.id.autoCompleteTextView);
-        tot_Type=findViewById(R.id.totType);
-        belt_Type=findViewById(R.id.beltType);
-        progressBar=findViewById(R.id.pb1);
+        tot_Type = findViewById(R.id.totType);
+        belt_Type = findViewById(R.id.beltType);
+        progressBar = findViewById(R.id.pb1);
 
     }//ID setups
 
@@ -1087,7 +1089,7 @@ finishAffinity();
         Geocoder geocoder = new Geocoder(mContext, Locale.getDefault());
         try {
 
-            List<Address> addresses = geocoder.getFromLocation( lat,lon, 1);
+            List<Address> addresses = geocoder.getFromLocation(lat, lon, 1);
             address = addresses.get(0).getAddressLine(0);
             Toast.makeText(mContext, "Your Delivery address is " + address, Toast.LENGTH_SHORT).show();
             autoCompleteTextView.setText(address);
@@ -1096,21 +1098,21 @@ finishAffinity();
         }
     }
 
-  //Adding Booking details to firestore
-    private void InsertData(){
+    //Adding Booking details to firestore if Bookig id exist
+    private void InsertData1() {
 
-       /* Random r = new Random();
+        Random r = new Random();
         Long id = (long) r.nextInt(999999999);
-*/
+
         Toast.makeText(MapsActivity.this, "Processing", Toast.LENGTH_SHORT).show();
         cardView1.setVisibility(View.VISIBLE);
         cardView2.setVisibility(View.VISIBLE);
         cardView3.setVisibility(View.VISIBLE);
         bookContraint.setVisibility(View.GONE);
-         //Map<String, Object> post = new HashMap<>();
+        //Map<String, Object> post = new HashMap<>();
         post.put("Booking_Date", new Timestamp(new Date()));
         post.put("Delivery_Date", selectedDate);
-        post.put("Booking_Id",  ServiceID+ ID);
+        post.put("Booking_Id", ServiceID + id);
         post.put("Contact_Number", phone);
         post.put("Delivery_Time", time);
         post.put("Area", area);
@@ -1124,6 +1126,97 @@ finishAffinity();
         String UUID1 = FirebaseAuth.getInstance().getUid();
 
         progressBar.setVisibility(View.VISIBLE);
+// storing booking id in seperate place for checking id redundancy
+        Map<String, Object> ids = new HashMap<>();
+        ids.put("ID",ServiceID+id);
+        db.collection("All Booking ID").document(ServiceID+id).set(ids)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        progressBar.setVisibility(View.INVISIBLE);
+                        Toast.makeText(MapsActivity.this, "New Booking id added", Toast.LENGTH_SHORT).show();
+
+                    }
+                }); // storing booking id in seperate place for checking id redundancy
+
+
+        db.collection("Bookings").document("All Booking ID").set(ServiceID + id)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                progressBar.setVisibility(View.INVISIBLE);
+                Toast.makeText(MapsActivity.this, "New Booking id added", Toast.LENGTH_SHORT).show();
+                selectedDate=null;time=null;area=null;
+                autoCompleteTextView.setText(null);
+
+            }
+        });
+
+        db.collection("Bookings").document(UUID1).collection("Booking Details")
+                .document(ServiceID + id)
+                .set(post).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                progressBar.setVisibility(View.INVISIBLE);
+                Toast.makeText(MapsActivity.this, "Service Booked, Please check history tab for vehicle confirmation", Toast.LENGTH_SHORT).show();
+                selectedDate = null;
+                time = null;
+                area = null;
+                autoCompleteTextView.setText(null);
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                progressBar.setVisibility(View.INVISIBLE);
+                Toast.makeText(MapsActivity.this, "Failed to book!", Toast.LENGTH_SHORT).show();
+            }
+        });
+    } //Adding Booking details to firestore if Bookig id exist
+
+
+    //Adding Booking details to firestore
+    private void InsertData2() {
+
+       /* Random r = new Random();
+        Long id = (long) r.nextInt(999999999);*/
+
+        Toast.makeText(MapsActivity.this, "Processing", Toast.LENGTH_SHORT).show();
+        cardView1.setVisibility(View.VISIBLE);
+        cardView2.setVisibility(View.VISIBLE);
+        cardView3.setVisibility(View.VISIBLE);
+        bookContraint.setVisibility(View.GONE);
+
+        post.put("Booking_Date", new Timestamp(new Date()));
+        post.put("Delivery_Date", selectedDate);
+        post.put("Booking_Id", ServiceID + ID);
+        post.put("Contact_Number", phone);
+        post.put("Delivery_Time", time);
+        post.put("Area", area);
+        post.put("Service_Type", ServiceType);
+        post.put("Location", new GeoPoint(lat, lon));
+        post.put("Address:", address);
+        post.put("PicUrl", "https://i.pinimg.com/originals/c9/f5/fb/c9f5fba683ab296eb94c62de0b0e703c.png");
+        post.put("Status", "Pending");
+        post.put("Service_Provider", "Efi-Digi-Pro");
+
+        String UUID1 = FirebaseAuth.getInstance().getUid();
+
+        progressBar.setVisibility(View.VISIBLE);
+
+// storing booking id in seperate place for checking id redundancy
+        Map<String, Object> ids = new HashMap<>();
+        ids.put("ID",ServiceID+ID);
+        db.collection("All Booking ID").document(ServiceID+ID).set(ids)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        progressBar.setVisibility(View.INVISIBLE);
+                        Toast.makeText(MapsActivity.this, "New Booking id added", Toast.LENGTH_SHORT).show();
+
+                    }
+                }); // storing booking id in seperate place for checking id redundancy
+
         db.collection("Bookings").document(UUID1).collection("Booking Details")
                 .document(ServiceID + ID)
                 .set(post).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -1131,7 +1224,9 @@ finishAffinity();
             public void onSuccess(Void aVoid) {
                 progressBar.setVisibility(View.INVISIBLE);
                 Toast.makeText(MapsActivity.this, "Service Booked, Please check history tab for vehicle confirmation", Toast.LENGTH_SHORT).show();
-                selectedDate=null;time=null;area=null;
+                selectedDate = null;
+                time = null;
+                area = null;
                 autoCompleteTextView.setText(null);
 
             }
@@ -1144,9 +1239,51 @@ finishAffinity();
         });
     } //Adding Booking details to firestore
 
+    //Prompting user to enable data connection
+    public boolean isOnline() {
 
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        android.net.NetworkInfo datac = cm
+                .getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        android.net.NetworkInfo wifi = cm
+                .getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+if((wifi != null & cm != null)
+        && (wifi.isConnected()| datac.isConnected())){
+            return true;
+        } else {
+            return false;
+
+        }
+
+    }   //Prompting user to enable data connection
+    public void enableData() {
+        final AlertDialog.Builder builderExit = new AlertDialog.Builder(mContext);
+
+        if(!isOnline()==true){
+            LayoutInflater factory = LayoutInflater.from(MapsActivity.this);
+            final View view = factory.inflate(R.layout.image_for_dialog, null);
+            builderExit.setTitle("No Data Connection Available");
+            builderExit.setMessage("Please Enable Internet or Wifi Connection To Continue.");
+            builderExit.setCancelable(false);
+            builderExit.setView(view);
+            builderExit.setIcon(R.drawable.no_wifi_foreground);
+    builderExit.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+finishAffinity();
+        }
+    });
+    builderExit.show();
 
 }
+
+}
+        }
+
+
+
+
 
 
 

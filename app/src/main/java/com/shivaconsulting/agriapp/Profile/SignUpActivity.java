@@ -1,9 +1,13 @@
 package com.shivaconsulting.agriapp.Profile;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -56,6 +60,9 @@ public class SignUpActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up2);
+
+        enableData();
+
         sign_up_constraint = findViewById(R.id.sign_up_constraint);
         phone_constraint = findViewById(R.id.phone_constraint);
         mPhone_number = findViewById(R.id.phone_number);
@@ -198,5 +205,45 @@ finish();
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
         }
+    }
+    //Prompting user to enable data connection
+    public boolean isOnline() {
+
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        android.net.NetworkInfo datac = cm
+                .getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        android.net.NetworkInfo wifi = cm
+                .getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+        if((wifi != null & cm != null)
+                && (wifi.isConnected()| datac.isConnected())){
+            return true;
+        } else {
+            return false;
+
+        }
+
+    }   //Prompting user to enable data connection
+    public void enableData() {
+        final AlertDialog.Builder builderExit = new AlertDialog.Builder(mContext);
+
+        if(!isOnline()==true){
+            LayoutInflater factory = LayoutInflater.from(SignUpActivity.this);
+            final View view = factory.inflate(R.layout.image_for_dialog, null);
+            builderExit.setTitle("No Data Connection Available");
+            builderExit.setMessage("Please Enable Internet or Wifi Connection To Continue.");
+            builderExit.setCancelable(false);
+            builderExit.setView(view);
+            builderExit.setIcon(R.drawable.no_wifi_foreground);
+            builderExit.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    finishAffinity();
+                }
+            });
+            builderExit.show();
+
+        }
+
     }
 }
