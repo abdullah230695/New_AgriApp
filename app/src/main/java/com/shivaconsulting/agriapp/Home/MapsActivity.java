@@ -143,7 +143,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     String ServiceType;
     String ServiceID;
     double lat, lon;
-    public Long idNew=Long.valueOf(123456);
+    Random rnd=new Random();
+    final Long ID=(long)rnd.nextInt(99999999);
     String UUID = FirebaseAuth.getInstance().getUid();
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     DocumentReference dr = db.collection("Users").document(UUID);
@@ -155,20 +156,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
 
+
         //Setting up Notification from firebase FCM
 
         FirebaseMessaging.getInstance().subscribeToTopic("Booking")
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-
-                           String msg="Done";
-                          // startActivity(new Intent(getApplicationContext(),BookingHistoryActivity.class));
-                            if (!task.isSuccessful()) {
-                                msg = "Failed";
+                          //startActivity(new Intent(getApplicationContext(),BookingHistoryActivity.class));
+                            if (task.isSuccessful()) {
+                                Toast.makeText(MapsActivity.this,"subscribed to topic", Toast.LENGTH_SHORT).show();
                             }
-                            Log.d(TAG, msg);
-                            //Toast.makeText(MapsActivity.this,msg, Toast.LENGTH_SHORT).show();
+
                         }
 
                 });
@@ -516,7 +515,7 @@ autoCompleteTextView.setOnClickListener(new View.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 //Checking Booking id Existance
                                 db.collection("Bookings").document(UUID)
-                                        .collection("Booking Details").document(ServiceID+idNew).get()
+                                        .collection("Booking Details").document(ServiceID+ID).get()
                                         .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                             @Override
                                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -1100,9 +1099,9 @@ finishAffinity();
   //Adding Booking details to firestore
     private void InsertData(){
 
-        Random r = new Random();
+       /* Random r = new Random();
         Long id = (long) r.nextInt(999999999);
-
+*/
         Toast.makeText(MapsActivity.this, "Processing", Toast.LENGTH_SHORT).show();
         cardView1.setVisibility(View.VISIBLE);
         cardView2.setVisibility(View.VISIBLE);
@@ -1111,7 +1110,7 @@ finishAffinity();
          //Map<String, Object> post = new HashMap<>();
         post.put("Booking_Date", new Timestamp(new Date()));
         post.put("Delivery_Date", selectedDate);
-        post.put("Booking_Id",  ServiceID+ id);
+        post.put("Booking_Id",  ServiceID+ ID);
         post.put("Contact_Number", phone);
         post.put("Delivery_Time", time);
         post.put("Area", area);
@@ -1126,7 +1125,7 @@ finishAffinity();
 
         progressBar.setVisibility(View.VISIBLE);
         db.collection("Bookings").document(UUID1).collection("Booking Details")
-                .document(ServiceID + id)
+                .document(ServiceID + ID)
                 .set(post).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
