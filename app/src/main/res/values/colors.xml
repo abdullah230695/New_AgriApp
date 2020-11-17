@@ -6,4 +6,6 @@
     <color name="white">#F8F7F7</color>
     <color name="transperant">#00000000</color>
     <color name="black">#090909</color>
+    <drawable name="red">#F40303</drawable>
+    <drawable name="blue">#6200EE</drawable>
 </resources>

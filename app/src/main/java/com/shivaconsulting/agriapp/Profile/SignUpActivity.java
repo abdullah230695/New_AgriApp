@@ -150,7 +150,13 @@ public class SignUpActivity extends AppCompatActivity {
                             }
 
                         }
-                    });
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(SignUpActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+
+                }
+            });
         }
 
 

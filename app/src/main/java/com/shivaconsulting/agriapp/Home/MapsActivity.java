@@ -73,7 +73,6 @@ import com.shivaconsulting.agriapp.Adapter.AreaAdapter;
 import com.shivaconsulting.agriapp.Adapter.PlacesAutoCompleteAdapter;
 import com.shivaconsulting.agriapp.Adapter.TimeAdapter;
 import com.shivaconsulting.agriapp.Adapter.TimeAdapterNew;
-import com.shivaconsulting.agriapp.Classes.RecyclerItemClickListener;
 import com.shivaconsulting.agriapp.History.BookingHistoryActivity;
 import com.shivaconsulting.agriapp.Models.TimeAmPm;
 import com.shivaconsulting.agriapp.Profile.LoginActivity;
@@ -91,8 +90,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
-
-import static java.lang.String.valueOf;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, View.OnClickListener, TimeAdapter.OnItemSelectedListener,
         AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener {
@@ -130,17 +127,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ImageView gps_button;
     private ConstraintLayout bookContraint;
     private CardView cardView1, cardView2, cardView3;
-    private TextView combine_text, pick_time_text, pick_date_text, pick_area_text, tot_Type, belt_Type;
-    private RecyclerView time_picker_recyclerview, area_picker_recyclerview, map_search_recyler;
+    public static TextView combine_text, pick_time_text, pick_date_text, pick_area_text, tot_Type, belt_Type,checktv;
+    public static RecyclerView time_picker_recyclerview, area_picker_recyclerview, map_search_recyler;
     private ImageView tot_image_1, tot_image_2, belt_image_1, belt_image_2, belt_image_3,
             combine_image_3, combine_image_2, combine_image_1;
     private EditText autoCompleteTextView;
-    private DatePickerTimeline datePickerTimeline;
+    public static DatePickerTimeline datePickerTimeline;
     private AreaAdapter.OnAreaItemSelectedListener areaItemSelectedListener;
     private ProgressBar progressBar;
     String phone;
-    String time;
-    String area;
+    public static String time;
+    public static String area;
     String address;
     String ServiceType;
     String ServiceID;
@@ -151,7 +148,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     DocumentReference dr = db.collection("Users").document(UUID);
     final Map<String, Object> post = new HashMap<>();
-
+    private static final String myTAG="Myag";
+private int selectedPosition=-1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -159,7 +157,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         enableData();
 
-
+if(getIntent()!=null && getIntent().hasExtra("key1")){
+            for (String key:getIntent().getExtras().keySet()) {
+                checktv.setText("");
+        Log.d(myTAG,"on create : key"+key+"Data   "+getIntent().getExtras().getString(key));
+        Toast.makeText(mContext, "data is"+key, Toast.LENGTH_SHORT).show();
+        checktv.append(getIntent().getExtras().getString(key)+"\n");
+    }
+}
         //Setting up Notification from firebase FCM
 
         FirebaseMessaging.getInstance().subscribeToTopic("Booking")
@@ -169,9 +174,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         //startActivity(new Intent(getApplicationContext(),BookingHistoryActivity.class));
                         if (task.isSuccessful()) {
                             Toast.makeText(MapsActivity.this, "subscribed to topic", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(MapsActivity.this, "Not subscribed", Toast.LENGTH_SHORT).show();
                         }
 
-                    }
+                        }
 
                 });
 
@@ -373,8 +380,9 @@ autoCompleteTextView.setOnClickListener(new View.OnClickListener() {
                 toast.setGravity(Gravity.CENTER, 0, 0);
                 toast.show();
 
-                        /*Log.d(TAG, "onDateSelected: date: " + year + month + day);
-                        Log.d(TAG, "onDateSelected: SelectedDate reform: " + selectedDate);*/
+                        Log.d(TAG, "onDateSelected: date: " + year + month + day);
+                        Log.d(TAG, "onDateSelected: SelectedDate reform: " + selectedDate);
+
                 datePickerTimeline.setVisibility(View.INVISIBLE);
                 area_picker_recyclerview.setVisibility(View.INVISIBLE);
                 time_picker_recyclerview.setVisibility(View.VISIBLE);
@@ -391,9 +399,7 @@ autoCompleteTextView.setOnClickListener(new View.OnClickListener() {
         });
 
 
-//                final long selectedDate = calendarView.getDate();
-
-//                Log.d(TAG, "onClick: Booked Date :" + selectedDate);
+         Log.d(TAG, "onClick: Booked Date :" + selectedDate);
 
         final ArrayList<TimeAmPm> ArList = new ArrayList<>();
         ArList.add(new TimeAmPm("6", "AM"));
@@ -417,49 +423,8 @@ autoCompleteTextView.setOnClickListener(new View.OnClickListener() {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false);
         time_picker_recyclerview.setLayoutManager(linearLayoutManager);
 
-        time_picker_recyclerview.addOnItemTouchListener(new RecyclerItemClickListener(getApplicationContext(),
-                time_picker_recyclerview, new RecyclerItemClickListener.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                Toast toast = Toast.makeText(mContext, "Time " + ArList.get(position).getTime() + ArList.get(position).getAmpm() + " selected", Toast.LENGTH_SHORT);
-                toast.setGravity(Gravity.CENTER, 0, 0);
-                toast.show();
-                //Toast.makeText(mContext, ArList.get(position).getTime()+ArList.get(position).getAmpm() +" Clicked",Toast.LENGTH_SHORT).show();
-                time = valueOf(ArList.get(position).getTime() + " " + ArList.get(position).getAmpm());
 
-                datePickerTimeline.setVisibility(View.INVISIBLE);
-                area_picker_recyclerview.setVisibility(View.VISIBLE);
-                time_picker_recyclerview.setVisibility(View.INVISIBLE);
-                pick_time_text.setTextSize(14);
-                pick_date_text.setTextSize(14);
-                pick_area_text.setTextSize(18);
-            }
 
-            @Override
-            public void onLongItemClick(View view, int position) {
-
-            }
-        }));
-        area_picker_recyclerview.addOnItemTouchListener(new RecyclerItemClickListener(getApplicationContext(),
-                area_picker_recyclerview, new RecyclerItemClickListener.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                Toast toast = Toast.makeText(mContext, "Area " + areaList.get(position) + " selected", Toast.LENGTH_SHORT);
-                toast.setGravity(Gravity.CENTER, 0, 0);
-                toast.show();
-                area = valueOf(areaList.get(position));
-                datePickerTimeline.setVisibility(View.INVISIBLE);
-                area_picker_recyclerview.setVisibility(View.VISIBLE);
-                time_picker_recyclerview.setVisibility(View.INVISIBLE);
-                pick_time_text.setTextSize(14);
-                pick_date_text.setTextSize(14);
-                pick_area_text.setTextSize(18);
-            }
-
-            @Override
-            public void onLongItemClick(View view, int position) {
-            }
-        }));
 
         //Booking Event
         booking_button.setOnClickListener(new View.OnClickListener() {
@@ -511,13 +476,13 @@ autoCompleteTextView.setOnClickListener(new View.OnClickListener() {
                     builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+
                             //Checking Booking id Existance
                             db.collection("All Booking ID").document(ServiceID+ID).get()
-                                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                                         @Override
-                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                                            if (task.getResult().exists()) {
+                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                            if(documentSnapshot.exists()){
                                                 Toast.makeText(mContext, "Booking ID Already Exist", Toast.LENGTH_SHORT).show();
                                                 try {
                                                     InsertData1();
@@ -526,13 +491,20 @@ autoCompleteTextView.setOnClickListener(new View.OnClickListener() {
                                             } else {
                                                 Toast.makeText(mContext, "This is new Booking ID", Toast.LENGTH_SHORT).show();
                                                 try {
-                                                InsertData2();
-                                            }catch(Exception e) {
+                                                    InsertData2();
+                                                }catch(Exception e) {
 
-                                            }
+                                                }
                                             }
                                         }
-                                    });
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(MapsActivity.this,
+                                            e.getMessage(), Toast.LENGTH_SHORT).show();
+
+                                }
+                            });
                         }
                     }).setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
                         @Override
@@ -671,7 +643,7 @@ autoCompleteTextView.setOnClickListener(new View.OnClickListener() {
         mMap = googleMap;
 
         if (mLocationPermissionsGranted) {
-//            getDeviceLocation();
+            getDeviceLocation();
 
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                     != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
@@ -702,11 +674,10 @@ autoCompleteTextView.setOnClickListener(new View.OnClickListener() {
                         List<Address> myAddress = geocoder.getFromLocation(mCenterLatLong.latitude, mCenterLatLong.longitude, 1);
                         String address = myAddress.get(0).getAddressLine(0);
                         String city = myAddress.get(0).getSubLocality();
-//                        mLocationCity.setText(city);
+//                       mLocationCity.setText(city);
 //                        mLocationAddress.setText(address);
 //
 //                        ConfirmLocation(city,address,mCenterLatLong.latitude,mCenterLatLong.longitude);
-
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -770,7 +741,6 @@ autoCompleteTextView.setOnClickListener(new View.OnClickListener() {
         locationRequest.setInterval(30 * 1000);
         locationRequest.setFastestInterval(5 * 1000);
 
-
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
                 .addLocationRequest(locationRequest);
 
@@ -820,8 +790,6 @@ autoCompleteTextView.setOnClickListener(new View.OnClickListener() {
 
 
     private void getDeviceLocation() {
-
-
         Log.d(TAG, "getDeviceLocation: getting the devices current location");
 
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
@@ -840,7 +808,7 @@ autoCompleteTextView.setOnClickListener(new View.OnClickListener() {
                                 moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
                                         DEFAULT_ZOOM, "My Location");
                             } catch (Exception e) {
-                                Toast.makeText(mContext, "Error", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(mContext, "Internet ", Toast.LENGTH_SHORT).show();
                             }
                             try {
                                 lat = currentLocation.getLatitude();
@@ -1081,7 +1049,6 @@ autoCompleteTextView.setOnClickListener(new View.OnClickListener() {
         tot_Type = findViewById(R.id.totType);
         belt_Type = findViewById(R.id.beltType);
         progressBar = findViewById(R.id.pb1);
-
     }//ID setups
 
 
