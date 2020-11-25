@@ -144,15 +144,39 @@
         android:hint="Search for area, stree name..."
         android:iconifiedByDefault="false"
         android:padding="5dp"
+        android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/map_search_recyler"
+        android:layout_width="0dp"
+        android:layout_height="6dp"
+        android:layout_marginTop="16dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/autoCompleteTextView"></androidx.recyclerview.widget.RecyclerView>
+
+
+    <fragment
+        android:id="@+id/autocomplete_fragment"
+        android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.085" />
 
     <ImageView
         android:id="@+id/imageMarker"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
+        android:layout_width="63dp"
+        android:layout_height="71dp"
         android:layout_marginBottom="340dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -253,7 +277,7 @@
         android:layout_height="50dp"
         android:layout_marginStart="292dp"
         android:layout_marginTop="376dp"
-        android:visibility="invisible"
+        android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/autoCompleteTextView"
         app:srcCompat="@drawable/heavy_vehicle" />
@@ -264,7 +288,7 @@
         android:layout_height="50dp"
         android:layout_marginStart="48dp"
         android:layout_marginTop="68dp"
-        android:visibility="invisible"
+        android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/autoCompleteTextView"
         app:srcCompat="@drawable/heavy_vehicle" />
@@ -275,7 +299,7 @@
         android:layout_height="50dp"
         android:layout_marginTop="168dp"
         android:layout_marginEnd="68dp"
-        android:visibility="invisible"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/autoCompleteTextView"
         app:srcCompat="@drawable/heavy_vehicle__1_" />
@@ -286,7 +310,7 @@
         android:layout_height="50dp"
         android:layout_marginTop="464dp"
         android:layout_marginEnd="216dp"
-        android:visibility="invisible"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/autoCompleteTextView"
         app:srcCompat="@drawable/heavy_vehicle__1_" />
@@ -297,7 +321,7 @@
         android:layout_height="50dp"
         android:layout_marginTop="204dp"
         android:layout_marginEnd="292dp"
-        android:visibility="invisible"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/autoCompleteTextView"
         app:srcCompat="@drawable/heavy_vehicle__1_" />
@@ -307,7 +331,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginEnd="144dp"
-        android:visibility="invisible"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/belt_image_1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/autoCompleteTextView"
@@ -320,7 +344,7 @@
         android:layout_height="50dp"
         android:layout_marginTop="328dp"
         android:layout_marginEnd="360dp"
-        android:visibility="invisible"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/autoCompleteTextView"
         app:srcCompat="@drawable/ladder_truck" />
@@ -331,7 +355,7 @@
         android:layout_height="50dp"
         android:layout_marginTop="488dp"
         android:layout_marginEnd="56dp"
-        android:visibility="invisible"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/autoCompleteTextView"
         app:srcCompat="@drawable/ladder_truck" />
@@ -500,14 +524,6 @@
             app:layout_constraintTop_toBottomOf="@+id/textView7" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/map_search_recyler"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/autoCompleteTextView"></androidx.recyclerview.widget.RecyclerView>
 
     <!--    <androidx.coordinatorlayout.widget.CoordinatorLayout-->
     <!--        android:id="@+id/coordinatorLayout"-->

@@ -2,12 +2,10 @@ package com.shivaconsulting.agriapp.Adapter;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -54,7 +52,7 @@ public class AreaAdapter extends RecyclerView.Adapter<AreaAdapter.AreaHolder> {
         if(selectedPosition==position)
             holder.area_number_text.setBackgroundColor(Color.parseColor("#000000"));
         else
-            holder.area_number_text.setBackgroundColor(Color.parseColor("#ffffff"));
+            holder.area_number_text.setBackgroundColor(Color.TRANSPARENT);
         holder.area_number_text.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -67,13 +65,11 @@ public class AreaAdapter extends RecyclerView.Adapter<AreaAdapter.AreaHolder> {
                 pick_area_text.setTextSize(18);
                 if(selectedPosition!=-1)
                 {
-                    holder.area_number_text.setBackgroundColor(Color.parseColor("#ffffff"));
+                    holder.area_number_text.setBackgroundColor(Color.TRANSPARENT);
                 }
                 selectedPosition=position;
                 area=String.valueOf(areaList.get(position));
-                Toast toast = Toast.makeText(context, "Time " + areaList.get(position) + " selected", Toast.LENGTH_SHORT);
-                toast.setGravity(Gravity.CENTER, 0, 0);
-                toast.show();
+
                 notifyDataSetChanged();
 
             }

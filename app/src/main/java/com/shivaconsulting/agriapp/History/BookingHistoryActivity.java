@@ -51,7 +51,7 @@ public class BookingHistoryActivity extends AppCompatActivity implements View.On
         String UUID = FirebaseAuth.getInstance().getUid();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference cr=db.collection("Bookings").document(UUID).collection("Booking Details");
-back=findViewById(R.id.imgback2);
+        back=findViewById(R.id.imgback2);
         home = findViewById(R.id.home);
         booking_history = findViewById(R.id.booking_history);
         profile = findViewById(R.id.profile);
