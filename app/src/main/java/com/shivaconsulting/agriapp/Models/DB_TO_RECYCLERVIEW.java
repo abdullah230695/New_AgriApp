@@ -13,10 +13,9 @@ public class DB_TO_RECYCLERVIEW {
     String Status;
     String Delivery_Time;
     String Service_Provider;
-
-
     Date Booking_Date;
     GeoPoint Location;
+
     public String getService_Provider() {
         return Service_Provider;
     }
@@ -112,7 +111,7 @@ public class DB_TO_RECYCLERVIEW {
     }
 
     DB_TO_RECYCLERVIEW() {
-
+        //empty constructor needed
     }
 
 

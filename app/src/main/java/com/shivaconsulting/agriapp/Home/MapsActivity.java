@@ -77,7 +77,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.GeoPoint;
 import com.shivaconsulting.agriapp.Adapter.AreaAdapter;
 import com.shivaconsulting.agriapp.Adapter.PlacesAutoCompleteAdapter;
 import com.shivaconsulting.agriapp.Adapter.TimeAdapterNew;
@@ -1021,6 +1020,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         cardView2.setVisibility(View.VISIBLE);
         cardView3.setVisibility(View.VISIBLE);
         bookContraint.setVisibility(View.GONE);
+        String UUID1 = FirebaseAuth.getInstance().getUid();
 
         post.put("Booking_Date", new Timestamp(new Date()));
         post.put("Delivery_Date", selectedDate);
@@ -1030,20 +1030,22 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         post.put("Delivery_Time", time);
         post.put("Area", area);
         post.put("Service_Type", ServiceType);
-        post.put("Location", new GeoPoint(lat, lon));
+        post.put("Latitude", Double.toString(lat));
+        post.put("Longitude", Double.toString(lon));
         post.put("Address", address);
         post.put("PicUrl", "https://i.pinimg.com/originals/c9/f5/fb/c9f5fba683ab296eb94c62de0b0e703c.png");
         post.put("Status", "Pending");
-        post.put("Service_Provider", "Efi-Digi-Pro");
+        post.put("Service_Provider", "Not Assigned");
+        post.put("Unique_ID", UUID1);
 
-        String UUID1 = FirebaseAuth.getInstance().getUid();
+
         ProgeressDialog();
         progressDialog.show();
 
         // storing booking id in seperate place for checking id redundancy
         Map<String, Object> ids = new HashMap<>();
         ids.put("ID",ServiceID+id);
-        db.collection("All Booking ID").document(ServiceID+id).set(ids)
+        db.collection("All Booking ID").document(ServiceID+id).set(post)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -1083,6 +1085,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         cardView2.setVisibility(View.VISIBLE);
         cardView3.setVisibility(View.VISIBLE);
         bookContraint.setVisibility(View.GONE);
+        String UUID1 = FirebaseAuth.getInstance().getUid();
 
         post.put("Booking_Date", new Timestamp(new Date()));
         post.put("Delivery_Date", selectedDate);
@@ -1092,20 +1095,20 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         post.put("Area", area);
         post.put("Service_Type", ServiceType);
         post.put("Customer_Name",custName);
-        post.put("Location", new GeoPoint(lat, lon));
-        post.put("Address", address);
+        post.put("Latitude", Double.toString(lat));
+        post.put("Longitude", Double.toString(lon));
         post.put("PicUrl", "https://i.pinimg.com/originals/c9/f5/fb/c9f5fba683ab296eb94c62de0b0e703c.png");
         post.put("Status", "Pending");
-        post.put("Service_Provider", "Efi-Digi-Pro");
+        post.put("Service_Provider", "Not Assigned");
+        post.put("Unique_ID", UUID1);
 
-        String UUID1 = FirebaseAuth.getInstance().getUid();
         ProgeressDialog();
        progressDialog.show();
 
 // storing booking id in seperate place for checking id redundancy
         Map<String, Object> ids = new HashMap<>();
         ids.put("ID",ServiceID+ID);
-        db.collection("All Booking ID").document(ServiceID+ID).set(ids)
+        db.collection("All Booking ID").document(ServiceID+ID).set(post)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -1188,8 +1191,10 @@ if((wifi != null & cm != null)
 
     @Override
     public void OnSelectedAreaListener(Integer area_number) {
-
+                    //Empty Listener
     }
+
+    //Sending notification after a booking has made
     private void sendNotification() {
 
         Intent intent = new Intent(this, BookingHistoryActivity.class);
@@ -1208,7 +1213,7 @@ if((wifi != null & cm != null)
             manager.createNotificationChannel(channel);
         }
         manager.notify(0, builder.build());
-    }
+    }  //Sending notification after a booking has made
 }
 
 

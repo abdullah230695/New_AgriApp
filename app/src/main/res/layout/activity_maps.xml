@@ -13,7 +13,7 @@
         android:layout_height="match_parent"
         tools:context=".Home.MapsActivity"
         tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="-290dp" />
+        tools:layout_editor_absoluteY="16dp" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/tot_type_cardview"
@@ -23,13 +23,14 @@
         android:layout_marginBottom="8dp"
         android:visibility="visible"
         app:cardBackgroundColor="#64DD17"
-        app:cardCornerRadius="50dp"
+        app:cardCornerRadius="25dp"
         app:layout_constraintBottom_toTopOf="@+id/booking_constraint"
         app:layout_constraintStart_toStartOf="parent">
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
             android:clickable="true">
 
             <ImageView
@@ -61,7 +62,7 @@
         android:layout_marginBottom="8dp"
         android:visibility="visible"
         app:cardBackgroundColor="#64DD17"
-        app:cardCornerRadius="50dp"
+        app:cardCornerRadius="25dp"
         app:layout_constraintBottom_toTopOf="@+id/booking_constraint"
         app:layout_constraintEnd_toStartOf="@+id/combine_type_cardview"
         app:layout_constraintStart_toEndOf="@+id/tot_type_cardview">
@@ -101,7 +102,7 @@
         android:layout_marginBottom="8dp"
         android:visibility="visible"
         app:cardBackgroundColor="#64DD17"
-        app:cardCornerRadius="50dp"
+        app:cardCornerRadius="25dp"
         app:layout_constraintBottom_toTopOf="@+id/booking_constraint"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -171,7 +172,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.085" />
+        app:layout_constraintVertical_bias="0.131" />
 
     <ImageView
         android:id="@+id/imageMarker"

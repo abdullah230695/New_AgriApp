@@ -14,33 +14,24 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.shivaconsulting.agriapp.Adapter.BookingAdapter;
 import com.shivaconsulting.agriapp.Adapter.DBAdapter_TO_RecylerView;
 import com.shivaconsulting.agriapp.Classes.RecyclerItemClickListener;
 import com.shivaconsulting.agriapp.Home.MapsActivity;
-import com.shivaconsulting.agriapp.Models.Booking;
 import com.shivaconsulting.agriapp.Models.DB_TO_RECYCLERVIEW;
 import com.shivaconsulting.agriapp.ParticularBookingHistory;
 import com.shivaconsulting.agriapp.Profile.ProfileActivity;
 import com.shivaconsulting.agriapp.R;
 
-import java.util.List;
-
-public class BookingHistoryActivity extends AppCompatActivity implements View.OnClickListener {
+public class  BookingHistoryActivity extends AppCompatActivity implements View.OnClickListener {
 
     //Const
     private static final String TAG = "BookingHistoryActivity";
     private Context mContext = BookingHistoryActivity.this;
 
-    //Vars
-    private BookingAdapter bookingAdapter;
-    private List<Booking> bookingList;
-
     //Id's
     private ImageView home,booking_history,profile;
     RecyclerView RVbooking_history;
     DBAdapter_TO_RecylerView adapter;
-    Context context;
     ImageView back;
 
     @Override
@@ -91,12 +82,6 @@ public class BookingHistoryActivity extends AppCompatActivity implements View.On
             }
         }));
 
-      /*  bookingList = new ArrayList<>();
-
-        bookingAdapter = new DBAdapter_TO_RecylerView(bookingList,mContext);
-
-        RVbooking_history.setAdapter(bookingAdapter);
-*/
 
         home.setOnClickListener(this);
         profile.setOnClickListener(this);
@@ -111,35 +96,8 @@ public class BookingHistoryActivity extends AppCompatActivity implements View.On
             }
         });
 
-        // Configure recycler adapter options:
-//  * query is the Query object defined above.
-//  * Chat.class instructs the adapter to convert each DocumentSnapshot to a Chat object
-
-        //init();
     }
 
-    /*private void init() {
-        String UUID = FirebaseAuth.getInstance().getUid();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("Services").document(UUID).collection("List")
-                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        Log.d(TAG, document.getId() + " => " + document.getData());
-                        Booking booking = document.toObject(Booking.class);
-                        bookingList.add(booking);
-                    }
-
-                    bookingAdapter.notifyDataSetChanged();
-
-                } else {
-                    Log.d(TAG, "Error getting documents: ", task.getException());
-                }
-            }
-        });
-    }*/
 
 
           /*

@@ -1,6 +1,5 @@
 package com.shivaconsulting.agriapp.Adapter;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,9 +17,6 @@ import com.shivaconsulting.agriapp.R;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class DBAdapter_TO_RecylerView extends FirestoreRecyclerAdapter<DB_TO_RECYCLERVIEW,DBAdapter_TO_RecylerView.viewHolder> {
-
-   Context context ;
-
 
     public DBAdapter_TO_RecylerView(@NonNull FirestoreRecyclerOptions<DB_TO_RECYCLERVIEW> options) {
         super(options);
