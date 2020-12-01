@@ -12,8 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.shivaconsulting.agriapp.Adapter.DBAdapter_TO_RecylerView;
 import com.shivaconsulting.agriapp.Classes.RecyclerItemClickListener;
 import com.shivaconsulting.agriapp.Home.MapsActivity;
@@ -41,7 +41,7 @@ public class  BookingHistoryActivity extends AppCompatActivity implements View.O
 
         String UUID = FirebaseAuth.getInstance().getUid();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        CollectionReference cr=db.collection("Bookings").document(UUID).collection("Booking Details");
+        Query cr=db.collection("Bookings").document(UUID).collection("Booking Details").orderBy("Booking_Date", Query.Direction.ASCENDING);
         back=findViewById(R.id.imgback2);
         home = findViewById(R.id.home);
         booking_history = findViewById(R.id.booking_history);
