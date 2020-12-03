@@ -1026,12 +1026,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         post.put("Delivery_Date", selectedDate);
         post.put("Booking_Id", ServiceID + id);
         post.put("Contact_Number", phone);
-        post.put("Customer_Name",custName);
+        post.put("Customer_Name", custName);
         post.put("Delivery_Time", time);
         post.put("Area", area);
         post.put("Service_Type", ServiceType);
-        post.put("Latitude", Double.toString(lat));
-        post.put("Longitude", Double.toString(lon));
+        post.put("Latitude", lat);
+        post.put("Longitude", lon);
         post.put("Address", address);
         post.put("PicUrl", "https://i.pinimg.com/originals/c9/f5/fb/c9f5fba683ab296eb94c62de0b0e703c.png");
         post.put("Status", "Pending");
@@ -1094,16 +1094,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         post.put("Delivery_Time", time);
         post.put("Area", area);
         post.put("Service_Type", ServiceType);
-        post.put("Customer_Name",custName);
-        post.put("Latitude", Double.toString(lat));
-        post.put("Longitude", Double.toString(lon));
+        post.put("Customer_Name", custName);
+        post.put("Latitude", lat);
+        post.put("Longitude", lon);
         post.put("PicUrl", "https://i.pinimg.com/originals/c9/f5/fb/c9f5fba683ab296eb94c62de0b0e703c.png");
         post.put("Status", "Pending");
         post.put("Service_Provider", "Not Assigned");
         post.put("Unique_ID", UUID1);
 
         ProgeressDialog();
-       progressDialog.show();
+        progressDialog.show();
 
 // storing booking id in seperate place for checking id redundancy
         Map<String, Object> ids = new HashMap<>();
