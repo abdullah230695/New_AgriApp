@@ -99,7 +99,7 @@ db=FirebaseFirestore.getInstance();
      */
          public void onBackPressed() {
              startActivity(new Intent(getApplicationContext(),MapsActivity.class));
-
+finish();
          }
     @Override
     public void onClick(View view) {

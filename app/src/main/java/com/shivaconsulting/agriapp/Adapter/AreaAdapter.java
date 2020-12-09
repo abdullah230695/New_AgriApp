@@ -53,7 +53,7 @@ public class AreaAdapter extends RecyclerView.Adapter<AreaAdapter.AreaHolder> {
             holder.area_number_text.setBackgroundColor(Color.parseColor("#000000"));
         else
             holder.area_number_text.setBackgroundColor(Color.TRANSPARENT);
-        holder.area_number_text.setOnClickListener(new View.OnClickListener() {
+            holder.area_number_text.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {

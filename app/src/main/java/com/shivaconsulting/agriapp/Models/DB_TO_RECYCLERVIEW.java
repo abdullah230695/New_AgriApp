@@ -5,109 +5,149 @@ import com.google.firebase.firestore.GeoPoint;
 import java.util.Date;
 
 public class DB_TO_RECYCLERVIEW {
-    String Delivery_Date;
-    String Booking_Id;
-    String Area;
-    String Service_Type;
-    String PicUrl;
-    String Status;
-    String Delivery_Time;
-    String Service_Provider;
-    Date Booking_Date;
-    GeoPoint Location;
+    String delivery_Date;
+    String booking_Id;
+    String area;
+    String service_Type;
+    String picUrl;
+    String status;
+    String delivery_Time;
+    String service_Provider;
+    Date booking_Date;
+    Double latitude;
+    Double longitude;
+    Double driverLat;
+    Double driverLng;
+    GeoPoint location;
 
-    public String getService_Provider() {
-        return Service_Provider;
-    }
-
-    public void setService_Provider(String service_Provider) {
-        Service_Provider = service_Provider;
+    public DB_TO_RECYCLERVIEW(String delivery_Date, String booking_Id, String area, String service_Type, String picUrl, String status, String delivery_Time, String service_Provider,
+                              Date booking_Date, Double latitude, Double longitude, Double driverLat, Double driverLng, GeoPoint location) {
+        this.delivery_Date = delivery_Date;
+        this.booking_Id = booking_Id;
+        this.area = area;
+        this.service_Type = service_Type;
+        this.picUrl = picUrl;
+        this.status = status;
+        this.delivery_Time = delivery_Time;
+        this.service_Provider = service_Provider;
+        this.booking_Date = booking_Date;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.driverLat = driverLat;
+        this.driverLng = driverLng;
+        this.location = location;
     }
 
     public String getDelivery_Date() {
-        return Delivery_Date;
+        return delivery_Date;
     }
 
     public void setDelivery_Date(String delivery_Date) {
-        Delivery_Date = delivery_Date;
+        this.delivery_Date = delivery_Date;
     }
 
     public String getBooking_Id() {
-        return Booking_Id;
+        return booking_Id;
     }
 
     public void setBooking_Id(String booking_Id) {
-        Booking_Id = booking_Id;
+        this.booking_Id = booking_Id;
     }
 
     public String getArea() {
-        return Area;
+        return area;
     }
 
     public void setArea(String area) {
-        Area = area;
+        this.area = area;
     }
 
     public String getService_Type() {
-        return Service_Type;
+        return service_Type;
     }
 
     public void setService_Type(String service_Type) {
-        Service_Type = service_Type;
+        this.service_Type = service_Type;
     }
 
     public String getPicUrl() {
-        return PicUrl;
+        return picUrl;
     }
 
     public void setPicUrl(String picUrl) {
-        PicUrl = picUrl;
+        this.picUrl = picUrl;
     }
 
     public String getStatus() {
-        return Status;
+        return status;
     }
 
     public void setStatus(String status) {
-        this.Status = status;
+        this.status = status;
     }
 
     public String getDelivery_Time() {
-        return Delivery_Time;
+        return delivery_Time;
     }
 
     public void setDelivery_Time(String delivery_Time) {
-        Delivery_Time = delivery_Time;
+        this.delivery_Time = delivery_Time;
+    }
+
+    public String getService_Provider() {
+        return service_Provider;
+    }
+
+    public void setService_Provider(String service_Provider) {
+        this.service_Provider = service_Provider;
     }
 
     public Date getBooking_Date() {
-        return Booking_Date;
+        return booking_Date;
     }
 
     public void setBooking_Date(Date booking_Date) {
-        Booking_Date = booking_Date;
+        this.booking_Date = booking_Date;
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
+
+    public Double getDriverLat() {
+        return driverLat;
+    }
+
+    public void setDriverLat(Double driverLat) {
+        this.driverLat = driverLat;
+    }
+
+    public Double getDriverLng() {
+        return driverLng;
+    }
+
+    public void setDriverLng(Double driverLng) {
+        this.driverLng = driverLng;
     }
 
     public GeoPoint getLocation() {
-        return Location;
+        return location;
     }
 
     public void setLocation(GeoPoint location) {
-        Location = location;
-    }
-
-    public DB_TO_RECYCLERVIEW(String delivery_Date, String booking_Id, String area, String service_Type, String picUrl,
-                              String status, String delivery_Time, String service_Provider, Date booking_Date, GeoPoint location) {
-        Delivery_Date = delivery_Date;
-        Booking_Id = booking_Id;
-        Area = area;
-        Service_Type = service_Type;
-        PicUrl = picUrl;
-        Status = status;
-        Delivery_Time = delivery_Time;
-        Service_Provider = service_Provider;
-        Booking_Date = booking_Date;
-        Location = location;
+        this.location = location;
     }
 
     DB_TO_RECYCLERVIEW() {

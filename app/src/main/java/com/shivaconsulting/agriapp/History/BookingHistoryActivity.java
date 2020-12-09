@@ -41,7 +41,8 @@ public class  BookingHistoryActivity extends AppCompatActivity implements View.O
 
         String UUID = FirebaseAuth.getInstance().getUid();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        Query cr=db.collection("Bookings").document(UUID).collection("Booking Details").orderBy("Booking_Date", Query.Direction.ASCENDING);
+        Query cr=db.collection("Bookings").document(UUID).
+                collection("Booking Details").orderBy("status", Query.Direction.ASCENDING);
         back=findViewById(R.id.imgback2);
         home = findViewById(R.id.home);
         booking_history = findViewById(R.id.booking_history);
@@ -61,7 +62,8 @@ public class  BookingHistoryActivity extends AppCompatActivity implements View.O
 
         adapter=new DBAdapter_TO_RecylerView(options);
         RVbooking_history.setAdapter(adapter);
-        RVbooking_history.addOnItemTouchListener(new RecyclerItemClickListener(getApplicationContext(), RVbooking_history, new RecyclerItemClickListener.OnItemClickListener() {
+        RVbooking_history.addOnItemTouchListener(new RecyclerItemClickListener(getApplicationContext(),
+                RVbooking_history, new RecyclerItemClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
                 /*CircleImageView img=findViewById(R.id.circleImage1);
@@ -71,8 +73,11 @@ public class  BookingHistoryActivity extends AppCompatActivity implements View.O
                 intent.putExtra("id",adapter.getItem(position).getBooking_Id());
                 intent.putExtra("svType",adapter.getItem(position).getService_Type());
                 intent.putExtra("DateTime",adapter.getItem(position).getDelivery_Date()+"&"+adapter.getItem(position).getDelivery_Time());
-                intent.putExtra("img",adapter.getItem(position).getPicUrl().toString());
+                intent.putExtra("img",adapter.getItem(position).getPicUrl());
                 intent.putExtra("svProv",adapter.getItem(position).getService_Provider());
+                intent.putExtra("status",adapter.getItem(position).getStatus());
+                intent.putExtra("CustomerLat",adapter.getItem(position).getLatitude().toString());
+                intent.putExtra("CustomerLng",adapter.getItem(position).getLongitude().toString());
                 startActivity(intent);
             }
 

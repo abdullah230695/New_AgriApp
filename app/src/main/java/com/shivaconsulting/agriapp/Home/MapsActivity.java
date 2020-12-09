@@ -1,6 +1,6 @@
-package com.shivaconsulting.agriapp.Home;
+    package com.shivaconsulting.agriapp.Home;
 
-import android.Manifest;
+    import android.Manifest;
 import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -77,6 +77,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.shivaconsulting.agriapp.Adapter.AreaAdapter;
 import com.shivaconsulting.agriapp.Adapter.PlacesAutoCompleteAdapter;
 import com.shivaconsulting.agriapp.Adapter.TimeAdapterNew;
@@ -125,6 +127,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private AreaAdapter areaAdapter;
     private List<Integer> areaList;
     private PlacesAutoCompleteAdapter mAutoCompleteAdapter;
+    private AutocompleteSupportFragment autocompleteFragment;
 
 
 
@@ -145,16 +148,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     String phone,custName;
     public static String time;
     public static String area;
-    String address;
-    String ServiceType;
-    String ServiceID;
+    String address,ServiceType,ServiceID,token;
     double lat, lon;
     Random rnd = new Random(); //To generate random booking id
     final Long ID = (long) rnd.nextInt(99999999); //To generate random booking id
     String UUID = FirebaseAuth.getInstance().getUid();
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     DocumentReference dr = db.collection("Users").document(UUID);
-    final Map<String, Object> post = new HashMap<>();
+    final Map<String, Object> post1 = new HashMap<>();
+    final Map<String, Object> post2 = new HashMap<>();
     private static final String myTAG="FCM check";
 
     ProgressDialog progressDialog;
@@ -163,6 +165,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+        GetToken();
         enableData();
 
         setupID();
@@ -179,6 +182,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if (value != null && value.exists()) {
                     phone = value.getData().get("phone_number").toString();
                     custName=value.getData().get("user_name").toString();
+
                 }
             }
         });
@@ -200,16 +204,28 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         PlacesClient placesClient = Places.createClient(this);
 
         // Initialize the AutocompleteSupportFragment.
-        AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
+         autocompleteFragment = (AutocompleteSupportFragment)
                 getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
 
-        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME));
+        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME,Place.Field.ADDRESS,
+                Place.Field.LAT_LNG));
 
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
                 // TODO: Get info about the selected place.
                 Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
+                autoCompleteTextView.setText(place.getName()+"\n"+place.getAddress());
+                Toast.makeText(mContext, autoCompleteTextView.getText().toString(), Toast.LENGTH_SHORT).show();
+                autocompleteFragment.setText(place.getName()+" "+place.getAddress());
+                Log.d(TAG, "location: moving the camera to: SelectedLat: "
+                        + place.getLatLng().latitude + ", SelectedLng: " + place.getLatLng().longitude);
+                float zoom=18;
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), zoom));
+                MarkerOptions options = new MarkerOptions()
+                        .position(place.getLatLng())
+                        .title(place.getName()+place.getAddress());
+                mMap.addMarker(options);
 
             }
 
@@ -219,6 +235,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Log.i(TAG, "An error occurred: " + status);
             }
         });
+
 
         autoCompleteTextView.addTextChangedListener(filterTextWatcher);
 
@@ -425,7 +442,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) |
                         selectedDate == null | time == null | area == null |
-                        autoCompleteTextView.length() == 0) {
+                        autocompleteFragment==null | autoCompleteTextView.length()==0) {
 
                     if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                         Toast.makeText(mContext, "Please Enable GPS First", Toast.LENGTH_SHORT).show();
@@ -441,7 +458,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         } catch (Exception e) {
                             Toast.makeText(mContext, "Unable to get device location", Toast.LENGTH_SHORT).show();
                         }
-                    } else if (autoCompleteTextView.length() == 0) {
+                    } else if (autocompleteFragment==null | autoCompleteTextView.length()==0) {
                         Toast.makeText(mContext, "Please check your delivery address above", Toast.LENGTH_SHORT).show();
                         try {
                             if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -611,7 +628,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
+            mMap = googleMap;
 
         if (mLocationPermissionsGranted) {
             getDeviceLocation();
@@ -1004,7 +1021,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             List<Address> addresses = geocoder.getFromLocation(lat, lon, 1);
             address =addresses.get(0).getAddressLine(0);
-            autoCompleteTextView.setText(address);
+            if(autoCompleteTextView.length()==0) {
+                autoCompleteTextView.setText(address);
+            }
+            autocompleteFragment.setText(address);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -1022,21 +1042,22 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         bookContraint.setVisibility(View.GONE);
         String UUID1 = FirebaseAuth.getInstance().getUid();
 
-        post.put("Booking_Date", new Timestamp(new Date()));
-        post.put("Delivery_Date", selectedDate);
-        post.put("Booking_Id", ServiceID + id);
-        post.put("Contact_Number", phone);
-        post.put("Customer_Name", custName);
-        post.put("Delivery_Time", time);
-        post.put("Area", area);
-        post.put("Service_Type", ServiceType);
-        post.put("Latitude", lat);
-        post.put("Longitude", lon);
-        post.put("Address", address);
-        post.put("PicUrl", "https://i.pinimg.com/originals/c9/f5/fb/c9f5fba683ab296eb94c62de0b0e703c.png");
-        post.put("Status", "Pending");
-        post.put("Service_Provider", "Not Assigned");
-        post.put("Unique_ID", UUID1);
+        post1.put("booking_Date", new Timestamp(new Date()));
+        post1.put("delivery_Date", selectedDate);
+        post1.put("booking_Id", ServiceID + id);
+        post1.put("contact_Number", phone);
+        post1.put("customer_Name", custName);
+        post1.put("delivery_Time", time);
+        post1.put("area", area);
+        post1.put("service_Type", ServiceType);
+        post1.put("latitude", lat);
+        post1.put("longitude", lon);
+        post1.put("address", autoCompleteTextView.getText().toString());
+        post1.put("picUrl", "https://i.pinimg.com/originals/c9/f5/fb/c9f5fba683ab296eb94c62de0b0e703c.png");
+        post1.put("status", "Pending");
+        post1.put("service_Provider", "Not Assigned");
+        post1.put("unique_ID", UUID1);
+        post1.put("custToken", token);
 
 
         ProgeressDialog();
@@ -1045,7 +1066,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // storing booking id in seperate place for checking id redundancy
         Map<String, Object> ids = new HashMap<>();
         ids.put("ID",ServiceID+id);
-        db.collection("All Booking ID").document(ServiceID+id).set(post)
+        db.collection("All Booking ID").document(ServiceID+id).set(post1)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -1056,7 +1077,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         db.collection("Bookings").document(UUID1).collection("Booking Details")
                 .document(ServiceID + id)
-                .set(post).addOnSuccessListener(new OnSuccessListener<Void>() {
+                .set(post1).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                progressDialog.dismiss();
@@ -1065,6 +1086,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 time = null;
                 area = null;
                 autoCompleteTextView.setText(null);
+                autocompleteFragment.setText(null);
 
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -1087,20 +1109,22 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         bookContraint.setVisibility(View.GONE);
         String UUID1 = FirebaseAuth.getInstance().getUid();
 
-        post.put("Booking_Date", new Timestamp(new Date()));
-        post.put("Delivery_Date", selectedDate);
-        post.put("Booking_Id", ServiceID + ID);
-        post.put("Contact_Number", phone);
-        post.put("Delivery_Time", time);
-        post.put("Area", area);
-        post.put("Service_Type", ServiceType);
-        post.put("Customer_Name", custName);
-        post.put("Latitude", lat);
-        post.put("Longitude", lon);
-        post.put("PicUrl", "https://i.pinimg.com/originals/c9/f5/fb/c9f5fba683ab296eb94c62de0b0e703c.png");
-        post.put("Status", "Pending");
-        post.put("Service_Provider", "Not Assigned");
-        post.put("Unique_ID", UUID1);
+        post2.put("booking_Date", new Timestamp(new Date()));
+        post2.put("delivery_Date", selectedDate);
+        post2.put("booking_Id", ServiceID + ID);
+        post2.put("contact_Number", phone);
+        post2.put("delivery_Time", time);
+        post2.put("area", area);
+        post2.put("service_Type", ServiceType);
+        post2.put("customer_Name", custName);
+        post2.put("latitude", lat);
+        post2.put("longitude", lon);
+        post2.put("address", autoCompleteTextView.getText().toString());
+        post2.put("picUrl", "https://i.pinimg.com/originals/c9/f5/fb/c9f5fba683ab296eb94c62de0b0e703c.png");
+        post2.put("status", "Pending");
+        post2.put("service_Provider", "Not Assigned");
+        post2.put("unique_ID", UUID1);
+        post2.put("custToken", token);
 
         ProgeressDialog();
         progressDialog.show();
@@ -1108,7 +1132,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 // storing booking id in seperate place for checking id redundancy
         Map<String, Object> ids = new HashMap<>();
         ids.put("ID",ServiceID+ID);
-        db.collection("All Booking ID").document(ServiceID+ID).set(post)
+        db.collection("All Booking ID").document(ServiceID+ID).set(post2)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -1120,7 +1144,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         db.collection("Bookings").document(UUID1).collection("Booking Details")
                 .document(ServiceID + ID)
-                .set(post).addOnSuccessListener(new OnSuccessListener<Void>() {
+                .set(post2).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 progressDialog.dismiss();
@@ -1130,6 +1154,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 time = null;
                 area = null;
                 autoCompleteTextView.setText(null);
+                autocompleteFragment.setText(null);
 
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -1182,6 +1207,24 @@ if((wifi != null & cm != null)
 
     }
 
+    private void GetToken(){
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "getInstanceId failed", task.getException());
+                            return;
+                        }
+
+                        // Get new Instance ID token
+                         token = task.getResult().getToken();
+
+                        // Log and toast
+                        Log.d(TAG, token);
+                    }
+                });
+    }
        private void ProgeressDialog(){
            progressDialog=new ProgressDialog(mContext);
            progressDialog.setCancelable(false);

@@ -34,11 +34,12 @@
         android:id="@+id/linearLayout4"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="14dp"
+        android:layout_marginBottom="8dp"
         android:background="@drawable/shape"
         android:orientation="horizontal"
         app:layout_constraintBottom_toTopOf="@+id/tvStatus"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent">
 
         <LinearLayout
@@ -119,8 +120,8 @@
                 android:layout_height="wrap_content"
                 android:padding="2dp"
                 android:text="@string/date_time"
-                android:textStyle="bold"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:textStyle="bold" />
 
         </LinearLayout>
 
@@ -142,20 +143,8 @@
         android:id="@+id/spb"
         android:layout_width="350dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="11dp"
+        android:layout_marginTop="233dp"
         android:text="TextView"
-        app:layout_constraintBottom_toTopOf="@+id/down"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/down"
-        android:layout_width="70dp"
-        android:layout_height="29dp"
-        android:text="Operator"
-        android:textSize="6sp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -165,13 +154,15 @@
         android:id="@+id/tvStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="36dp"
         android:shadowColor="#EC0E0E"
         android:text="Current Status"
         android:textColor="#0902B1"
-        android:textSize="12sp"
+        android:textSize="16sp"
+        android:textStyle="bold|italic"
         app:layout_constraintBottom_toTopOf="@+id/spb"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
@@ -191,24 +182,27 @@
         android:layout_width="0dp"
         android:layout_height="29dp"
         android:layout_marginTop="7dp"
+        android:layout_marginEnd="9dp"
         android:text="Up"
         android:textSize="6sp"
         android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="@+id/down"
+        app:layout_constraintEnd_toEndOf="@+id/ok"
         app:layout_constraintTop_toTopOf="@+id/ok" />
 
     <fragment
         android:id="@+id/mapView"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="37dp"
+        android:layout_height="260dp"
+        android:layout_marginTop="245dp"
         android:layout_marginBottom="36dp"
         android:padding="5dp"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
         app:layout_constraintBottom_toTopOf="@+id/up1"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.428"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/down" />
+        app:layout_constraintTop_toBottomOf="@+id/spb"
+        app:layout_constraintVertical_bias="1.0" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
