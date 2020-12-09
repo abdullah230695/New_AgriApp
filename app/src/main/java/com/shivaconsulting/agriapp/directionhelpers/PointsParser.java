@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.maps.model.RoundCap;
 
 import org.json.JSONObject;
 
@@ -73,14 +74,14 @@ public class PointsParser extends AsyncTask<String, Integer, List<List<HashMap<S
             if (directionMode.equalsIgnoreCase("walking")) {
                 lineOptions.width(10);
                 lineOptions.color(Color.MAGENTA);
-               /* lineOptions.endCap(new RoundCap());
-                lineOptions.getJointType();*/
+                lineOptions.endCap(new RoundCap());
+                lineOptions.getJointType();
 
             } else {
                 lineOptions.width(20);
                 lineOptions.color(Color.BLUE);
-               /* lineOptions.endCap(new RoundCap());
-                lineOptions.getJointType();*/
+                lineOptions.endCap(new RoundCap());
+                lineOptions.getJointType();
             }
             Log.d("mylog", "onPostExecute lineoptions decoded");
         }

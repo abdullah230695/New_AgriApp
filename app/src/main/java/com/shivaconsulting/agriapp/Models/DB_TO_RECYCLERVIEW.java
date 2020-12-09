@@ -19,8 +19,9 @@ public class DB_TO_RECYCLERVIEW {
     Double driverLat;
     Double driverLng;
     GeoPoint location;
+    String driverNumber,driverName,driverToken;
 
-    public DB_TO_RECYCLERVIEW(String delivery_Date, String booking_Id, String area, String service_Type, String picUrl, String status, String delivery_Time, String service_Provider,
+    public DB_TO_RECYCLERVIEW(String delivery_Date,String driverToken,String driverName,String driverNumber, String booking_Id, String area, String service_Type, String picUrl, String status, String delivery_Time, String service_Provider,
                               Date booking_Date, Double latitude, Double longitude, Double driverLat, Double driverLng, GeoPoint location) {
         this.delivery_Date = delivery_Date;
         this.booking_Id = booking_Id;
@@ -36,6 +37,33 @@ public class DB_TO_RECYCLERVIEW {
         this.driverLat = driverLat;
         this.driverLng = driverLng;
         this.location = location;
+        this.driverNumber=driverNumber;
+        this.driverName=driverName;
+        this.driverToken=driverToken;
+    }
+
+    public String getDriverName() {
+        return driverName;
+    }
+
+    public void setDriverName(String driverName) {
+        this.driverName = driverName;
+    }
+
+    public String getDriverToken() {
+        return driverToken;
+    }
+
+    public void setDriverToken(String driverToken) {
+        this.driverToken = driverToken;
+    }
+
+    public String getDriverNumber() {
+        return driverNumber;
+    }
+
+    public void setDriverNumber(String driverNumber) {
+        this.driverNumber = driverNumber;
     }
 
     public String getDelivery_Date() {

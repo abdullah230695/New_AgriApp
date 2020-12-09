@@ -78,6 +78,9 @@ public class  BookingHistoryActivity extends AppCompatActivity implements View.O
                 intent.putExtra("status",adapter.getItem(position).getStatus());
                 intent.putExtra("CustomerLat",adapter.getItem(position).getLatitude().toString());
                 intent.putExtra("CustomerLng",adapter.getItem(position).getLongitude().toString());
+                intent.putExtra("DriverNumber",adapter.getItem(position).getDriverNumber());
+                intent.putExtra("DriverName",adapter.getItem(position).getDriverName());
+                intent.putExtra("DriverToken",adapter.getItem(position).getDriverToken());
                 startActivity(intent);
             }
 

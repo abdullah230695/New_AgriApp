@@ -1,7 +1,10 @@
 package com.shivaconsulting.agriapp;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -11,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -43,14 +47,14 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
     int currenState=0;
     private Double DriverHomeLat,DriverHomeLng,DriverLiveLat,DriverLiveLng;
     Button ok;
-    ImageView back;
-    TextView BKid,svType,svProv,DtTime;
+    ImageView back,imgDriverCall,imgDriverChat;
+    TextView BKid,svType,svProv,DtTime,tvDriverName;
     CircleImageView img;
     private String UUID = FirebaseAuth.getInstance().getUid();
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private DocumentReference dr =  db.collection("Bookings").document(UUID);
     private static final String TAG = "Partic Booking History";
-    String status,BookingId;
+    String status,BookingId,Drivphone,DriverName="",DriverToken;
     Double CustomerLatitude,CustomerLongitude;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +70,9 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
         DtTime = findViewById(R.id.DVdate);
         svProv = findViewById(R.id.svProvder);
         img = findViewById(R.id.circleImage2);
+        tvDriverName=findViewById(R.id.tvDriverName);
+        imgDriverCall=findViewById(R.id.imgDrivCall);
+        imgDriverChat=findViewById(R.id.imgDrivChat);
         // ID Setup
 
         //Retrieving Particular booking details
@@ -78,11 +85,21 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
         final String svProvider = getIntent().getStringExtra("svProv");
         svProv.setText(svProvider);
         status=getIntent().getStringExtra("status");
-       /* final String image = getIntent().getParcelableExtra("img");
-        Glide.with(img.getContext()).load(image).into(img);*/
+        Drivphone=getIntent().getStringExtra("DriverNumber");
+        DriverName=getIntent().getStringExtra("DriverName");
+        DriverToken=getIntent().getStringExtra("DriverToken");
 
         CustomerLatitude = Double.valueOf((getIntent().getStringExtra("CustomerLat")));
         CustomerLongitude = Double.valueOf((getIntent().getStringExtra("CustomerLng")));
+/* final String image = getIntent().getParcelableExtra("img");
+        Glide.with(img.getContext()).load(image).into(img);*/
+
+        //Changing call button color
+        if(status.equals("Confirmed")){
+            tvDriverName.setText(DriverName);
+            imgDriverCall.setBackgroundColor(Color.WHITE);
+            imgDriverChat.setBackgroundColor(Color.WHITE);
+        }
 
         //Status Indicator
         try {
@@ -119,15 +136,13 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                     //CustomerLng = data.getDouble("longitude");
 
                     if (status.equals("Confirmed")) {
-                        DriverHomeLat = data.getDouble("driverHomeLat");
+                        DriverHomeLat =  data.getDouble("driverHomeLat");
                         DriverHomeLng = data.getDouble("driverHomeLng");
 
                         MapImplement();
-
+                        bookingStatusIndicator();
                     } else if (status.equals("Pending") || status.equals("Waiting")) {
-                            //HomeLocatorMap();
                         try {
-
                             bookingStatusIndicator();
                         }catch (ArrayIndexOutOfBoundsException Ae){
                             Toast.makeText(ParticularBookingHistory.this, Ae.getMessage(), Toast.LENGTH_SHORT).show();
@@ -158,50 +173,6 @@ Toast.makeText(getApplicationContext(),e2.getMessage(),Toast.LENGTH_SHORT).show(
         });
 
     }
-        //onMapReady(mMap);
-
-        //DirectionMaker();
-
-
-
-        //HomeLocatorMap();
-
-
-
-    //Checking the current booking status
-
-        //HomeLocatorMap();  private void StatusChecker() {
-      /*  db.collection("Bookings").document(UUID)
-                .collection("Booking Details").document(BookingId)
-                .addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                        if (error != null) {
-                            Log.d(TAG, error.getMessage());
-                            return;
-                        }
-                        if (value != null && value.exists()) {
-                            status = value.getData().get("status").toString();
-                            //HomeLocatorMap();
-                        }
-                    }
-                });*/
-
-       /* //Status Indicator
-        try {
-            binding.spb.setLabels(data).setBarColorIndicator(Color.BLACK)
-                    .setProgressColorIndicator(Color.BLUE)
-                    .setLabelColorIndicator(Color.RED)
-                    .setCompletedPosition(0).drawView();
-            binding.spb.setCompletedPosition(currenState);
-        }catch (ArrayIndexOutOfBoundsException e3){
-            Toast.makeText(this, e3.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-    }*/
-
-
-
-
 
     private String getUrl(LatLng origin, LatLng dest, String directionMode) {
         // Origin of route
@@ -219,90 +190,6 @@ Toast.makeText(getApplicationContext(),e2.getMessage(),Toast.LENGTH_SHORT).show(
                 + output + "?" + parameters + "&key=" + getString(R.string.google_maps_key);
         return url;
     }
-
-
-
-   private void DirectionMaker(){
-
-
-/*       DocumentReference dr1= db.collection("All Booking ID").document(BookingId);
-       dr1.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot data, @Nullable FirebaseFirestoreException e) {
-                if(data!=null && data.exists()){
-                    status = data.getData().get("status").toString();
-                    CustomerLat=data.getDouble("latitude");
-                    CustomerLng=data.getDouble("longitude");
-                        if(status.equals("Confirmed")) {
-                            DriverHomeLat = data.getDouble("driverHomeLat");
-                            DriverHomeLng = data.getDouble("driverHomeLng");
-                            MapImplement();
-                        }else {
-                            StatusChecker();
-                            bookingStatusIndicator();
-                        }
-                }
-            }
-
-        });*/
-/*        Query cr=db.collection("All Booking ID").whereEqualTo("Status","Confirmed");
-        cr.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot snapshots) {
-            if(!snapshots.isEmpty()){
-                List<DocumentSnapshot> snapshopList=snapshots.getDocuments();
-                for(DocumentSnapshot snapshot:snapshopList) {
-                    status = snapshot.getData().get("Status").toString();
-                    DriverHomeGeopoint=  snapshot.getGeoPoint("driverHomeLoc");
-                    DriverHomeLat=DriverHomeGeopoint.getLatitude();
-                    DriverHomeLng= DriverHomeGeopoint.getLongitude();
-                    CustomerLat=snapshot.getDouble("Latitude");
-                    CustomerLng=snapshot.getDouble("Longitude");
-
-                    Toast.makeText(ParticularBookingHistory.this,
-                            "GeoPoint is " + CustomerLat+""+CustomerLng, Toast.LENGTH_SHORT).show();
-                    bookingStatusChecking();
-                }
-                }
-            }
-        });*/
-    }
-    //Locating Home Location
-    private void HomeLocatorMap(){
-            /*LatLng latLng = new LatLng(CustomerLatitude, CustomerLongitude);
-            float zoom = 19;
-            //mMap.addMarker(new MarkerOptions().position(latLng).title("Your Location"));
-            //if(mMap!=null){
-            homeLoc = new MarkerOptions()
-                    .position(latLng)
-                    .title("Home Location");
-               *//* mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,zoom));*//*
-            MapFragment mapFragment = (MapFragment) getFragmentManager()
-                    .findFragmentById(R.id.mapView);
-            mapFragment.getMapAsync(this);*/
-
-
-       /* if(status.equals("Pending") | status.equals("Waiting")) {
-            LatLng latLng = new LatLng(CustomerLatitude, CustomerLongitude);
-            float zoom = 19;
-            //mMap.addMarker(new MarkerOptions().position(latLng).title("Your Location"));
-            //if(mMap!=null){
-             homeLoc = new MarkerOptions()
-                    .position(latLng)
-                    .title("Home Location");
-               *//* mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,zoom));*//*
-                MapFragment mapFragment = (MapFragment) getFragmentManager()
-                        .findFragmentById(R.id.mapView);
-                mapFragment.getMapAsync(this);*/
-
-                //mMap.addMarker(options);
-            //}
-           // mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,zoom));
-
-        }
-     //Locating Home Location
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -350,10 +237,35 @@ Toast.makeText(getApplicationContext(),e2.getMessage(),Toast.LENGTH_SHORT).show(
         }
     }
 
+    public void DriverCall(View view) {
+        if (status.equals("Confirmed")) {
+            Intent callIntent = new Intent(Intent.ACTION_CALL); //use ACTION_CALL class
+            callIntent.setData(Uri.parse("tel:" + Drivphone));
+            //this is the phone number calling
+            //check permission
+            //If the device is running Android 6.0 (API level 23) and the app's targetSdkVersion is 23 or higher,
+            //the system asks the user to grant approval.
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                //request permission from user if the app hasn't got the required permission
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.CALL_PHONE},   //request specific permission from user
+                        10);
+                return;
+            } else {     //have got permission
+                try {
+                    startActivity(callIntent);  //call activity and make phone call
+                } catch (android.content.ActivityNotFoundException ex) {
+                    Toast.makeText(getApplicationContext(), "yourActivity is not founded", Toast.LENGTH_SHORT).show();
+                }
+            }
+        } else {
+            Toast.makeText(this, "Driver not allocated yet", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     public void onBackPressed() {
        finish();
     }
-
 
     @Override
     public void onTaskDone(Object... values) {
