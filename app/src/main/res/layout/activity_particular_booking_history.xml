@@ -17,6 +17,7 @@
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -34,86 +35,115 @@
         android:id="@+id/linearLayout4"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="11dp"
         android:background="@drawable/shape"
         android:orientation="horizontal"
         app:layout_constraintBottom_toTopOf="@+id/tvStatus"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
             android:orientation="vertical">
 
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginStart="6dp"
-                android:layout_marginTop="5dp"
-                android:background="@drawable/shape"
-                app:cardCornerRadius="5dp">
 
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/circleImage2"
-                    android:layout_width="56dp"
-                    android:layout_height="55dp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/tractor" />
-            </androidx.cardview.widget.CardView>
-
-            <TextView
-                android:id="@+id/svType"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center|clip_vertical|center_horizontal"
-                android:foregroundGravity="center_vertical|center|center_horizontal"
-                android:gravity="center|center_horizontal|center_vertical"
-                android:text="Service Type"
-                android:textSize="10sp"
-                android:textStyle="bold" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="2dp"
-            android:orientation="vertical"
-            android:padding="2dp">
-
-            <TextView
-                android:id="@+id/svProvder"
-                style="@android:style/Widget.Material.TextView.SpinnerItem"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="2dp"
-                android:text="Service Provider"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:layout_weight="1"
+                android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/BKid"
-                style="@android:style/Widget.Material.TextView.SpinnerItem"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="2dp"
-                android:text="Booking ID"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/DVdate"
-                style="@android:style/Widget.Material.TextView.SpinnerItem"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="2dp"
-                android:text="@string/date_time"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/cardView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginStart="6dp"
+                        android:layout_marginTop="5dp"
+                        android:background="@drawable/shape"
+                        app:cardCornerRadius="5dp">
+
+                        <de.hdodenhof.circleimageview.CircleImageView
+                            android:id="@+id/circleImage2"
+                            android:layout_width="56dp"
+                            android:layout_height="55dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/tractor" />
+                    </androidx.cardview.widget.CardView>
+
+                    <TextView
+                        android:id="@+id/svType"
+                        style="@android:style/Widget.Material.TextView.SpinnerItem"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center|center_horizontal"
+                        android:foregroundGravity="center_vertical|center|center_horizontal"
+                        android:gravity="center|center_horizontal|center_vertical"
+                        android:text="Service Type"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="2dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/svProvder"
+                        style="@android:style/Widget.Material.TextView.SpinnerItem"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Service Provider"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/BKid"
+                        style="@android:style/Widget.Material.TextView.SpinnerItem"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Booking ID"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/DVdate"
+                        style="@android:style/Widget.Material.TextView.SpinnerItem"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/date_time"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/DVtime"
+                        style="@android:style/Widget.Material.TextView.SpinnerItem"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/time"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnReschedule1"
+                android:layout_width="120dp"
+                android:layout_height="45dp"
+                android:text="Reschedule" />
         </LinearLayout>
 
         <LinearLayout
@@ -137,16 +167,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-                android:background="#FFFFFF"
+                android:background="@drawable/date_time_rounded"
                 android:gravity="center"
-                android:text="Not Allocated" />
+                android:text="Not Allocated"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold" />
 
             <LinearLayout
                 android:id="@+id/LLDriverDetails"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="2dp"
-                android:background="#FFFFFF"
+                android:background="@drawable/date_time_rounded"
                 android:orientation="horizontal"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
@@ -158,7 +190,6 @@
                     android:layout_width="72dp"
                     android:layout_height="62dp"
                     android:layout_weight="1"
-                    android:background="#FFFFFF"
                     android:onClick="DriverCall"
                     android:padding="5dp"
                     app:srcCompat="@drawable/cust_call_foreground" />
@@ -168,7 +199,6 @@
                     android:layout_width="72dp"
                     android:layout_height="62dp"
                     android:layout_weight="1"
-                    android:background="#FFFFFF"
                     android:padding="5dp"
                     app:srcCompat="@drawable/cust_chat_foreground" />
             </LinearLayout>
@@ -181,11 +211,12 @@
         android:id="@+id/textView9"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
+        android:layout_marginTop="16dp"
         android:text="Order Page"
-        android:textSize="36sp"
+        android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/toolbar" />
 
@@ -193,7 +224,7 @@
         android:id="@+id/spb"
         android:layout_width="350dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="233dp"
+        android:layout_marginTop="256dp"
         android:text="TextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -204,7 +235,7 @@
         android:id="@+id/tvStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="36dp"
+        android:layout_marginBottom="7dp"
         android:shadowColor="#EC0E0E"
         android:text="Current Status"
         android:textColor="#0902B1"
@@ -215,44 +246,64 @@
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <Button
-        android:id="@+id/ok"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="3dp"
-        android:background="@drawable/shape"
-        android:text="OK"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/up1"
-        android:layout_width="0dp"
-        android:layout_height="29dp"
-        android:layout_marginTop="7dp"
-        android:layout_marginEnd="9dp"
-        android:text="Up"
-        android:textSize="6sp"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="@+id/ok"
-        app:layout_constraintTop_toTopOf="@+id/ok" />
-
     <fragment
         android:id="@+id/mapView"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="0dp"
         android:layout_height="260dp"
-        android:layout_marginTop="245dp"
-        android:layout_marginBottom="36dp"
+        android:layout_marginTop="4dp"
         android:padding="5dp"
-        app:layout_constraintBottom_toTopOf="@+id/up1"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.428"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/spb"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintTop_toBottomOf="@+id/spb" />
+
+    <TextView
+        android:id="@+id/tvKmDist"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="3dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/date_time_rounded"
+        android:gravity="center|center_horizontal"
+        android:padding="5dp"
+        android:text="0.0 km Away"
+        android:textColor="#FFFF73"
+        android:textSize="12sp"
+        android:textStyle="bold|italic"
+        app:layout_constraintStart_toStartOf="@+id/mapView"
+        app:layout_constraintTop_toTopOf="@+id/mapView" />
+
+    <TextView
+        android:id="@+id/tvArriveTime"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="4dp"
+        android:background="@drawable/date_time_rounded"
+        android:gravity="center|center_horizontal"
+        android:padding="5dp"
+        android:text="0 Min Away"
+        android:textColor="#FFFF73"
+        android:textSize="12sp"
+        android:textStyle="bold|italic"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/mapView" />
+
+    <Button
+        android:id="@+id/ok"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="8dp"
+        android:layout_weight="1"
+        android:background="@drawable/shape"
+        android:gravity="center"
+        android:text="OK"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

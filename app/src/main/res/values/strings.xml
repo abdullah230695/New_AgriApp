@@ -5,6 +5,7 @@
     <string name="am">am</string>
     <string name="pm">pm</string>
     <string name="_1">1</string>
-    <string name="date_time"><![CDATA[Date & Time]]></string>
+    <string name="date_time"><![CDATA[Date]]></string>
+    <string name="time"><![CDATA[Time]]></string>
     <string name="api_key">AIzaSyBNS5C6OLlfFIG-1VjwfuUm73mG8HqW-wI</string>
 </resources>

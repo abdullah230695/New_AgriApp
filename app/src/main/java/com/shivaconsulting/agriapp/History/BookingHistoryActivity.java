@@ -72,7 +72,9 @@ public class  BookingHistoryActivity extends AppCompatActivity implements View.O
                 Intent intent = new Intent(getApplicationContext(), ParticularBookingHistory.class);
                 intent.putExtra("id",adapter.getItem(position).getBooking_Id());
                 intent.putExtra("svType",adapter.getItem(position).getService_Type());
-                intent.putExtra("DateTime",adapter.getItem(position).getDelivery_Date()+"&"+adapter.getItem(position).getDelivery_Time());
+                intent.putExtra("DvDate",adapter.getItem(position).getDelivery_Date());
+                intent.putExtra("DvTime",adapter.getItem(position).getDelivery_Time());
+                intent.putExtra("CustPhone",adapter.getItem(position).getContact_Number());
                 intent.putExtra("img",adapter.getItem(position).getPicUrl());
                 intent.putExtra("svProv",adapter.getItem(position).getService_Provider());
                 intent.putExtra("status",adapter.getItem(position).getStatus());

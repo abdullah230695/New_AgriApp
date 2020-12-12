@@ -6,14 +6,41 @@
     android:layout_height="match_parent">
 
 
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        app:cardCornerRadius="5dp"
+        app:layout_constraintEnd_toStartOf="@+id/map_search_recyler"
+        app:layout_constraintStart_toStartOf="@+id/map_search_recyler"
+        app:layout_constraintTop_toTopOf="@+id/map">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.025"
+
+        <fragment
+            android:id="@+id/autocomplete_fragment1"
+            android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="visible" />
+
+    </androidx.cardview.widget.CardView>
+
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".Home.MapsActivity"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="16dp" />
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/map_search_recyler"
+        app:layout_constraintStart_toStartOf="@+id/map_search_recyler"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:context=".Home.MapsActivity" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/tot_type_cardview"
@@ -30,8 +57,8 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:clickable="true">
+            android:clickable="true"
+            android:orientation="horizontal">
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -160,33 +187,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/autoCompleteTextView"></androidx.recyclerview.widget.RecyclerView>
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardView2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#FFFFFF"
-        app:cardCornerRadius="5dp"
-        app:layout_constraintEnd_toStartOf="@+id/map_search_recyler"
-        app:layout_constraintStart_toStartOf="@+id/map_search_recyler"
-        app:layout_constraintTop_toTopOf="@+id/map">
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.025"
-
-        <fragment
-            android:id="@+id/autocomplete_fragment"
-            android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="visible" />
-
-    </androidx.cardview.widget.CardView>
-
-
-
 
     <ImageView
         android:id="@+id/imageMarker"
@@ -280,7 +280,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginBottom="62dp"
+        android:layout_marginBottom="8dp"
         android:background="@drawable/gpsview_rounded"
         app:layout_constraintBottom_toTopOf="@+id/tot_type_cardview"
         app:layout_constraintStart_toStartOf="parent"
@@ -338,13 +338,13 @@
             app:layout_constraintTop_toBottomOf="@+id/imageView2" />
 
         <Button
-            android:id="@+id/book_button"
+            android:id="@+id/Reschedulebtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="8dp"
             android:background="@color/white"
-            android:text="Book Now"
+            android:text="Reschedule Now"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -449,6 +449,39 @@
             app:layout_constraintStart_toEndOf="@+id/imageView7"
             app:layout_constraintTop_toBottomOf="@+id/textView7" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <EditText
+        android:id="@+id/etChangeNumber"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="17dp"
+        android:layout_marginTop="68dp"
+        android:layout_marginEnd="32dp"
+        android:background="@drawable/shape_transparent"
+        android:ems="10"
+        android:gravity="center"
+        android:hint="Contact Number"
+        android:inputType="phone"
+        android:maxLength="10"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/ctvChangeContact"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ToggleButton
+        android:id="@+id/ctvChangeContact"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="60dp"
+        android:checkMark="@drawable/ic_baseline_check_24"
+        android:checked="true"
+        android:gravity="center"
+        android:text="Change Contact Number"
+        android:textOff="Don't Change"
+        android:textOn="Change Number"
+        app:layout_constraintStart_toStartOf="@+id/map"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
     <!--    <androidx.coordinatorlayout.widget.CoordinatorLayout-->

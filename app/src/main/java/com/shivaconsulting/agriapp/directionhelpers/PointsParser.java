@@ -15,10 +15,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-
 public class PointsParser extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
     TaskLoadedCallback taskCallback;
     String directionMode = "driving";
+    private Object Context=PointsParser.class;
 
     public PointsParser(Context mContext, String directionMode) {
         this.taskCallback = (TaskLoadedCallback) mContext;
@@ -55,6 +55,8 @@ public class PointsParser extends AsyncTask<String, Integer, List<List<HashMap<S
     protected void onPostExecute(List<List<HashMap<String, String>>> result) {
         ArrayList<LatLng> points;
         PolylineOptions lineOptions = null;
+        String distance = "";
+        String duration = "";
         // Traversing through all the routes
         for (int i = 0; i < result.size(); i++) {
             points = new ArrayList<>();
@@ -64,6 +66,13 @@ public class PointsParser extends AsyncTask<String, Integer, List<List<HashMap<S
             // Fetching all the points in i-th route
             for (int j = 0; j < path.size(); j++) {
                 HashMap<String, String> point = path.get(j);
+                if (j == 0) {    // Get distance from the list
+                    distance = (String) point.get("distance");
+                    continue;
+                } else if (j == 1) { // Get duration from the list
+                    duration = (String) point.get("duration");
+                    continue;
+                }
                 double lat = Double.parseDouble(point.get("lat"));
                 double lng = Double.parseDouble(point.get("lng"));
                 LatLng position = new LatLng(lat, lng);
@@ -77,13 +86,18 @@ public class PointsParser extends AsyncTask<String, Integer, List<List<HashMap<S
                 lineOptions.startCap(new RoundCap());
                 lineOptions.endCap(new RoundCap());
                 lineOptions.getJointType();
-
+               /* tvKMDistance.setText("new "+distance);
+                tvArrivingTime.setText("new"+duration);*/
+                //Toast.makeText((android.content.Context) Context, "dis is "+distance, Toast.LENGTH_SHORT).show();
             } else {
                 lineOptions.width(20);
                 lineOptions.color(Color.BLUE);
                 lineOptions.startCap(new RoundCap());
                 lineOptions.endCap(new RoundCap());
                 lineOptions.getJointType();
+                /*tvKMDistance.setText("new "+distance);
+                tvArrivingTime.setText("new"+duration);*/
+                //Toast.makeText((android.content.Context) Context, "dis is "+distance, Toast.LENGTH_SHORT).show();
             }
             Log.d("mylog", "onPostExecute lineoptions decoded");
         }
