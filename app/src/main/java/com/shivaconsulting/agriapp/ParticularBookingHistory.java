@@ -150,6 +150,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
 
         //Getting DriverLiveLocation
         if (status.equals("Arriving")) {
+            btnReschedule.setVisibility(View.INVISIBLE);
             DocumentReference dr2 = db.collection("LiveLocation").document(DriverID);
             dr2.addSnapshotListener(new EventListener<DocumentSnapshot>() {
                 @Override

@@ -70,12 +70,12 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
-import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -97,7 +97,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -449,6 +448,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         Toast.makeText(mContext, "Please Enable GPS First", Toast.LENGTH_SHORT).show();
                         try {
                             enableLoc();
+                            getDeviceLocation();
                         } catch (Exception e) {
                             Log.d(TAG,e.getMessage());
                         }
@@ -456,6 +456,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         Toast.makeText(mContext, "Please select Date,Time,Area", Toast.LENGTH_SHORT).show();
                         try {
                             getDeviceLocation();
+                            getAddress();
                         } catch (Exception e) {
                             Toast.makeText(mContext, "Unable to get device location", Toast.LENGTH_SHORT).show();
                         }
@@ -465,7 +466,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                                 Toast.makeText(mContext, "Please Enable GPS First", Toast.LENGTH_SHORT).show();
                                 enableLoc();
-
+                                getAddress();
                             } else {
                                 getDeviceLocation();
                                 getAddress();
@@ -619,8 +620,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
-            mMap.setMyLocationEnabled(false);
-            mMap.getUiSettings().setMyLocationButtonEnabled(false);
+            mMap.setMyLocationEnabled(true);
+            mMap.getUiSettings().setMyLocationButtonEnabled(true);
             mMap.getUiSettings().setTiltGesturesEnabled(true);
 
 
@@ -1018,7 +1019,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         bookContraint.setVisibility(View.GONE);
         String UUID1 = FirebaseAuth.getInstance().getUid();
 
-        post1.put("booking_Date", new Timestamp(new Date()));
+        post1.put("booking_Date", FieldValue.serverTimestamp());
         post1.put("delivery_Date", selectedDate);
         post1.put("booking_Id", ServiceID + id);
         post1.put("contact_Number", phone);
@@ -1085,7 +1086,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         bookContraint.setVisibility(View.GONE);
         String UUID1 = FirebaseAuth.getInstance().getUid();
 
-        post2.put("booking_Date", new Timestamp(new Date()));
+        post2.put("booking_Date",FieldValue.serverTimestamp());
         post2.put("delivery_Date", selectedDate);
         post2.put("booking_Id", ServiceID + ID);
         post2.put("contact_Number", phone);

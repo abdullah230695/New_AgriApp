@@ -22,6 +22,7 @@ import static com.shivaconsulting.agriapp.Home.MapsActivity.pick_date_text;
 import static com.shivaconsulting.agriapp.Home.MapsActivity.pick_time_text;
 import static com.shivaconsulting.agriapp.Home.MapsActivity.time;
 import static com.shivaconsulting.agriapp.Home.MapsActivity.time_picker_recyclerview;
+
 import static com.shivaconsulting.agriapp.RescheduleBooking.area_picker_recyclerview2;
 import static com.shivaconsulting.agriapp.RescheduleBooking.datePickerTimeline2;
 import static com.shivaconsulting.agriapp.RescheduleBooking.pick_area_text2;
