@@ -21,8 +21,6 @@ import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -75,8 +73,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
 import com.shivaconsulting.agriapp.Adapter.AreaAdapter;
 import com.shivaconsulting.agriapp.Adapter.PlacesAutoCompleteAdapter;
 import com.shivaconsulting.agriapp.Adapter.TimeAdapterNew;
@@ -87,8 +83,6 @@ import com.shivaconsulting.agriapp.Profile.LoginActivity;
 import com.shivaconsulting.agriapp.Profile.ProfileActivity;
 import com.vivekkaushik.datepicker.DatePickerTimeline;
 import com.vivekkaushik.datepicker.OnDateSelectedListener;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -144,7 +138,7 @@ public class RescheduleBooking extends AppCompatActivity implements OnMapReadyCa
     String phone,custName;
     public static String time2;
     public static String area2;
-    String address,ServiceType,ServiceID,token,BookingId,CustomerNumber;
+    String address,ServiceType,ServiceID,token,BookingId,CustomerNumber,CustNumsubstr,status;
     double lat, lon;
     Random rnd = new Random(); //To generate random booking id
     final Long ID = (long) rnd.nextInt(99999999); //To generate random booking id
@@ -168,10 +162,16 @@ public class RescheduleBooking extends AppCompatActivity implements OnMapReadyCa
 
         BookingId=getIntent().getStringExtra("id");
         CustomerNumber=getIntent().getStringExtra("CustPhone");
-        String CustNumsubstr = CustomerNumber.substring(CustomerNumber.length() - 10);
+        CustNumsubstr = CustomerNumber.substring(CustomerNumber.length() - 10);
         ChangeContact.setText(CustNumsubstr);
+        address=getIntent().getStringExtra("CustAddress");
+        autocompleteFragment.setText(address);
+        autoCompleteTextView.setText(address);
+        status=getIntent().getStringExtra("status");
 
-        GetToken();
+        if(status.equals("Pending")){
+            Reschedule1.setText("Change Now");
+        }
 
         enableData();
 
@@ -190,9 +190,7 @@ public class RescheduleBooking extends AppCompatActivity implements OnMapReadyCa
 // Create a new Places client instance.
         PlacesClient placesClient = Places.createClient(this);
 
-        // Initialize the AutocompleteSupportFragment.
-        autocompleteFragment = (AutocompleteSupportFragment)
-                getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment1);
+
 
         autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME,Place.Field.ADDRESS,
                 Place.Field.LAT_LNG));
@@ -223,15 +221,6 @@ public class RescheduleBooking extends AppCompatActivity implements OnMapReadyCa
                 Log.i(TAG, "An error occurred: " + status);
             }
         });
-
-
-        autoCompleteTextView.addTextChangedListener(filterTextWatcher);
-
-        mAutoCompleteAdapter = new PlacesAutoCompleteAdapter(this);
-        map_search_recyler.setLayoutManager(new LinearLayoutManager(this));
-        mAutoCompleteAdapter.setClickListener(this);
-        map_search_recyler.setAdapter(mAutoCompleteAdapter);
-        mAutoCompleteAdapter.notifyDataSetChanged();
 
         Calendar c = Calendar.getInstance();
         int year = c.get(Calendar.YEAR);
@@ -402,6 +391,7 @@ tbChangeContact.setOnClickListener(new View.OnClickListener() {
             ChangeContact.setVisibility(View.VISIBLE);
         } else {
             ChangeContact.setVisibility(View.INVISIBLE);
+            ChangeContact.setText(CustNumsubstr);
         }
     }
 });
@@ -440,8 +430,6 @@ tbChangeContact.setOnClickListener(new View.OnClickListener() {
 
                             } else if (ChangeContact.length()==0 || ChangeContact.length()<10) {
                                 ChangeContact.setError("Please Enter 10 Digit Number");
-                            } else if(ServiceType==null){
-                                Toast.makeText(mContext, "Please select service type", Toast.LENGTH_SHORT).show();
                             } else {
                                 getDeviceLocation();
                                 getAddress();
@@ -451,7 +439,9 @@ tbChangeContact.setOnClickListener(new View.OnClickListener() {
 
                         }
                     }
-                } else {
+                }else if(ServiceType==null){
+                    Toast.makeText(mContext, "Please select service type", Toast.LENGTH_SHORT).show();
+                }  else {
 
                     final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
                     builder.setTitle("Confirm Booking");
@@ -567,9 +557,10 @@ tbChangeContact.setOnClickListener(new View.OnClickListener() {
                     Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
-            mMap.setMyLocationEnabled(false);
+            mMap.setMyLocationEnabled(true);
             mMap.getUiSettings().setMyLocationButtonEnabled(false);
             mMap.getUiSettings().setTiltGesturesEnabled(true);
+            mMap.getUiSettings().setZoomControlsEnabled(true);
 
 
             final Geocoder geocoder = new Geocoder(this, Locale.getDefault());
@@ -612,26 +603,8 @@ tbChangeContact.setOnClickListener(new View.OnClickListener() {
             });
         }
     }
-    private TextWatcher filterTextWatcher = new TextWatcher() {
-        public void afterTextChanged(@NotNull Editable s) {
-            if (!s.toString().equals("")) {
-                mAutoCompleteAdapter.getFilter().filter(s.toString());
-                if (map_search_recyler.getVisibility() == View.GONE) {
-                    map_search_recyler.setVisibility(View.VISIBLE);
-                }
-            } else {
-                if (map_search_recyler.getVisibility() == View.VISIBLE) {
-                    map_search_recyler.setVisibility(View.GONE);
-                }
-            }
-        }
 
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
 
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-        }
-    };
 
 
     private void initMap() {
@@ -909,6 +882,9 @@ tbChangeContact.setOnClickListener(new View.OnClickListener() {
         tot_Type2 = findViewById(R.id.totType);
         belt_Type2 = findViewById(R.id.beltType);
         progressBar = findViewById(R.id.pb1);
+        // Initialize the AutocompleteSupportFragment.
+        autocompleteFragment = (AutocompleteSupportFragment)
+                getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment1);
     }//ID setups
 
 
@@ -939,18 +915,26 @@ tbChangeContact.setOnClickListener(new View.OnClickListener() {
         post.put("latitude", options.getPosition().latitude);
         post.put("longitude", options.getPosition().longitude);
         post.put("address",   autoCompleteTextView.getText().toString());
-        post.put("status", "Reschedule Request");
-
+        if(status.equals("Confirmed")) {
+            post.put("status", "Reschedule Request");
+        }
         //Updating Driver details in customer side bookng id
         DocumentReference RescheduleUpdate = db.collection("Bookings")
                 .document(UUID).collection("Booking Details").document(BookingId);
         RescheduleUpdate.set(post, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                Toast.makeText(RescheduleBooking.this, "Successfully Rescheduled", Toast.LENGTH_SHORT).show();
-                Reschedule1.setText("Rescheduled ✔");
-                Reschedule1.setTextColor(Color.WHITE);
-                Reschedule1.setEnabled(false);
+                if(status.equals("Confirmed")) {
+                    Toast.makeText(RescheduleBooking.this, "Successfully Rescheduled", Toast.LENGTH_SHORT).show();
+                    Reschedule1.setText("Rescheduled ✔");
+                    Reschedule1.setTextColor(Color.WHITE);
+                    Reschedule1.setEnabled(false);
+                } else if(status.equals("Pending")){
+                    Toast.makeText(RescheduleBooking.this, "Successfully Changed Booking Details", Toast.LENGTH_SHORT).show();
+                    Reschedule1.setText("Changed ✔");
+                    Reschedule1.setTextColor(Color.WHITE);
+                    Reschedule1.setEnabled(false);
+                }
 
             }
         });
@@ -1008,24 +992,7 @@ tbChangeContact.setOnClickListener(new View.OnClickListener() {
 
     }
 
-    private void GetToken(){
-        FirebaseInstanceId.getInstance().getInstanceId()
-                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
-                        if (!task.isSuccessful()) {
-                            Log.w(TAG, "getInstanceId failed", task.getException());
-                            return;
-                        }
 
-                        // Get new Instance ID token
-                        token = task.getResult().getToken();
-
-                        // Log and toast
-                        Log.d(TAG, token);
-                    }
-                });
-    }
     private void ProgeressDialog(){
         progressDialog=new ProgressDialog(mContext);
         progressDialog.setCancelable(false);

@@ -70,7 +70,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private DocumentReference dr = db.collection("Bookings").document(UUID);
     private static final String TAG = "Partic Booking History";
-    String status, BookingId, Drivphone, DriverName = "", DriverToken, DriverID,CustPhone;
+    String status, BookingId, Drivphone, DriverName = "", DriverToken, DriverID,CustPhone,CustAddress;
     SupportMapFragment mapFragment;
 
     @Override
@@ -98,6 +98,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
 
         //Retrieving Particular booking details
         CustPhone= getIntent().getStringExtra("CustPhone");
+        CustAddress=getIntent().getStringExtra("custAddress");
         BookingId = getIntent().getStringExtra("id");
         BKid.setText(BookingId);
         final String ServiceName = getIntent().getStringExtra("svType");
@@ -139,6 +140,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
             Toast.makeText(this, e3.getMessage(), Toast.LENGTH_SHORT).show();
         }
 
+
         if (status.equals("Pending") || status.equals("Waiting")) {
             tvArrivingTime.setVisibility(View.INVISIBLE);
             tvKMDistance.setVisibility(View.INVISIBLE);
@@ -146,6 +148,10 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
             homeLoc = new MarkerOptions()
                     .position(latLng)
                     .title("Home Location");
+            btnReschedule.setText("Change Booking");
+            if(status.equals("Waiting")){
+                btnReschedule.setVisibility(View.INVISIBLE);
+            }
         }
 
         //Getting DriverLiveLocation
@@ -180,17 +186,18 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                     if (data1 != null && data1.exists()) {
                         //status = data.getData().get("status").toString();
                         if (status.equals("Confirmed")) {
-                            DriverHomeLat = data1.getDouble("driverHomeLat");
-                            DriverHomeLng = data1.getDouble("driverHomeLng");
-                            DriverLocation = new LatLng(DriverHomeLat, DriverHomeLng);
+                            try {
+                                DriverHomeLat = data1.getDouble("driverHomeLat");
+                                DriverHomeLng = data1.getDouble("driverHomeLng");
+                                DriverLocation = new LatLng(DriverHomeLat, DriverHomeLng);
+                            }catch (NullPointerException npe){
+                                Log.d("driverLoc",npe.getMessage());
+                            }
                             MapImplement();
                             bookingStatusIndicator();
                         } else if (status.equals("Pending") || status.equals("Waiting")) {
-                            try {
                                 bookingStatusIndicator();
-                            } catch (ArrayIndexOutOfBoundsException Ae) {
 
-                            }
                         }
                     }
                 } catch (ArrayIndexOutOfBoundsException e2) {
@@ -207,6 +214,8 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                 Intent intent = new Intent(getApplicationContext(), RescheduleBooking.class);
                 intent.putExtra("id",BookingId);
                 intent.putExtra("CustPhone",CustPhone);
+                intent.putExtra("CustAddress",CustAddress);
+                intent.putExtra("status",status);
                 startActivity(intent);
             }
         });
@@ -339,7 +348,9 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
             mMap.addMarker(homeLoc);
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(CustomerLocation, 19));  //move camera to location
         }
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED &&
+                 ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding

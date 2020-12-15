@@ -8,6 +8,7 @@ public class DB_TO_RECYCLERVIEW {
     String delivery_Date;
     String booking_Id;
     String area;
+    String address;
     String service_Type;
     String picUrl;
     String status;
@@ -21,7 +22,7 @@ public class DB_TO_RECYCLERVIEW {
     GeoPoint location;
     String driverNumber,driverName,driverToken,driverId,contact_Number;
 
-    public DB_TO_RECYCLERVIEW(String delivery_Date,String contact_Number,String driverToken,String driverName,String driverNumber,String driverId,String booking_Id, String area, String service_Type, String picUrl, String status, String delivery_Time, String service_Provider,
+    public DB_TO_RECYCLERVIEW(String delivery_Date,String address,String contact_Number,String driverToken,String driverName,String driverNumber,String driverId,String booking_Id, String area, String service_Type, String picUrl, String status, String delivery_Time, String service_Provider,
                               Date booking_Date, Double latitude, Double longitude, Double driverLat, Double driverLng, GeoPoint location) {
         this.delivery_Date = delivery_Date;
         this.booking_Id = booking_Id;
@@ -42,6 +43,15 @@ public class DB_TO_RECYCLERVIEW {
         this.driverToken=driverToken;
         this.driverId=driverId;
         this.contact_Number=contact_Number;
+        this.address=address;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public String getContact_Number() {
