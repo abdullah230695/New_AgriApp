@@ -60,6 +60,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -146,8 +147,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     String phone,custName;
     public static String time;
     public static String area;
-    String address,ServiceType,ServiceID,token;
-    double lat, lon;
+    String currentAddress,address,ServiceType,ServiceID,token;
+    double lat, lon,markerLat,markerLng;
     Random rnd = new Random(); //To generate random booking id
     final Long ID = (long) rnd.nextInt(99999999); //To generate random booking id
     String UUID = FirebaseAuth.getInstance().getUid();
@@ -157,6 +158,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     final Map<String, Object> post2 = new HashMap<>();
     private static final String myTAG="FCM check";
     MarkerOptions options = new MarkerOptions();
+    MarkerOptions markerOptions = new MarkerOptions();
     ProgressDialog progressDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -165,8 +167,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         GetToken();
         enableData();
-
         setupID();
+        enableLoc();
+        getDeviceLocation();
+
+
+
 
         //Getting Customer Phone Number
         dr.addSnapshotListener(new EventListener<DocumentSnapshot>() {
@@ -618,6 +624,26 @@ try {
 
     }
 
+    private void gpsEnabledCheck() {
+        try{
+            Log.d(TAG, "onCreate: Checking Gps is enabled or not");
+            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                Toast.makeText(mContext, "Please Enable GPS First", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "onCreate: Gps not enabled");
+                enableLoc();
+                //TODO:NEED TO IMPLEMENT LIKE SWIGGY ONCE GPS TURNED ON
+
+            } else {
+                Log.d(TAG, "onClick: Clicked after Gps Is On");
+                getDeviceLocation();
+                getAddress();
+            }
+
+        }catch (Exception e){
+
+        }
+    }
+
     private void moveCamera(LatLng latLng, float zoom, String tittle) {
         try {
         Log.d(TAG, "location: moving the camera to: lat: " + latLng.latitude + ", lng: " + latLng.longitude);
@@ -694,9 +720,62 @@ try {
                     cardView1.setVisibility(View.VISIBLE);
                     cardView2.setVisibility(View.VISIBLE);
                     cardView3.setVisibility(View.VISIBLE);
+                    Marker dragMarker = mMap.addMarker(new MarkerOptions().position(mCenterLatLong).title("Marker Location"));
+                    dragMarker.setPosition(latLng);
+                    mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+                    markerLat= dragMarker.getPosition().latitude;
+                    markerLng=dragMarker.getPosition().longitude;
+                    Geocoder geocoder = new Geocoder(mContext, Locale.getDefault());
+                    try {
 
+                        List<Address> addresses = geocoder.getFromLocation
+                                (markerLat,markerLng, 1);
+                        currentAddress =addresses.get(0).getAddressLine(0);
+                        if(autoCompleteTextView.length()==0 ) {
+                            autoCompleteTextView.setText(currentAddress);
+                            autocompleteFragment.setText(currentAddress);
+                        }
+                        autocompleteFragment.setText(currentAddress);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             });
+
+          /*  mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+                @Override
+                public void onMarkerDragStart(Marker arg0) {
+                }
+
+                @SuppressWarnings("unchecked")
+                @Override
+                public void onMarkerDragEnd(Marker arg0) {
+                    Log.d("System out", "onMarkerDragEnd...");
+                    mMap.animateCamera(CameraUpdateFactory.newLatLng(arg0.getPosition()));
+                    markerLat=arg0.getPosition().latitude;
+                    markerLng=arg0.getPosition().longitude;
+                    Toast.makeText(MapsActivity.this, (int) arg0.getPosition().latitude, Toast.LENGTH_SHORT).show();
+                    Geocoder geocoder = new Geocoder(mContext, Locale.getDefault());
+                    try {
+
+                        List<Address> addresses = geocoder.getFromLocation
+                                (markerLat,markerLng, 1);
+                        currentAddress =addresses.get(0).getAddressLine(0);
+                        Toast.makeText(MapsActivity.this, (int) markerLat, Toast.LENGTH_SHORT).show();
+                        if(autoCompleteTextView.length()==0 ) {
+                            autoCompleteTextView.setText(currentAddress);
+                            autocompleteFragment.setText(currentAddress);
+                        }
+                        autocompleteFragment.setText(currentAddress);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onMarkerDrag(Marker arg0) {
+                }
+            });*/
         }
 }catch (Exception e){
 
@@ -812,6 +891,7 @@ try {
                                 options = new MarkerOptions().position
                                         (new LatLng(lat, lon)).title("Driver Home Location")
                                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.add_marker));
+                                getAddress();
                             } catch (Exception e) {
                                 Log.d(TAG,"OnCreate :"+e.getMessage());
                             }
@@ -1050,6 +1130,9 @@ try {
         belt_Type = findViewById(R.id.beltType);
         progressBar = findViewById(R.id.pb1);
     }//ID setups
+
+
+
 
 
     private void getAddress() {

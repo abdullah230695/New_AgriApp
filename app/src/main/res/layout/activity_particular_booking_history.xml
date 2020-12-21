@@ -8,9 +8,26 @@
     tools:context=".ParticularBookingHistory">
 
     <TextView
+        android:id="@+id/btnCancel"
+        style="@android:style/Widget.Material.Light.TextView.SpinnerItem"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginStart="100dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="88dp"
+        android:layout_marginBottom="36dp"
+        android:text="Cancel Booking"
+        android:textColor="#E60101"
+        android:textStyle="bold|italic"
+        app:layout_constraintBottom_toTopOf="@+id/spb"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btnReschedule1"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout4" />
+
+    <TextView
         android:id="@+id/btnReschedule1"
         style="@android:style/Widget.Material.Light.TextView.SpinnerItem"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_marginTop="20dp"
         android:layout_marginBottom="17dp"

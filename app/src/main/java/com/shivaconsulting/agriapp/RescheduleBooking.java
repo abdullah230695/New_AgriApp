@@ -58,6 +58,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -138,8 +139,8 @@ public class RescheduleBooking extends AppCompatActivity implements OnMapReadyCa
     String phone,custName;
     public static String time2;
     public static String area2;
-    String address,ServiceType,ServiceID,token,BookingId,CustomerNumber,CustNumsubstr,status;
-    double lat, lon;
+    String address,currentAddress,ServiceType,ServiceID,token,BookingId,CustomerNumber,CustNumsubstr,status;
+    double lat, lon,markerLat,markerLng;
     Random rnd = new Random(); //To generate random booking id
     final Long ID = (long) rnd.nextInt(99999999); //To generate random booking id
     String UUID = FirebaseAuth.getInstance().getUid();
@@ -613,6 +614,26 @@ try {
                     cardView3.setVisibility(View.VISIBLE);
                     tbChangeContact.setVisibility(View.INVISIBLE);
                     ChangeContact.setVisibility(View.INVISIBLE);
+
+                    Marker dragMarker = mMap.addMarker(new MarkerOptions().position(mCenterLatLong).title("Marker Location"));
+                    dragMarker.setPosition(latLng);
+                    mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+                    markerLat= dragMarker.getPosition().latitude;
+                    markerLng=dragMarker.getPosition().longitude;
+                    Geocoder geocoder = new Geocoder(mContext, Locale.getDefault());
+                    try {
+
+                        List<Address> addresses = geocoder.getFromLocation
+                                (markerLat,markerLng, 1);
+                        currentAddress =addresses.get(0).getAddressLine(0);
+                        if(autoCompleteTextView.length()==0 ) {
+                            autoCompleteTextView.setText(currentAddress);
+                            autocompleteFragment.setText(currentAddress);
+                        }
+                        autocompleteFragment.setText(currentAddress);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             });
         }
@@ -937,7 +958,6 @@ try {
         try {
         post.put("reschedule_Date", new Timestamp(new Date()));
         post.put("delivery_Date", selectedDate);
-
         post.put("contact_Number",ChangeContact.getText().toString());
         post.put("delivery_Time", time2);
         post.put("area", area2);
@@ -947,8 +967,9 @@ try {
         post.put("address",   autoCompleteTextView.getText().toString());
         if(status.equals("Confirmed")) {
             post.put("status", "Reschedule Request");
+            post.put("rescheduleReqFrom", "Farmer");
         }
-        //Updating Driver details in customer side bookng id
+
         DocumentReference RescheduleUpdate = db.collection("Bookings")
                 .document(UUID).collection("Booking Details").document(BookingId);
         RescheduleUpdate.set(post, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -960,7 +981,7 @@ try {
                     Reschedule1.setTextColor(Color.WHITE);
                     Reschedule1.setEnabled(false);
                 } else if(status.equals("Pending")){
-                    Toast.makeText(RescheduleBooking.this, "Successfully Changed Booking Details", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RescheduleBooking.this, "Successfully Changed", Toast.LENGTH_SHORT).show();
                     Reschedule1.setText("Changed ✔");
                     Reschedule1.setTextColor(Color.WHITE);
                     Reschedule1.setEnabled(false);
@@ -968,17 +989,14 @@ try {
 
             }
         });
-        //Updating Driver details in All Booking id
+
         DocumentReference AllBookingIDUpdateReschedule = db.collection("All Booking ID").document(BookingId);
         AllBookingIDUpdateReschedule.set(post, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                Toast.makeText(RescheduleBooking.this, "Successfully Rescheduled", Toast.LENGTH_SHORT).show();
-                Reschedule1.setText("Rescheduled ✔");
-                Reschedule1.setTextColor(Color.WHITE);
-                Reschedule1.setEnabled(false);
             }
         });
+            sendNotification();
         }catch (Exception e){
 
         }
@@ -1046,11 +1064,18 @@ try {
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
         String channelId = "Default";
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        NotificationCompat.Builder builder = new  NotificationCompat.Builder(this, channelId)
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("Your Booking Has Been Received")
-                .setContentText("Please check booking history for vehicle confirmation")
-                .setSound(defaultSoundUri).setAutoCancel(true).setContentIntent(pendingIntent);;
+    NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelId);
+    if(status.equals("Pending")) {
+        builder.setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle("Change of Booking Details Are Successful")
+                .setContentText("You can check the booking details in Booking History")
+                .setSound(defaultSoundUri).setAutoCancel(true).setContentIntent(pendingIntent);
+    }else if(status.equals("Confirmed")){
+        builder.setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle("Reschedule Request Sent Successful")
+                .setContentText("You can check the status in Booking History")
+                .setSound(defaultSoundUri).setAutoCancel(true).setContentIntent(pendingIntent);
+    }
         NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(channelId, "Default channel", NotificationManager.IMPORTANCE_DEFAULT);

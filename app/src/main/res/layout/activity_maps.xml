@@ -186,8 +186,6 @@
     </androidx.cardview.widget.CardView>
 
 
-
-
     <ImageView
         android:id="@+id/imageMarker"
         android:layout_width="63dp"

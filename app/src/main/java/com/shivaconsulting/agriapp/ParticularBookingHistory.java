@@ -1,11 +1,18 @@
 package com.shivaconsulting.agriapp;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -21,6 +28,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -33,6 +41,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -40,12 +49,16 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.SetOptions;
+import com.shivaconsulting.agriapp.History.BookingHistoryActivity;
 import com.shivaconsulting.agriapp.Home.MapsActivity;
 import com.shivaconsulting.agriapp.databinding.ActivityParticularBookingHistoryBinding;
 import com.shivaconsulting.agriapp.directionhelpers.FetchURL;
 import com.shivaconsulting.agriapp.directionhelpers.TaskLoadedCallback;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -63,12 +76,11 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
     GeoPoint DriverLiveLatLng;
     Button ok;
     ImageView back, imgDriverCall, imgDriverChat;
-    TextView BKid, svType, svProv,DVdate,DvTime, tvDriverName,btnReschedule;
+    TextView BKid, svType, svProv,DVdate,DvTime, tvDriverName,btnReschedule,btnCancel,tvCurrentStatus;
     public static TextView tvKMDistance,tvArrivingTime;
     CircleImageView img;
     private String UUID = FirebaseAuth.getInstance().getUid();
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private DocumentReference dr = db.collection("Bookings").document(UUID);
     private static final String TAG = "Partic Booking History";
     String status, BookingId, Drivphone, DriverName = "", DriverToken, DriverID,CustPhone,CustAddress;
     SupportMapFragment mapFragment;
@@ -94,6 +106,8 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
         tvArrivingTime = findViewById(R.id.tvArriveTime);
         tvKMDistance = findViewById(R.id.tvKmDist);
         btnReschedule=binding.btnReschedule1;
+        btnCancel=findViewById(R.id.btnCancel);
+        tvCurrentStatus=findViewById(R.id.tvStatus);
         // ID Setup
 
         //Retrieving Particular booking details
@@ -156,6 +170,8 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                     binding.spb.setCompletedPosition(2).drawView();
                 } else if (status.equals("Completed")) {
                     binding.spb.setCompletedPosition(3).drawView();
+                    btnReschedule.setVisibility(View.INVISIBLE);
+                    btnCancel.setVisibility(View.INVISIBLE);
                 }
             }catch (ArrayIndexOutOfBoundsException e4){
                 Toast.makeText(this, e4.getMessage(), Toast.LENGTH_SHORT).show();
@@ -179,6 +195,33 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
 
             }
         }
+
+        if(status.equals("Confirmed")){
+            btnCancel.setText("Make Cancellation\n"+"Request");
+        } else if(status.equals("Cancelled")){
+            binding.spb.setVisibility(View.GONE);
+            btnCancel.setVisibility(View.GONE);
+            btnReschedule.setVisibility(View.GONE);
+            tvCurrentStatus.setText("This booking has been cancelled");
+            tvCurrentStatus.setTextSize(20);
+            tvCurrentStatus.setTextColor(Color.RED);
+        }else if(status.equals("Waiting")){
+
+        }else if(status.equals("Completed")){
+            btnCancel.setVisibility(View.INVISIBLE);
+            btnReschedule.setVisibility(View.INVISIBLE);
+        }else if(status.equals("Arriving")){
+            btnCancel.setVisibility(View.INVISIBLE);
+            btnReschedule.setVisibility(View.INVISIBLE);
+        }else if(status.equals("Cancellation Request")){
+            btnCancel.setVisibility(View.INVISIBLE);
+            btnReschedule.setVisibility(View.INVISIBLE);
+            tvCurrentStatus.setText("Cancellation Request Under Process ...");
+            tvCurrentStatus.setTextSize(20);
+            tvCurrentStatus.setTextColor(Color.RED);
+            binding.spb.setVisibility(View.GONE);
+        }
+
 
         //Getting DriverLiveLocation
         if (status.equals("Arriving")) {
@@ -254,6 +297,63 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
             }
         });
 
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (status.equals("Waiting")) {
+                    Toast.makeText(getApplicationContext(), "Driver verification in progress, you can cancel later",
+                            Toast.LENGTH_SHORT).show();
+                } else {
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(ParticularBookingHistory.this);
+                    builder.setTitle("Cancellation of Booking");
+                    builder.setMessage("Do you really want to cancel this booking ?");
+                    builder.setCancelable(false);
+                    builder.setPositiveButton("YES, CANCEL", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            DocumentReference dr = db.collection("Bookings").document(UUID)
+                                    .collection("Booking Details").document(BookingId);
+                            Map<String, Object> statusUpdate = new HashMap<>();
+                            if (status.equals("Pending")) {
+                                statusUpdate.put("status", "Cancelled");
+                                Toast.makeText(ParticularBookingHistory.this, "Cancellation Successful", Toast.LENGTH_SHORT).show();
+
+                            } else if (status.equals("Confirmed")) {
+                                statusUpdate.put("status", "Cancellation Request");
+                                statusUpdate.put("cancellationReqFrom", "Farmer");
+                                Toast.makeText(ParticularBookingHistory.this, "Cancellation Request sent successful", Toast.LENGTH_SHORT).show();
+                            }
+                            dr.set(statusUpdate, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+
+                                }
+                            });
+
+                            DocumentReference AllBookingIDUpdateReschedule = db.collection("All Booking ID").document(BookingId);
+                            AllBookingIDUpdateReschedule.set(statusUpdate, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+
+                                }
+                            });
+                            sendNotification();
+                        }
+                    }).setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    }).setIcon(R.drawable.ic_baseline_commute_24);
+                    //Creating dialog box
+                    AlertDialog alert = builder.create();
+                    //Setting the title manually
+                    alert.show();
+                }
+            }
+        });
+
         ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -318,7 +418,6 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                             long elapsed;
                             float t;
                             float v;
-
                             @Override
                             public void run() {
                                 // Calculate progress using interpolator
@@ -597,5 +696,35 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
 
         }
         }
+
+    private void sendNotification() {
+        try {
+            Intent intent = new Intent(this, BookingHistoryActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
+            String channelId = "Default";
+            Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelId);
+            if(status.equals("Pending")) {
+                builder.setSmallIcon(R.mipmap.ic_launcher)
+                        .setContentTitle("Your Booking Has Been Cancelled")
+                        .setContentText("You can check the status in Booking History")
+                        .setSound(defaultSoundUri).setAutoCancel(true).setContentIntent(pendingIntent);
+            }else if(status.equals("Confirmed")){
+                builder.setSmallIcon(R.mipmap.ic_launcher)
+                        .setContentTitle("Cancellation request sent successful")
+                        .setContentText("You can check the status in Booking History")
+                        .setSound(defaultSoundUri).setAutoCancel(true).setContentIntent(pendingIntent);
+            }
+            NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                NotificationChannel channel = new NotificationChannel(channelId, "Default channel", NotificationManager.IMPORTANCE_DEFAULT);
+                manager.createNotificationChannel(channel);
+            }
+            manager.notify(0, builder.build());
+        }catch (Exception e){
+
+        }
+    }  //Sending notification after a booking has made
     }
 
