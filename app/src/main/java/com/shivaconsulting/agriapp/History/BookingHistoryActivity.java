@@ -68,7 +68,7 @@ public class  BookingHistoryActivity extends AppCompatActivity implements View.O
             public void onItemClick(View view, int position) {
                 /*CircleImageView img=findViewById(R.id.circleImage1);
                 Glide.with(img.getContext()).load(adapter.getItem(position).getPicUrl()).into(img);*/
-
+try {
                 Intent intent = new Intent(getApplicationContext(), ParticularBookingHistory.class);
                 intent.putExtra("id",adapter.getItem(position).getBooking_Id());
                 intent.putExtra("svType",adapter.getItem(position).getService_Type());
@@ -85,7 +85,11 @@ public class  BookingHistoryActivity extends AppCompatActivity implements View.O
                 intent.putExtra("DriverToken",adapter.getItem(position).getDriverToken());
                 intent.putExtra("DriverID",adapter.getItem(position).getDriverId());
                 intent.putExtra("custAddress",adapter.getItem(position).getAddress());
+
                 startActivity(intent);
+}catch (Exception e){
+
+}
             }
 
             @Override

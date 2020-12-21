@@ -173,17 +173,21 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-
+try {
                 if (error != null) {
                     Log.d(TAG, error.getMessage());
                     return;
                 }
                 if (value != null && value.exists()) {
                     phone = value.getData().get("phone_number").toString();
-                    custName=value.getData().get("user_name").toString();
+                    custName = value.getData().get("user_name").toString();
 
                 }
+}catch (Exception e){
+
+}
             }
+
         });
 
 
@@ -212,7 +216,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
-                // TODO: Get info about the selected place.
+                try {
                 Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
                 autoCompleteTextView.setText(place.getName()+"\n"+place.getAddress());
                 Toast.makeText(mContext, autoCompleteTextView.getText().toString(), Toast.LENGTH_SHORT).show();
@@ -227,6 +231,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.add_marker));
 
                 mMap.addMarker(options);
+                }catch (Exception e){
+
+                }
             }
 
             @Override
@@ -281,6 +288,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         gps_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                try{
                 Log.d(TAG, "onClick: Clicked when gps is turned off");
                 if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                     Toast.makeText(mContext, "Please Enable GPS First", Toast.LENGTH_SHORT).show();
@@ -291,9 +299,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 } else {
                     Log.d(TAG, "onClick: Clicked after Gps Is On");
                     getDeviceLocation();
+                    getAddress();
                 }
 
+                }catch (Exception e){
 
+                }
             }
         });
         tot_Type.setOnClickListener(new View.OnClickListener() {
@@ -302,7 +313,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 /*Toast toast = Toast.makeText(mContext, "Selected service Type is TOT", Toast.LENGTH_SHORT);
                 toast.setGravity(Gravity.CENTER, 0, 0);
                 toast.show();*/
-
+try {
                 ServiceType = "TOT Type";
                 ServiceID = "TOT";
                 cardView1.setVisibility(View.GONE);
@@ -322,6 +333,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 pick_time_text.setTextSize(14);
                 pick_date_text.setTextSize(18);
                 pick_area_text.setTextSize(14);
+}catch (Exception e){
+
+}
             }
         });
 
@@ -332,7 +346,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                /* Toast toast = Toast.makeText(mContext, "Selected service Type is Belt", Toast.LENGTH_SHORT);
                 toast.setGravity(Gravity.CENTER, 0, 0);
                 toast.show();*/
-
+try {
                 ServiceType = "Belt Type";
                 ServiceID = "BLT";
                 cardView1.setVisibility(View.GONE);
@@ -352,6 +366,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 pick_time_text.setTextSize(14);
                 pick_date_text.setTextSize(18);
                 pick_area_text.setTextSize(14);
+}catch (Exception e){
+
+}
             }
         });
 
@@ -359,6 +376,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         combine_text.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                try {
                 Log.d(TAG, "onClick: Clicked");
                /* Toast toast = Toast.makeText(mContext, "Selected service Type is Combined", Toast.LENGTH_SHORT);
                 toast.setGravity(Gravity.CENTER, 0, 0);
@@ -382,6 +400,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 pick_time_text.setTextSize(14);
                 pick_date_text.setTextSize(18);
                 pick_area_text.setTextSize(14);
+                }catch (Exception e){
+
+                }
             }
         });
 
@@ -389,6 +410,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         datePickerTimeline.setOnDateSelectedListener(new OnDateSelectedListener() {
             @Override
             public void onDateSelected(int year, int month, int day, int dayOfWeek) {
+                try {
                 month = month + 1;
                 selectedDate = day + "/" + month + "/" + year;
                 Log.d(TAG, "onDateSelected: date: " + year + month + day);
@@ -400,6 +422,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 pick_time_text.setTextSize(18);
                 pick_date_text.setTextSize(14);
                 pick_area_text.setTextSize(14);
+                }catch (Exception e){
+
+                }
             }
 
             @Override
@@ -439,6 +464,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View view) {
+                try {
 
                 if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) |
                         selectedDate == null | time == null | area == null |
@@ -529,6 +555,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     alert.show();
 
                 }
+                }catch (Exception e){
+
+                }
             }
 
 
@@ -590,12 +619,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void moveCamera(LatLng latLng, float zoom, String tittle) {
+        try {
         Log.d(TAG, "location: moving the camera to: lat: " + latLng.latitude + ", lng: " + latLng.longitude);
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
         MarkerOptions options = new MarkerOptions()
                 .position(latLng)
                 .title(tittle);
         mMap.addMarker(options);
+        }catch (Exception e){
+
+        }
     }
 
 
@@ -611,7 +644,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
+try {
         if (mLocationPermissionsGranted) {
             getDeviceLocation();
 
@@ -665,6 +698,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             });
         }
+}catch (Exception e){
+
+}
     }
     private TextWatcher filterTextWatcher = new TextWatcher() {
         public void afterTextChanged(@NotNull Editable s) {
@@ -695,6 +731,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void enableLoc() {
+        try {
         LocationRequest locationRequest = LocationRequest.create();
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         locationRequest.setInterval(30 * 1000);
@@ -745,6 +782,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             }
         });
+        }catch (Exception e){
+
+        }
     }
 
 
@@ -768,6 +808,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                         DEFAULT_ZOOM, "My Location");
                                 lat = currentLocation.getLatitude();
                                 lon = currentLocation.getLongitude();
+
                                 options = new MarkerOptions().position
                                         (new LatLng(lat, lon)).title("Driver Home Location")
                                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.add_marker));
@@ -794,6 +835,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     private void getLocationPermission() {
+        try {
         Log.d(TAG, "getLocationPermission: getting location permissions");
         String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION};
@@ -814,6 +856,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     permissions,
                     LOCATION_PERMISSION_REQUEST_CODE);
         }
+        }catch (Exception e){
+
+        }
     }
 
 
@@ -821,7 +866,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         Log.d(TAG, "onRequestPermissionsResult: called.");
         mLocationPermissionsGranted = false;
-
+try {
         switch (requestCode) {
             case LOCATION_PERMISSION_REQUEST_CODE: {
                 if (grantResults.length > 0) {
@@ -839,6 +884,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             }
         }
+}catch (Exception e){
+
+}
     }
 
 
@@ -874,11 +922,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      * @param user
      */
     private void checkCurrentUser(FirebaseUser user) {
+        try {
         Log.d(TAG, "checkCurrentUser: checking if user is logged in.");
 
         if (user == null) {
             Intent intent = new Intent(mContext, LoginActivity.class);
             startActivity(intent);
+        }
+        }catch (Exception e){
+
         }
     }
 
@@ -888,6 +940,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     private void setupFirebaseAuth() {
+        try {
         Log.d(TAG, "setupFirebaseAuth: setting up firebase auth.");
 
         mAuth = FirebaseAuth.getInstance();
@@ -910,6 +963,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 // ...
             }
         };
+        }catch (Exception e){
+
+        }
     }
 
     @Override
@@ -955,7 +1011,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void click(Place place) {
+        try {
         moveCamera(new LatLng(place.getLatLng().latitude, place.getLatLng().longitude), DEFAULT_ZOOM, "Selected Location");
+        }catch (Exception e){
+
+        }
     }
 
     //ID setups
@@ -998,8 +1058,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             List<Address> addresses = geocoder.getFromLocation(lat, lon, 1);
             address =addresses.get(0).getAddressLine(0);
-            if(autoCompleteTextView.length()==0) {
+            if(autoCompleteTextView.length()==0 ) {
                 autoCompleteTextView.setText(address);
+                autocompleteFragment.setText(address);
             }
             autocompleteFragment.setText(address);
         } catch (IOException e) {
@@ -1009,6 +1070,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //Adding Booking details to firestore if Booking id exist
     private void InsertData1() {
+        try {
 
         Random r = new Random();
         Long id = (long) r.nextInt(999999999);
@@ -1073,12 +1135,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Toast.makeText(MapsActivity.this, "Failed to book!", Toast.LENGTH_SHORT).show();
             }
         });
+        }catch (Exception e){
+
+        }
+
     } //Adding Booking details to firestore if Bookig id exist
 
 
     //Adding Booking details to firestore
     private void InsertData2() {
-
+            try {
         Toast.makeText(MapsActivity.this, "Processing", Toast.LENGTH_SHORT).show();
         cardView1.setVisibility(View.VISIBLE);
         cardView2.setVisibility(View.VISIBLE);
@@ -1142,6 +1208,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Log.d(TAG,"Failed to book!");
             }
         });
+            }catch (Exception e){
+
+            }
     } //Adding Booking details to firestore
 
     //Prompting user to enable data connection
@@ -1185,22 +1254,26 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void GetToken(){
-        FirebaseInstanceId.getInstance().getInstanceId()
-                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
-                        if (!task.isSuccessful()) {
-                            Log.w(TAG, "getInstanceId failed", task.getException());
-                            return;
+        try {
+            FirebaseInstanceId.getInstance().getInstanceId()
+                    .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                            if (!task.isSuccessful()) {
+                                Log.w(TAG, "getInstanceId failed", task.getException());
+                                return;
+                            }
+
+                            // Get new Instance ID token
+                            token = task.getResult().getToken();
+
+                            // Log and toast
+                            Log.d(TAG, token);
                         }
+                    });
+        }catch (Exception e){
 
-                        // Get new Instance ID token
-                        token = task.getResult().getToken();
-
-                        // Log and toast
-                        Log.d(TAG, token);
-                    }
-                });
+        }
     }
     private void ProgeressDialog(){
         progressDialog=new ProgressDialog(mContext);
@@ -1216,23 +1289,27 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //Sending notification after a booking has made
     private void sendNotification() {
+try {
+    Intent intent = new Intent(this, BookingHistoryActivity.class);
+    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
+    String channelId = "Default";
+    Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+    NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelId)
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setContentTitle("Your Booking Has Been Received")
+            .setContentText("Please check booking history for vehicle confirmation")
+            .setSound(defaultSoundUri).setAutoCancel(true).setContentIntent(pendingIntent);
+    ;
+    NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        NotificationChannel channel = new NotificationChannel(channelId, "Default channel", NotificationManager.IMPORTANCE_DEFAULT);
+        manager.createNotificationChannel(channel);
+    }
+    manager.notify(0, builder.build());
+}catch (Exception e){
 
-        Intent intent = new Intent(this, BookingHistoryActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
-        String channelId = "Default";
-        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        NotificationCompat.Builder builder = new  NotificationCompat.Builder(this, channelId)
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("Your Booking Has Been Received")
-                .setContentText("Please check booking history for vehicle confirmation")
-                .setSound(defaultSoundUri).setAutoCancel(true).setContentIntent(pendingIntent);;
-        NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(channelId, "Default channel", NotificationManager.IMPORTANCE_DEFAULT);
-            manager.createNotificationChannel(channel);
-        }
-        manager.notify(0, builder.build());
+}
     }  //Sending notification after a booking has made
 }
 

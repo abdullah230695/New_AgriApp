@@ -198,6 +198,7 @@ public class RescheduleBooking extends AppCompatActivity implements OnMapReadyCa
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
+                try {
                 // TODO: Get info about the selected place.
                 Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
                 autoCompleteTextView.setText(place.getName()+"\n"+place.getAddress());
@@ -212,7 +213,9 @@ public class RescheduleBooking extends AppCompatActivity implements OnMapReadyCa
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.add_marker));
 
                 mMap.addMarker(options);
+                }catch (Exception e){
 
+                }
             }
 
             @Override
@@ -258,6 +261,7 @@ public class RescheduleBooking extends AppCompatActivity implements OnMapReadyCa
         gps_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                try {
                 Log.d(TAG, "onClick: Clicked when gps is turned off");
                 if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                     Toast.makeText(mContext, "Please Enable GPS First", Toast.LENGTH_SHORT).show();
@@ -268,9 +272,12 @@ public class RescheduleBooking extends AppCompatActivity implements OnMapReadyCa
                 } else {
                     Log.d(TAG, "onClick: Clicked after Gps Is On");
                     getDeviceLocation();
+
                 }
 
+                }catch (Exception e){
 
+                }
             }
         });
         tot_Type2.setOnClickListener(new View.OnClickListener() {
@@ -402,7 +409,7 @@ tbChangeContact.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View view) {
-
+try {
                 if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) |
                         selectedDate == null | time2 == null | area2 == null |
                         autocompleteFragment==null | autoCompleteTextView.length()==0) {
@@ -418,6 +425,7 @@ tbChangeContact.setOnClickListener(new View.OnClickListener() {
                         Toast.makeText(mContext, "Please select Date,Time,Area", Toast.LENGTH_SHORT).show();
                         try {
                             getDeviceLocation();
+                            getAddress();
                         } catch (Exception e) {
                             Toast.makeText(mContext, "Unable to get device location", Toast.LENGTH_SHORT).show();
                         }
@@ -466,6 +474,9 @@ tbChangeContact.setOnClickListener(new View.OnClickListener() {
                     alert.show();
 
                 }
+}catch (Exception e){
+
+}
             }
 
 
@@ -527,12 +538,16 @@ tbChangeContact.setOnClickListener(new View.OnClickListener() {
     }
 
     private void moveCamera(LatLng latLng, float zoom, String tittle) {
+        try {
         Log.d(TAG, "location: moving the camera to: lat: " + latLng.latitude + ", lng: " + latLng.longitude);
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
         MarkerOptions options = new MarkerOptions()
                 .position(latLng)
                 .title(tittle);
         mMap.addMarker(options);
+        }catch (Exception e){
+
+        }
     }
 
 
@@ -548,10 +563,9 @@ tbChangeContact.setOnClickListener(new View.OnClickListener() {
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
+try {
         if (mLocationPermissionsGranted) {
             getDeviceLocation();
-
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                     != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -602,6 +616,9 @@ tbChangeContact.setOnClickListener(new View.OnClickListener() {
                 }
             });
         }
+}catch (Exception e){
+
+}
     }
 
 
@@ -614,6 +631,7 @@ tbChangeContact.setOnClickListener(new View.OnClickListener() {
     }
 
     private void enableLoc() {
+        try {
         LocationRequest locationRequest = LocationRequest.create();
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         locationRequest.setInterval(30 * 1000);
@@ -664,6 +682,9 @@ tbChangeContact.setOnClickListener(new View.OnClickListener() {
                 }
             }
         });
+        }catch (Exception e){
+
+        }
     }
 
 
@@ -687,6 +708,7 @@ tbChangeContact.setOnClickListener(new View.OnClickListener() {
                                         DEFAULT_ZOOM, "My Location");
                                 lat = currentLocation.getLatitude();
                                 lon = currentLocation.getLongitude();
+                         getAddress();
                                 options = new MarkerOptions().position
                                         (new LatLng(lat, lon)).title("Your Location")
                                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.add_marker));
@@ -712,6 +734,7 @@ tbChangeContact.setOnClickListener(new View.OnClickListener() {
 
 
     private void getLocationPermission() {
+        try {
         Log.d(TAG, "getLocationPermission: getting location permissions");
         String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION};
@@ -732,6 +755,9 @@ tbChangeContact.setOnClickListener(new View.OnClickListener() {
                     permissions,
                     LOCATION_PERMISSION_REQUEST_CODE);
         }
+        }catch (Exception e){
+
+        }
     }
 
 
@@ -739,7 +765,7 @@ tbChangeContact.setOnClickListener(new View.OnClickListener() {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         Log.d(TAG, "onRequestPermissionsResult: called.");
         mLocationPermissionsGranted = false;
-
+try {
         switch (requestCode) {
             case LOCATION_PERMISSION_REQUEST_CODE: {
                 if (grantResults.length > 0) {
@@ -757,6 +783,9 @@ tbChangeContact.setOnClickListener(new View.OnClickListener() {
                 }
             }
         }
+}catch (Exception e){
+
+}
     }
 
 
@@ -905,6 +934,7 @@ tbChangeContact.setOnClickListener(new View.OnClickListener() {
 
     //Rescheduling Current Booking
     private void RecheduleCurrentBooking(){
+        try {
         post.put("reschedule_Date", new Timestamp(new Date()));
         post.put("delivery_Date", selectedDate);
 
@@ -949,6 +979,9 @@ tbChangeContact.setOnClickListener(new View.OnClickListener() {
                 Reschedule1.setEnabled(false);
             }
         });
+        }catch (Exception e){
+
+        }
 
     } //--------------------------------------------------------------------------
 
@@ -1007,7 +1040,7 @@ tbChangeContact.setOnClickListener(new View.OnClickListener() {
 
     //Sending notification after a booking has made
     private void sendNotification() {
-
+try {
         Intent intent = new Intent(this, BookingHistoryActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
@@ -1024,7 +1057,11 @@ tbChangeContact.setOnClickListener(new View.OnClickListener() {
             manager.createNotificationChannel(channel);
         }
         manager.notify(0, builder.build());
-    }  //Sending notification after a booking has made
+}catch (Exception e){
+
+}
+    }
+//Sending notification after a booking has made
 }
 
 
