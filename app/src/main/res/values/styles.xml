@@ -13,4 +13,15 @@
         <item name="cornerSize">4dp</item>
     </style>
 
+    <style name="CustomCardViewStyleTop" parent="Theme.MaterialComponents.DayNight.NoActionBar.Bridge">
+        <item name="shapeAppearanceOverlay">@style/CustomCardViewTop</item>
+    </style>
+    <style name="CustomCardViewTop">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopRight">20dp</item>
+        <item name="cornerSizeTopLeft">20dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+    </style>
+
 </resources>

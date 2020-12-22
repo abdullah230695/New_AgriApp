@@ -33,7 +33,6 @@ public class  BookingHistoryActivity extends AppCompatActivity implements View.O
     RecyclerView RVbooking_history;
     DBAdapter_TO_RecylerView adapter;
     ImageView back;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,15 +87,14 @@ try {
 
                 startActivity(intent);
 }catch (Exception e){
-
 }
             }
-
             @Override
             public void onLongItemClick(View view, int position) {
-
             }
         }));
+
+
 
 
         home.setOnClickListener(this);
@@ -143,11 +141,13 @@ try {
     protected void onStart() {
         super.onStart();
         adapter.startListening();
+
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         adapter.stopListening();
+
     }
 }

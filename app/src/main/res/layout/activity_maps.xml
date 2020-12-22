@@ -9,11 +9,23 @@
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
-        tools:context=".Home.MapsActivity"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="16dp" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:context=".Home.MapsActivity" />
+
+    <ImageView
+        android:id="@+id/imgSavedLoc"
+        android:layout_width="76dp"
+        android:layout_height="59dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="14dp"
+        app:layout_constraintBottom_toTopOf="@+id/imgAddLoc"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/saved_locations" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/tot_type_cardview"
@@ -30,8 +42,8 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:clickable="true">
+            android:clickable="true"
+            android:orientation="horizontal">
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -139,14 +151,16 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="60dp"
         android:layout_marginEnd="32dp"
         android:background="@drawable/searchview_rounded"
-        android:hint="Search for area, stree name..."
-        android:iconifiedByDefault="false"
+        android:hint="Enter addres to save location"
+        android:iconifiedByDefault="true"
         android:padding="5dp"
+        android:singleLine="false"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -214,10 +228,12 @@
         android:id="@+id/coordinatorLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="60dp"
         android:background="@color/transperant"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/map">
 
 
         <com.google.android.material.bottomappbar.BottomAppBar
@@ -272,17 +288,6 @@
 
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-    <ImageView
-        android:id="@+id/gps_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginBottom="62dp"
-        android:background="@drawable/gpsview_rounded"
-        app:layout_constraintBottom_toTopOf="@+id/tot_type_cardview"
-        app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/ic_location_on" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/booking_constraint"
@@ -447,6 +452,40 @@
             app:layout_constraintStart_toEndOf="@+id/imageView7"
             app:layout_constraintTop_toBottomOf="@+id/textView7" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ImageView
+        android:id="@+id/imgAddLoc"
+        android:layout_width="76dp"
+        android:layout_height="59dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/gps_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/add_location1" />
+
+    <ImageView
+        android:id="@+id/gps_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/gpsview_rounded"
+        app:layout_constraintBottom_toTopOf="@+id/tot_type_cardview"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/ic_location_on" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvSavedLoc"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/combine_type_cardview"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/imgSavedLoc"
+        app:layout_constraintTop_toBottomOf="@+id/cardView2"
+        app:layout_constraintVertical_bias="1.0" />
 
 
     <!--    <androidx.coordinatorlayout.widget.CoordinatorLayout-->

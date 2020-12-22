@@ -22,6 +22,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -45,6 +46,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.common.api.Status;
@@ -79,12 +81,17 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
+import com.shivaconsulting.agriapp.Adapter.AddressAdapter;
 import com.shivaconsulting.agriapp.Adapter.AreaAdapter;
 import com.shivaconsulting.agriapp.Adapter.PlacesAutoCompleteAdapter;
 import com.shivaconsulting.agriapp.Adapter.TimeAdapterNew;
+import com.shivaconsulting.agriapp.Classes.RecyclerItemClickListener;
 import com.shivaconsulting.agriapp.History.BookingHistoryActivity;
+import com.shivaconsulting.agriapp.Models.AddressModel;
 import com.shivaconsulting.agriapp.Models.TimeAmPm;
 import com.shivaconsulting.agriapp.Profile.LoginActivity;
 import com.shivaconsulting.agriapp.Profile.ProfileActivity;
@@ -133,22 +140,24 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     //Id's
-    private ImageView home, booking_history, profile;
+    private ImageView home, booking_history, profile,imgAddLocation,imgSavedLocations;
     private Button booking_button;
     private ImageView gps_button;
     private ConstraintLayout bookContraint;
     private CardView cardView1, cardView2, cardView3;
     public static TextView combine_text, pick_time_text, pick_date_text, pick_area_text, tot_Type, belt_Type;
-    public static RecyclerView time_picker_recyclerview, area_picker_recyclerview, map_search_recyler;
+    public static RecyclerView time_picker_recyclerview, area_picker_recyclerview, map_search_recyler,rvAddress;
     private EditText autoCompleteTextView;
     public static DatePickerTimeline datePickerTimeline;
     private AreaAdapter.OnAreaItemSelectedListener areaItemSelectedListener;
+    private AddressAdapter AddressAdapter;
     private ProgressBar progressBar;
     String phone,custName;
     public static String time;
     public static String area;
-    String currentAddress,address,ServiceType,ServiceID,token;
-    double lat, lon,markerLat,markerLng;
+    String currentAddress,address,ServiceType,ServiceID,token,personName;
+    int SavedAddressID;
+    static double  lat, lon;
     Random rnd = new Random(); //To generate random booking id
     final Long ID = (long) rnd.nextInt(99999999); //To generate random booking id
     String UUID = FirebaseAuth.getInstance().getUid();
@@ -158,7 +167,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     final Map<String, Object> post2 = new HashMap<>();
     private static final String myTAG="FCM check";
     MarkerOptions options = new MarkerOptions();
-    MarkerOptions markerOptions = new MarkerOptions();
     ProgressDialog progressDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -212,6 +220,7 @@ try {
 // Create a new Places client instance.
         PlacesClient placesClient = Places.createClient(this);
 
+
         // Initialize the AutocompleteSupportFragment.
         autocompleteFragment = (AutocompleteSupportFragment)
                 getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
@@ -229,7 +238,11 @@ try {
                 autocompleteFragment.setText(place.getName()+" "+place.getAddress());
                 Log.d(TAG, "location: moving the camera to: SelectedLat: "
                         + place.getLatLng().latitude + ", SelectedLng: " + place.getLatLng().longitude);
+
                 float zoom=18;
+                lat=place.getLatLng().latitude;
+                lon=place.getLatLng().longitude;
+
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), zoom));
 
                         options.position(place.getLatLng())
@@ -237,6 +250,7 @@ try {
                                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.add_marker));
 
                 mMap.addMarker(options);
+
                 }catch (Exception e){
 
                 }
@@ -289,6 +303,77 @@ try {
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        imgSavedLocations.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                rvAddress.setVisibility(View.VISIBLE);
+                autoCompleteTextView.setText(null);
+                autocompleteFragment.setText(null);
+                autoCompleteTextView.setVisibility(View.GONE);
+            }
+        });
+
+        imgAddLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                autoCompleteTextView.setVisibility(View.VISIBLE);
+                rvAddress.setVisibility(View.GONE);
+                if((autoCompleteTextView.length() ==0)){
+                    autoCompleteTextView.setError("Please enter address to save location");
+                }else {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                    builder.setTitle("Add New Location ?");
+                    builder.setMessage("Please enter name of person in that address ?");
+                    builder.setCancelable(false);
+                    final EditText input2 = new EditText(mContext);
+                    input2.setInputType(InputType.TYPE_CLASS_TEXT );
+                    builder.setView(input2);
+                    builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            personName=input2.getText().toString();
+                            Query query=db.collection("Bookings").document(UUID)
+                                    .collection("Saved Locations");
+                            try {
+                                query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                        if (task.isSuccessful()) {
+                                            Map<String, Object> createNewID = new HashMap<>();
+                                            createNewID.put("address", autoCompleteTextView.getText().toString());
+                                            createNewID.put("latitude", lat);
+                                            createNewID.put("longitude", lon);
+                                            createNewID.put("name", personName);
+                                            db.collection("Bookings").document(UUID)
+                                                    .collection("Saved Locations").document()
+                                                    .set(createNewID);
+                                            Toast.makeText(mContext, "Your new address is \n" + autoCompleteTextView.getText().toString() +
+                                                    "\n Saved Successful", Toast.LENGTH_LONG).show();
+                                            autoCompleteTextView.setText(null);
+                                            autoCompleteTextView.setVisibility(View.GONE);
+                                            autocompleteFragment.setText(null);
+
+
+                                        } else {
+
+                                        }
+                                    }
+                                });
+                            }catch (Exception e){
+
+                            }
+                        }
+                    }).setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    }).setIcon(R.drawable.ic_baseline_add_location_24).show();
+
+                }
+            }
+        });
 
 
         gps_button.setOnClickListener(new View.OnClickListener() {
@@ -621,28 +706,48 @@ try {
             }
         });
 
+        Query queryAddress=db.collection("Bookings").document(UUID).collection("Saved Locations");
+        LinearLayoutManager linearLayoutManager2 = new LinearLayoutManager(mContext,
+                LinearLayoutManager.HORIZONTAL, false);
 
-    }
+        rvAddress.setLayoutManager(linearLayoutManager2);
+        rvAddress.setHasFixedSize(true);
 
-    private void gpsEnabledCheck() {
-        try{
-            Log.d(TAG, "onCreate: Checking Gps is enabled or not");
-            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                Toast.makeText(mContext, "Please Enable GPS First", Toast.LENGTH_SHORT).show();
-                Log.d(TAG, "onCreate: Gps not enabled");
-                enableLoc();
-                //TODO:NEED TO IMPLEMENT LIKE SWIGGY ONCE GPS TURNED ON
 
-            } else {
-                Log.d(TAG, "onClick: Clicked after Gps Is On");
-                getDeviceLocation();
-                getAddress();
+        FirestoreRecyclerOptions<AddressModel> options1 = new FirestoreRecyclerOptions.Builder<AddressModel>()
+                .setQuery(queryAddress, AddressModel.class)
+                .build();
+
+        AddressAdapter=new AddressAdapter(options1);
+        rvAddress.setAdapter(AddressAdapter);
+        AddressAdapter.startListening();
+         AddressAdapter.getItemCount();
+        rvAddress.addOnItemTouchListener(new RecyclerItemClickListener(mContext, rvAddress, new RecyclerItemClickListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                try {
+                    autoCompleteTextView.setVisibility(View.VISIBLE);
+                    autoCompleteTextView.setText(AddressAdapter.getItem(position).getAddress());
+                    lat= AddressAdapter.getItem(position).getLatitude();
+                    lon= AddressAdapter.getItem(position).getLongitude();
+                    LatLng latLng=new LatLng(lat, lon);
+                    Marker savedMarker = mMap.addMarker(new MarkerOptions().position(latLng).title("Saved Location"));
+                    savedMarker.setPosition(latLng);
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,19));
+
+                }catch(Exception e){
+
+                }
             }
 
-        }catch (Exception e){
+            @Override
+            public void onLongItemClick(View view, int position) {
 
-        }
+            }
+        }));
+
     }
+
 
     private void moveCamera(LatLng latLng, float zoom, String tittle) {
         try {
@@ -716,28 +821,34 @@ try {
             mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                 @Override
                 public void onMapClick(LatLng latLng) {
-                    bookContraint.setVisibility(View.GONE);
-                    cardView1.setVisibility(View.VISIBLE);
-                    cardView2.setVisibility(View.VISIBLE);
-                    cardView3.setVisibility(View.VISIBLE);
-                    Marker dragMarker = mMap.addMarker(new MarkerOptions().position(mCenterLatLong).title("Marker Location"));
-                    dragMarker.setPosition(latLng);
-                    mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
-                    markerLat= dragMarker.getPosition().latitude;
-                    markerLng=dragMarker.getPosition().longitude;
-                    Geocoder geocoder = new Geocoder(mContext, Locale.getDefault());
                     try {
+                        bookContraint.setVisibility(View.GONE);
+                        cardView1.setVisibility(View.VISIBLE);
+                        cardView2.setVisibility(View.VISIBLE);
+                        cardView3.setVisibility(View.VISIBLE);
+                        Marker dragMarker = mMap.addMarker(new MarkerOptions().position(mCenterLatLong).title("Marker Location"));
+                        dragMarker.setPosition(latLng);
+                        mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
 
-                        List<Address> addresses = geocoder.getFromLocation
-                                (markerLat,markerLng, 1);
-                        currentAddress =addresses.get(0).getAddressLine(0);
-                        if(autoCompleteTextView.length()==0 ) {
-                            autoCompleteTextView.setText(currentAddress);
+                        lat = dragMarker.getPosition().latitude;
+                        lon = dragMarker.getPosition().longitude;
+                        Geocoder geocoder = new Geocoder(mContext, Locale.getDefault());
+                        try {
+                            List<Address> addresses = geocoder.getFromLocation
+                                    (lat, lon, 1);
+                            currentAddress = addresses.get(0).getAddressLine(0);
+                            if (autoCompleteTextView.length() == 0) {
+                                autoCompleteTextView.setText(currentAddress);
+                                autocompleteFragment.setText(currentAddress);
+                                autoCompleteTextView.setText(currentAddress);
+                            }
                             autocompleteFragment.setText(currentAddress);
+                            autoCompleteTextView.setText(currentAddress);
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
-                        autocompleteFragment.setText(currentAddress);
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    }catch (Exception e){
+
                     }
                 }
             });
@@ -1053,6 +1164,13 @@ try {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
         checkCurrentUser(mAuth.getCurrentUser());
+        AddressAdapter.startListening();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        AddressAdapter.startListening();
     }
 
     @Override
@@ -1060,6 +1178,7 @@ try {
         super.onStop();
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
+
         }
     }
 
@@ -1116,6 +1235,7 @@ try {
         area_picker_recyclerview = findViewById(R.id.area_picker_recyclerview);
         pick_date_text = findViewById(R.id.pick_date_text);
         pick_area_text = findViewById(R.id.pick_area_text);
+        rvAddress=findViewById(R.id.rvSavedLoc);
         /*combine_image_1 = findViewById(R.id.combine_image_1);
         combine_image_2 = findViewById(R.id.combine_image_2);
         combine_image_3 = findViewById(R.id.combine_image_3);
@@ -1129,6 +1249,8 @@ try {
         tot_Type = findViewById(R.id.totType);
         belt_Type = findViewById(R.id.beltType);
         progressBar = findViewById(R.id.pb1);
+        imgAddLocation=findViewById(R.id.imgAddLoc);
+        imgSavedLocations=findViewById(R.id.imgSavedLoc);
     }//ID setups
 
 
@@ -1146,6 +1268,7 @@ try {
                 autocompleteFragment.setText(address);
             }
             autocompleteFragment.setText(address);
+            autoCompleteTextView.setText(address);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -1172,8 +1295,8 @@ try {
         post1.put("delivery_Time", time);
         post1.put("area", area);
         post1.put("service_Type", ServiceType);
-        post1.put("latitude", options.getPosition().latitude);
-        post1.put("longitude", options.getPosition().longitude);
+        post1.put("latitude", lat);
+        post1.put("longitude", lon);
         post1.put("address", autoCompleteTextView.getText().toString());
         post1.put("picUrl", "https://i.pinimg.com/originals/c9/f5/fb/c9f5fba683ab296eb94c62de0b0e703c.png");
         post1.put("status", "Pending");
@@ -1243,8 +1366,8 @@ try {
         post2.put("area", area);
         post2.put("service_Type", ServiceType);
         post2.put("customer_Name", custName);
-        post2.put("latitude", options.getPosition().latitude);
-        post2.put("longitude", options.getPosition().longitude);
+        post2.put("latitude", lat);
+        post2.put("longitude", lon);
         post2.put("address", autoCompleteTextView.getText().toString());
         post2.put("picUrl", "https://i.pinimg.com/originals/c9/f5/fb/c9f5fba683ab296eb94c62de0b0e703c.png");
         post2.put("status", "Pending");
