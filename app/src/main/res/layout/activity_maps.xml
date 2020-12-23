@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/parent_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -9,10 +10,11 @@
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_width="0dp"
+        android:layout_width="411dp"
         android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:context=".Home.MapsActivity" />
@@ -21,49 +23,29 @@
         android:id="@+id/imgSavedLoc"
         android:layout_width="76dp"
         android:layout_height="59dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginBottom="14dp"
-        app:layout_constraintBottom_toTopOf="@+id/imgAddLoc"
+        app:layout_constraintBottom_toTopOf="@id/imgAddLoc"
+        app:layout_constraintEnd_toStartOf="@id/guideRight"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/saved_locations" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/tot_type_cardview"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginBottom="30dp"
         android:visibility="visible"
-        app:cardBackgroundColor="#64DD17"
-        app:cardCornerRadius="25dp"
-        app:layout_constraintBottom_toTopOf="@+id/booking_constraint"
-        app:layout_constraintStart_toStartOf="parent">
+        app:cardBackgroundColor="@color/black"
+        app:layout_constraintBottom_toTopOf="@id/guideBottom"
+        app:layout_constraintStart_toEndOf="@id/guidLeft">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="1dp"
-                android:layout_marginTop="5dp"
-                android:src="@drawable/ic_baseline_train" />
-
-            <TextView
-                android:id="@+id/totType"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="30dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="10dp"
-                android:layout_marginBottom="5dp"
-                android:text="TOT Type" />
-
-        </RelativeLayout>
-
+        <ImageView
+            android:id="@+id/tot_type"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            app:srcCompat="@drawable/tot" />
 
     </androidx.cardview.widget.CardView>
 
@@ -71,118 +53,79 @@
         android:id="@+id/belt_type_cardview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="30dp"
         android:visibility="visible"
-        app:cardBackgroundColor="#64DD17"
-        app:cardCornerRadius="25dp"
-        app:layout_constraintBottom_toTopOf="@+id/booking_constraint"
+        app:cardBackgroundColor="@color/black"
+        app:layout_constraintBottom_toTopOf="@+id/coordinatorLayout"
         app:layout_constraintEnd_toStartOf="@+id/combine_type_cardview"
         app:layout_constraintStart_toEndOf="@+id/tot_type_cardview">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clickable="true">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="1dp"
-                android:layout_marginTop="5dp"
-                android:src="@drawable/ic_baseline_train" />
-
-            <TextView
-                android:id="@+id/beltType"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="30dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="10dp"
-                android:layout_marginBottom="5dp"
-                android:text="Belt Type" />
-
-        </RelativeLayout>
-
-
+        <ImageView
+            android:id="@+id/belt_type"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            app:srcCompat="@drawable/belt" />
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
         android:id="@+id/combine_type_cardview"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="30dp"
         android:visibility="visible"
-        app:cardBackgroundColor="#64DD17"
-        app:cardCornerRadius="25dp"
-        app:layout_constraintBottom_toTopOf="@+id/booking_constraint"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:cardBackgroundColor="@color/black"
+        app:layout_constraintBottom_toTopOf="@id/guideBottom"
+        app:layout_constraintEnd_toStartOf="@id/guideRight">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clickable="true">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="1dp"
-                android:layout_marginTop="5dp"
-                android:src="@drawable/ic_baseline_train" />
-
-            <TextView
-                android:id="@+id/combine_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="30dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="10dp"
-                android:layout_marginBottom="5dp"
-                android:text="@string/combine_type" />
-
-        </RelativeLayout>
-
-
+        <ImageView
+            android:id="@+id/combine_type"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            app:srcCompat="@drawable/combine" />
     </androidx.cardview.widget.CardView>
 
     <EditText
         android:id="@+id/autoCompleteTextView"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="60dp"
-        android:layout_marginEnd="32dp"
+        android:layout_marginTop="2dp"
         android:background="@drawable/searchview_rounded"
         android:hint="Enter addres to save location"
         android:iconifiedByDefault="true"
         android:padding="5dp"
         android:singleLine="false"
         android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/guideRight"
+        app:layout_constraintStart_toStartOf="@id/guidLeft"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/map_search_recyler"
         android:layout_width="0dp"
         android:layout_height="6dp"
-        android:layout_marginTop="16dp"
         android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/autoCompleteTextView"></androidx.recyclerview.widget.RecyclerView>
+        app:layout_constraintTop_toTopOf="parent"></androidx.recyclerview.widget.RecyclerView>
+
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView2"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:background="#FFFFFF"
-        app:cardCornerRadius="5dp"
-        app:layout_constraintEnd_toStartOf="@+id/map_search_recyler"
-        app:layout_constraintStart_toStartOf="@+id/map_search_recyler"
-        app:layout_constraintTop_toTopOf="@+id/map">
+        app:cardCornerRadius="15dp"
+        app:layout_constraintEnd_toEndOf="@id/guideRight"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@id/guidLeft"
+        app:layout_constraintTop_toBottomOf="@id/autoCompleteTextView">
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -199,16 +142,16 @@
 
     </androidx.cardview.widget.CardView>
 
-
     <ImageView
         android:id="@+id/imageMarker"
         android:layout_width="63dp"
         android:layout_height="71dp"
-        android:layout_marginBottom="340dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.416"
         app:srcCompat="@drawable/add_marker" />
 
     <ProgressBar
@@ -228,12 +171,10 @@
         android:id="@+id/coordinatorLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="60dp"
         android:background="@color/transperant"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/map">
+        app:layout_constraintStart_toStartOf="parent">
 
 
         <com.google.android.material.bottomappbar.BottomAppBar
@@ -292,16 +233,13 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/booking_constraint"
         android:layout_width="0dp"
-        android:layout_height="250dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="50dp"
         android:background="@drawable/roundview_rounded"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/coordinatorLayout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintBottom_toTopOf="@id/guideBottom"
+        app:layout_constraintEnd_toEndOf="@id/guideRight"
+        app:layout_constraintStart_toEndOf="@id/guidLeft">
 
 
         <androidx.recyclerview.widget.RecyclerView
@@ -457,9 +395,10 @@
         android:id="@+id/imgAddLoc"
         android:layout_width="76dp"
         android:layout_height="59dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/gps_button"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintBottom_toTopOf="@id/gps_button"
+        app:layout_constraintEnd_toStartOf="@+id/map"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/add_location1" />
 
@@ -467,25 +406,86 @@
         android:id="@+id/gps_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="50dp"
         android:background="@drawable/gpsview_rounded"
-        app:layout_constraintBottom_toTopOf="@+id/tot_type_cardview"
+        app:layout_constraintBottom_toTopOf="@id/booking_constraint"
+        app:layout_constraintEnd_toEndOf="@+id/imgAddLoc"
+        app:layout_constraintHorizontal_bias="0.52"
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/ic_location_on" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvSavedLoc"
-        android:layout_width="0dp"
+        android:layout_width="362dp"
         android:layout_height="wrap_content"
-        android:layout_margin="5dp"
+        android:layout_marginBottom="50dp"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/combine_type_cardview"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/imgSavedLoc"
-        app:layout_constraintTop_toBottomOf="@+id/cardView2"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintBottom_toTopOf="@id/guideBottom"
+        app:layout_constraintEnd_toEndOf="@id/guideRight"
+        app:layout_constraintStart_toEndOf="@id/guidLeft" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidLeft"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="50dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideRight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="50dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideTop"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintGuide_end="654dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideBottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_end="58dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:text="TOT Type"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/coordinatorLayout"
+        app:layout_constraintEnd_toEndOf="@+id/tot_type_cardview"
+        app:layout_constraintStart_toStartOf="@+id/tot_type_cardview" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:text="BELT Type"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/coordinatorLayout"
+        app:layout_constraintEnd_toEndOf="@+id/belt_type_cardview"
+        app:layout_constraintStart_toStartOf="@+id/belt_type_cardview" />
+
+    <TextView
+        android:id="@+id/textView10"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:text="Combine Type"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/coordinatorLayout"
+        app:layout_constraintEnd_toEndOf="@+id/combine_type_cardview"
+        app:layout_constraintStart_toStartOf="@+id/combine_type_cardview" />
 
 
     <!--    <androidx.coordinatorlayout.widget.CoordinatorLayout-->
