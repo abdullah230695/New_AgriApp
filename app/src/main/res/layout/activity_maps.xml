@@ -240,7 +240,7 @@
             android:id="@+id/bottomAppBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
+            android:layout_gravity="bottom|center"
             app:backgroundTint="@color/white"
             app:fabAlignmentMode="center"
             app:fabCradleMargin="10dp"
