@@ -40,6 +40,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
@@ -140,12 +141,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     //Id's
-    private ImageView home, booking_history, profile,imgAddLocation,imgSavedLocations;
+    private ImageView home, booking_history, profile,imgAddLocation,imgSavedLocations,belt_Type,tot_Type,combine_Type;
     private Button booking_button;
     private ImageView gps_button;
     private ConstraintLayout bookContraint;
     private CardView cardView1, cardView2, cardView3;
-    public static TextView combine_text, pick_time_text, pick_date_text, pick_area_text, tot_Type, belt_Type;
+    public static TextView  pick_time_text, pick_date_text, pick_area_text;
     public static RecyclerView time_picker_recyclerview, area_picker_recyclerview, map_search_recyler,rvAddress;
     private EditText autoCompleteTextView;
     public static DatePickerTimeline datePickerTimeline;
@@ -168,6 +169,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static final String myTAG="FCM check";
     MarkerOptions options = new MarkerOptions();
     ProgressDialog progressDialog;
+    ConstraintLayout constraintLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -187,19 +190,19 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-try {
-                if (error != null) {
-                    Log.d(TAG, error.getMessage());
-                    return;
-                }
-                if (value != null && value.exists()) {
-                    phone = value.getData().get("phone_number").toString();
-                    custName = value.getData().get("user_name").toString();
+                try {
+                    if (error != null) {
+                        Log.d(TAG, error.getMessage());
+                        return;
+                    }
+                    if (value != null && value.exists()) {
+                        phone = value.getData().get("phone_number").toString();
+                        custName = value.getData().get("user_name").toString();
+
+                    }
+                }catch (Exception e){
 
                 }
-}catch (Exception e){
-
-}
             }
 
         });
@@ -232,24 +235,24 @@ try {
             @Override
             public void onPlaceSelected(Place place) {
                 try {
-                Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
-                autoCompleteTextView.setText(place.getName()+"\n"+place.getAddress());
-                Toast.makeText(mContext, autoCompleteTextView.getText().toString(), Toast.LENGTH_SHORT).show();
-                autocompleteFragment.setText(place.getName()+" "+place.getAddress());
-                Log.d(TAG, "location: moving the camera to: SelectedLat: "
-                        + place.getLatLng().latitude + ", SelectedLng: " + place.getLatLng().longitude);
+                    Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
+                    autoCompleteTextView.setText(place.getName()+"\n"+place.getAddress());
+                    Toast.makeText(mContext, autoCompleteTextView.getText().toString(), Toast.LENGTH_SHORT).show();
+                    autocompleteFragment.setText(place.getName()+" "+place.getAddress());
+                    Log.d(TAG, "location: moving the camera to: SelectedLat: "
+                            + place.getLatLng().latitude + ", SelectedLng: " + place.getLatLng().longitude);
 
-                float zoom=18;
-                lat=place.getLatLng().latitude;
-                lon=place.getLatLng().longitude;
+                    float zoom=18;
+                    lat=place.getLatLng().latitude;
+                    lon=place.getLatLng().longitude;
 
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), zoom));
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), zoom));
 
-                        options.position(place.getLatLng())
-                        .title(place.getName()+place.getAddress())
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.add_marker));
+                    options.position(place.getLatLng())
+                            .title(place.getName()+place.getAddress())
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.add_marker));
 
-                mMap.addMarker(options);
+                    mMap.addMarker(options);
 
                 }catch (Exception e){
 
@@ -307,10 +310,19 @@ try {
         imgSavedLocations.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                bookContraint.setVisibility(View.GONE);
                 rvAddress.setVisibility(View.VISIBLE);
                 autoCompleteTextView.setText(null);
                 autocompleteFragment.setText(null);
                 autoCompleteTextView.setVisibility(View.GONE);
+
+                ConstraintSet constraintSet = new ConstraintSet();
+                constraintLayout=findViewById(R.id.parent_layout);
+                constraintSet.clone(constraintLayout);
+                constraintSet.connect(R.id.gps_button,ConstraintSet.BOTTOM,R.id.rvSavedLoc, ConstraintSet.BOTTOM,350);
+                constraintSet.applyTo(constraintLayout);
+                //constraintSet.clear(R.id.gps_button,ConstraintSet.BOTTOM);
+                //constraintSet.applyTo(constraintLayout);
             }
         });
 
@@ -380,18 +392,18 @@ try {
             @Override
             public void onClick(View view) {
                 try{
-                Log.d(TAG, "onClick: Clicked when gps is turned off");
-                if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                    Toast.makeText(mContext, "Please Enable GPS First", Toast.LENGTH_SHORT).show();
-                    Log.d(TAG, "onClick: Gps not enabled");
-                    enableLoc();
-                    //TODO:NEED TO IMPLEMENT LIKE SWIGGY ONCE GPS TURNED ON
+                    Log.d(TAG, "onClick: Clicked when gps is turned off");
+                    if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                        Toast.makeText(mContext, "Please Enable GPS First", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "onClick: Gps not enabled");
+                        enableLoc();
+                        //TODO:NEED TO IMPLEMENT LIKE SWIGGY ONCE GPS TURNED ON
 
-                } else {
-                    Log.d(TAG, "onClick: Clicked after Gps Is On");
-                    getDeviceLocation();
-                    getAddress();
-                }
+                    } else {
+                        Log.d(TAG, "onClick: Clicked after Gps Is On");
+                        getDeviceLocation();
+                        getAddress();
+                    }
 
                 }catch (Exception e){
 
@@ -404,29 +416,29 @@ try {
                 /*Toast toast = Toast.makeText(mContext, "Selected service Type is TOT", Toast.LENGTH_SHORT);
                 toast.setGravity(Gravity.CENTER, 0, 0);
                 toast.show();*/
-try {
-                ServiceType = "TOT Type";
-                ServiceID = "TOT";
-                cardView1.setVisibility(View.GONE);
-                cardView2.setVisibility(View.GONE);
-                cardView3.setVisibility(View.GONE);
-                /*tot_image_1.setVisibility(View.GONE);
-                tot_image_2.setVisibility(View.GONE);
-                belt_image_1.setVisibility(View.GONE);
-                belt_image_2.setVisibility(View.GONE);
-                belt_image_3.setVisibility(View.GONE);
-*/
-                bookContraint.setVisibility(View.VISIBLE);
+                try {
+                    ServiceType = "TOT Type";
+                    ServiceID = "TOT";
 
-                datePickerTimeline.setVisibility(View.VISIBLE);
-                area_picker_recyclerview.setVisibility(View.INVISIBLE);
-                time_picker_recyclerview.setVisibility(View.INVISIBLE);
-                pick_time_text.setTextSize(14);
-                pick_date_text.setTextSize(18);
-                pick_area_text.setTextSize(14);
-}catch (Exception e){
 
-}
+                    rvAddress.setVisibility(View.GONE);
+                    bookContraint.setVisibility(View.VISIBLE);
+
+                    ConstraintSet constraintSet = new ConstraintSet();
+                    constraintSet.clone(constraintLayout);
+                    constraintSet.connect(R.id.gps_button,ConstraintSet.BOTTOM,R.id.booking_constraint,
+                            ConstraintSet.TOP,0);
+                    constraintSet.applyTo(constraintLayout);
+
+                    datePickerTimeline.setVisibility(View.VISIBLE);
+                    area_picker_recyclerview.setVisibility(View.INVISIBLE);
+                    time_picker_recyclerview.setVisibility(View.INVISIBLE);
+                    pick_time_text.setTextSize(14);
+                    pick_date_text.setTextSize(18);
+                    pick_area_text.setTextSize(14);
+                }catch (Exception e){
+
+                }
             }
         });
 
@@ -437,60 +449,57 @@ try {
                /* Toast toast = Toast.makeText(mContext, "Selected service Type is Belt", Toast.LENGTH_SHORT);
                 toast.setGravity(Gravity.CENTER, 0, 0);
                 toast.show();*/
-try {
-                ServiceType = "Belt Type";
-                ServiceID = "BLT";
-                cardView1.setVisibility(View.GONE);
-                cardView2.setVisibility(View.GONE);
-                cardView3.setVisibility(View.GONE);
-               /* tot_image_1.setVisibility(View.GONE);
-                tot_image_2.setVisibility(View.GONE);
-                belt_image_1.setVisibility(View.GONE);
-                belt_image_2.setVisibility(View.GONE);
-                belt_image_3.setVisibility(View.GONE);*/
+                try {
+                    ServiceType = "Belt Type";
+                    ServiceID = "BLT";
+                    rvAddress.setVisibility(View.GONE);
+                    bookContraint.setVisibility(View.VISIBLE);
 
-                bookContraint.setVisibility(View.VISIBLE);
+                    ConstraintSet constraintSet = new ConstraintSet();
+                    constraintSet.clone(constraintLayout);
+                    constraintSet.connect(R.id.gps_button,ConstraintSet.BOTTOM,R.id.booking_constraint,
+                            ConstraintSet.TOP,0);
+                    constraintSet.applyTo(constraintLayout);
 
-                datePickerTimeline.setVisibility(View.VISIBLE);
-                area_picker_recyclerview.setVisibility(View.INVISIBLE);
-                time_picker_recyclerview.setVisibility(View.INVISIBLE);
-                pick_time_text.setTextSize(14);
-                pick_date_text.setTextSize(18);
-                pick_area_text.setTextSize(14);
-}catch (Exception e){
+                    datePickerTimeline.setVisibility(View.VISIBLE);
+                    area_picker_recyclerview.setVisibility(View.INVISIBLE);
+                    time_picker_recyclerview.setVisibility(View.INVISIBLE);
+                    pick_time_text.setTextSize(14);
+                    pick_date_text.setTextSize(18);
+                    pick_area_text.setTextSize(14);
+                }catch (Exception e){
 
-}
+                }
             }
         });
 
 
-        combine_text.setOnClickListener(new View.OnClickListener() {
+        combine_Type.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 try {
-                Log.d(TAG, "onClick: Clicked");
+                    Log.d(TAG, "onClick: Clicked");
                /* Toast toast = Toast.makeText(mContext, "Selected service Type is Combined", Toast.LENGTH_SHORT);
                 toast.setGravity(Gravity.CENTER, 0, 0);
                 toast.show();*/
-                ServiceType = "Combined Type";
-                ServiceID = "CMB";
-                cardView1.setVisibility(View.GONE);
-                cardView2.setVisibility(View.GONE);
-                cardView3.setVisibility(View.GONE);
-                /*tot_image_1.setVisibility(View.GONE);
-                tot_image_2.setVisibility(View.GONE);
-                belt_image_1.setVisibility(View.GONE);
-                belt_image_2.setVisibility(View.GONE);
-                belt_image_3.setVisibility(View.GONE);
-*/
-                bookContraint.setVisibility(View.VISIBLE);
+                    ServiceType = "Combined Type";
+                    ServiceID = "CMB";
 
-                datePickerTimeline.setVisibility(View.VISIBLE);
-                area_picker_recyclerview.setVisibility(View.INVISIBLE);
-                time_picker_recyclerview.setVisibility(View.INVISIBLE);
-                pick_time_text.setTextSize(14);
-                pick_date_text.setTextSize(18);
-                pick_area_text.setTextSize(14);
+                    rvAddress.setVisibility(View.GONE);
+                    bookContraint.setVisibility(View.VISIBLE);
+
+                    ConstraintSet constraintSet = new ConstraintSet();
+                    constraintSet.clone(constraintLayout);
+                    constraintSet.connect(R.id.gps_button,ConstraintSet.BOTTOM,R.id.booking_constraint,
+                            ConstraintSet.TOP,0);
+                    constraintSet.applyTo(constraintLayout);
+
+                    datePickerTimeline.setVisibility(View.VISIBLE);
+                    area_picker_recyclerview.setVisibility(View.INVISIBLE);
+                    time_picker_recyclerview.setVisibility(View.INVISIBLE);
+                    pick_time_text.setTextSize(14);
+                    pick_date_text.setTextSize(18);
+                    pick_area_text.setTextSize(14);
                 }catch (Exception e){
 
                 }
@@ -502,17 +511,17 @@ try {
             @Override
             public void onDateSelected(int year, int month, int day, int dayOfWeek) {
                 try {
-                month = month + 1;
-                selectedDate = day + "/" + month + "/" + year;
-                Log.d(TAG, "onDateSelected: date: " + year + month + day);
-                Log.d(TAG, "onDateSelected: SelectedDate reform: " + selectedDate);
+                    month = month + 1;
+                    selectedDate = day + "/" + month + "/" + year;
+                    Log.d(TAG, "onDateSelected: date: " + year + month + day);
+                    Log.d(TAG, "onDateSelected: SelectedDate reform: " + selectedDate);
 
-                datePickerTimeline.setVisibility(View.INVISIBLE);
-                area_picker_recyclerview.setVisibility(View.INVISIBLE);
-                time_picker_recyclerview.setVisibility(View.VISIBLE);
-                pick_time_text.setTextSize(18);
-                pick_date_text.setTextSize(14);
-                pick_area_text.setTextSize(14);
+                    datePickerTimeline.setVisibility(View.INVISIBLE);
+                    area_picker_recyclerview.setVisibility(View.INVISIBLE);
+                    time_picker_recyclerview.setVisibility(View.VISIBLE);
+                    pick_time_text.setTextSize(18);
+                    pick_date_text.setTextSize(14);
+                    pick_area_text.setTextSize(14);
                 }catch (Exception e){
 
                 }
@@ -557,95 +566,95 @@ try {
             public void onClick(View view) {
                 try {
 
-                if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) |
-                        selectedDate == null | time == null | area == null |
-                        autocompleteFragment==null | autoCompleteTextView.length()==0) {
+                    if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) |
+                            selectedDate == null | time == null | area == null |
+                            autocompleteFragment==null | autoCompleteTextView.length()==0) {
 
-                    if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                        Toast.makeText(mContext, "Please Enable GPS First", Toast.LENGTH_SHORT).show();
-                        try {
-                            enableLoc();
-                            getDeviceLocation();
-                        } catch (Exception e) {
-                            Log.d(TAG,e.getMessage());
-                        }
-                    } else if (selectedDate == null | time == null | area == null) {
-                        Toast.makeText(mContext, "Please select Date,Time,Area", Toast.LENGTH_SHORT).show();
-                        try {
-                            getDeviceLocation();
-                            getAddress();
-                        } catch (Exception e) {
-                            Toast.makeText(mContext, "Unable to get device location", Toast.LENGTH_SHORT).show();
-                        }
-                    } else if (autocompleteFragment==null | autoCompleteTextView.length()==0) {
-                        Toast.makeText(mContext, "Please check your delivery address above", Toast.LENGTH_SHORT).show();
-                        try {
-                            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                                Toast.makeText(mContext, "Please Enable GPS First", Toast.LENGTH_SHORT).show();
+                        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                            Toast.makeText(mContext, "Please Enable GPS First", Toast.LENGTH_SHORT).show();
+                            try {
                                 enableLoc();
-                                getAddress();
-                            } else {
+                                getDeviceLocation();
+                            } catch (Exception e) {
+                                Log.d(TAG,e.getMessage());
+                            }
+                        } else if (selectedDate == null | time == null | area == null) {
+                            Toast.makeText(mContext, "Please select Date,Time,Area", Toast.LENGTH_SHORT).show();
+                            try {
                                 getDeviceLocation();
                                 getAddress();
+                            } catch (Exception e) {
+                                Toast.makeText(mContext, "Unable to get device location", Toast.LENGTH_SHORT).show();
+                            }
+                        } else if (autocompleteFragment==null | autoCompleteTextView.length()==0) {
+                            Toast.makeText(mContext, "Please check your delivery address above", Toast.LENGTH_SHORT).show();
+                            try {
+                                if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                                    Toast.makeText(mContext, "Please Enable GPS First", Toast.LENGTH_SHORT).show();
+                                    enableLoc();
+                                    getAddress();
+                                } else {
+                                    getDeviceLocation();
+                                    getAddress();
+
+                                }
+                            } catch (Exception e) {
 
                             }
-                        } catch (Exception e) {
-
                         }
-                    }
-                } else {
+                    } else {
 
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-                    builder.setTitle("Confirm Booking");
-                    builder.setMessage("Selected service type is " + ServiceType + ". Do you want to proceed ?");
-                    builder.setCancelable(false);
-                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                        builder.setTitle("Confirm Booking");
+                        builder.setMessage("Selected service type is " + ServiceType + ". Do you want to proceed ?");
+                        builder.setCancelable(false);
+                        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
 
-                            //Checking Booking id Existance
-                            db.collection("All Booking ID").document(ServiceID+ID).get()
-                                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                        @Override
-                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                            if(documentSnapshot.exists()){
-                                                Log.d(TAG,"Booking ID Already Exist");
-                                                try {
-                                                    InsertData1();
-                                                    sendNotification();
-                                                }catch(Exception e) {
-                                                    Log.d(TAG,e.getMessage());
-                                                }
-                                            } else {
-                                                Log.d(TAG,"This is new Booking ID");
-                                                try {
-                                                    InsertData2();
-                                                    sendNotification();
-                                                }catch(Exception e) {
-                                                    Log.d(TAG,e.getMessage());
+                                //Checking Booking id Existance
+                                db.collection("All Booking ID").document(ServiceID+ID).get()
+                                        .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                                if(documentSnapshot.exists()){
+                                                    Log.d(TAG,"Booking ID Already Exist");
+                                                    try {
+                                                        InsertData1();
+                                                        sendNotification();
+                                                    }catch(Exception e) {
+                                                        Log.d(TAG,e.getMessage());
+                                                    }
+                                                } else {
+                                                    Log.d(TAG,"This is new Booking ID");
+                                                    try {
+                                                        InsertData2();
+                                                        sendNotification();
+                                                    }catch(Exception e) {
+                                                        Log.d(TAG,e.getMessage());
+                                                    }
                                                 }
                                             }
-                                        }
-                                    }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Log.d(TAG,e.getMessage());
-                                }
-                            });
-                        }
-                    }).setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Toast.makeText(mContext, "Booking Cancelled", Toast.LENGTH_SHORT).show();
-                            dialog.cancel();
-                        }
-                    }).setIcon(R.drawable.ic_baseline_commute_24);
-                    //Creating dialog box
-                    AlertDialog alert = builder.create();
-                    //Setting the title manually
-                    alert.show();
+                                        }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.d(TAG,e.getMessage());
+                                    }
+                                });
+                            }
+                        }).setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Toast.makeText(mContext, "Booking Cancelled", Toast.LENGTH_SHORT).show();
+                                dialog.cancel();
+                            }
+                        }).setIcon(R.drawable.ic_baseline_commute_24);
+                        //Creating dialog box
+                        AlertDialog alert = builder.create();
+                        //Setting the title manually
+                        alert.show();
 
-                }
+                    }
                 }catch (Exception e){
 
                 }
@@ -721,7 +730,7 @@ try {
         AddressAdapter=new AddressAdapter(options1);
         rvAddress.setAdapter(AddressAdapter);
         AddressAdapter.startListening();
-         AddressAdapter.getItemCount();
+        AddressAdapter.getItemCount();
         rvAddress.addOnItemTouchListener(new RecyclerItemClickListener(mContext, rvAddress, new RecyclerItemClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
@@ -751,12 +760,12 @@ try {
 
     private void moveCamera(LatLng latLng, float zoom, String tittle) {
         try {
-        Log.d(TAG, "location: moving the camera to: lat: " + latLng.latitude + ", lng: " + latLng.longitude);
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
-        MarkerOptions options = new MarkerOptions()
-                .position(latLng)
-                .title(tittle);
-        mMap.addMarker(options);
+            Log.d(TAG, "location: moving the camera to: lat: " + latLng.latitude + ", lng: " + latLng.longitude);
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
+            MarkerOptions options = new MarkerOptions()
+                    .position(latLng)
+                    .title(tittle);
+            mMap.addMarker(options);
         }catch (Exception e){
 
         }
@@ -775,83 +784,90 @@ try {
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-try {
-        if (mLocationPermissionsGranted) {
-            getDeviceLocation();
+        try {
+            if (mLocationPermissionsGranted) {
+                getDeviceLocation();
 
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
-                    Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
-            mMap.setMyLocationEnabled(true);
-            mMap.getUiSettings().setMyLocationButtonEnabled(true);
-            mMap.getUiSettings().setTiltGesturesEnabled(true);
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    return;
+                }
+                mMap.setMyLocationEnabled(true);
+                mMap.getUiSettings().setMyLocationButtonEnabled(false);
+                mMap.getUiSettings().setTiltGesturesEnabled(true);
 
 
-            final Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-            mMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
-                @Override
-                public void onCameraIdle() {
-                    mCenterLatLong = mMap.getCameraPosition().target;
-                    mMap.clear();
+                final Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+                mMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
+                    @Override
+                    public void onCameraIdle() {
+                        mCenterLatLong = mMap.getCameraPosition().target;
+                        mMap.clear();
 
-                    try {
+                        try {
 
-                        Location mLocation = new Location("");
-                        mLocation.setLatitude(mCenterLatLong.latitude);
-                        mLocation.setLongitude(mCenterLatLong.longitude);
+                            Location mLocation = new Location("");
+                            mLocation.setLatitude(mCenterLatLong.latitude);
+                            mLocation.setLongitude(mCenterLatLong.longitude);
 
 //                        mLocationMarkerText.setText("Lat : " + mCenterLatLong.latitude + "," + "Long : " + mCenterLatLong.longitude);
 
 
-                        List<Address> myAddress = geocoder.getFromLocation(mCenterLatLong.latitude, mCenterLatLong.longitude, 1);
-                        String address = myAddress.get(0).getAddressLine(0);
-                        String city = myAddress.get(0).getSubLocality();
+                            List<Address> myAddress = geocoder.getFromLocation(mCenterLatLong.latitude, mCenterLatLong.longitude, 1);
+                            String address = myAddress.get(0).getAddressLine(0);
+                            String city = myAddress.get(0).getSubLocality();
 //                       mLocationCity.setText(city);
 //                        mLocationAddress.setText(address);
 //
 //                        ConfirmLocation(city,address,mCenterLatLong.latitude,mCenterLatLong.longitude);
 
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-            mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-                @Override
-                public void onMapClick(LatLng latLng) {
-                    try {
-                        bookContraint.setVisibility(View.GONE);
-                        cardView1.setVisibility(View.VISIBLE);
-                        cardView2.setVisibility(View.VISIBLE);
-                        cardView3.setVisibility(View.VISIBLE);
-                        Marker dragMarker = mMap.addMarker(new MarkerOptions().position(mCenterLatLong).title("Marker Location"));
-                        dragMarker.setPosition(latLng);
-                        mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
-
-                        lat = dragMarker.getPosition().latitude;
-                        lon = dragMarker.getPosition().longitude;
-                        Geocoder geocoder = new Geocoder(mContext, Locale.getDefault());
-                        try {
-                            List<Address> addresses = geocoder.getFromLocation
-                                    (lat, lon, 1);
-                            currentAddress = addresses.get(0).getAddressLine(0);
-                            if (autoCompleteTextView.length() == 0) {
-                                autoCompleteTextView.setText(currentAddress);
-                                autocompleteFragment.setText(currentAddress);
-                                autoCompleteTextView.setText(currentAddress);
-                            }
-                            autocompleteFragment.setText(currentAddress);
-                            autoCompleteTextView.setText(currentAddress);
-                        } catch (IOException e) {
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
-                    }catch (Exception e){
-
                     }
-                }
-            });
+                });
+                mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                    @Override
+                    public void onMapClick(LatLng latLng) {
+                        try {
+                            rvAddress.setVisibility(View.GONE);
+                            ConstraintSet constraintSet = new ConstraintSet();
+                            constraintSet.clone(constraintLayout);
+                            constraintSet.connect(R.id.gps_button,ConstraintSet.BOTTOM,R.id.booking_constraint,
+                                    ConstraintSet.BOTTOM,100);
+                            constraintSet.applyTo(constraintLayout);
+
+                            bookContraint.setVisibility(View.GONE);
+                            cardView1.setVisibility(View.VISIBLE);
+                            cardView2.setVisibility(View.VISIBLE);
+                            cardView3.setVisibility(View.VISIBLE);
+                            Marker dragMarker = mMap.addMarker(new MarkerOptions().position(mCenterLatLong).title("Marker Location"));
+                            dragMarker.setPosition(latLng);
+                            mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+
+                            lat = dragMarker.getPosition().latitude;
+                            lon = dragMarker.getPosition().longitude;
+                            Geocoder geocoder = new Geocoder(mContext, Locale.getDefault());
+                            try {
+                                List<Address> addresses = geocoder.getFromLocation
+                                        (lat, lon, 1);
+                                currentAddress = addresses.get(0).getAddressLine(0);
+                                if (autoCompleteTextView.length() == 0) {
+                                    autoCompleteTextView.setText(currentAddress);
+                                    autocompleteFragment.setText(currentAddress);
+                                    autoCompleteTextView.setText(currentAddress);
+                                }
+                                autocompleteFragment.setText(currentAddress);
+                                autoCompleteTextView.setText(currentAddress);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }catch (Exception e){
+
+                        }
+                    }
+                });
 
           /*  mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
                 @Override
@@ -887,10 +903,10 @@ try {
                 public void onMarkerDrag(Marker arg0) {
                 }
             });*/
-        }
-}catch (Exception e){
+            }
+        }catch (Exception e){
 
-}
+        }
     }
     private TextWatcher filterTextWatcher = new TextWatcher() {
         public void afterTextChanged(@NotNull Editable s) {
@@ -922,56 +938,56 @@ try {
 
     private void enableLoc() {
         try {
-        LocationRequest locationRequest = LocationRequest.create();
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        locationRequest.setInterval(30 * 1000);
-        locationRequest.setFastestInterval(5 * 1000);
+            LocationRequest locationRequest = LocationRequest.create();
+            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+            locationRequest.setInterval(30 * 1000);
+            locationRequest.setFastestInterval(5 * 1000);
 
-        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
-                .addLocationRequest(locationRequest);
+            LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                    .addLocationRequest(locationRequest);
 
-        //builder.setAlwaysShow(true);
+            //builder.setAlwaysShow(true);
 
-        Task<LocationSettingsResponse> result =
-                LocationServices.getSettingsClient(this).checkLocationSettings(builder.build());
+            Task<LocationSettingsResponse> result =
+                    LocationServices.getSettingsClient(this).checkLocationSettings(builder.build());
 
-        result.addOnCompleteListener(new OnCompleteListener<LocationSettingsResponse>() {
+            result.addOnCompleteListener(new OnCompleteListener<LocationSettingsResponse>() {
 
 
-            @Override
-            public void onComplete(Task<LocationSettingsResponse> task) {
-                try {
-                    LocationSettingsResponse response = task.getResult(ApiException.class);
-                    // All location settings are satisfied. The client can initialize location
-                    // requests here.
+                @Override
+                public void onComplete(Task<LocationSettingsResponse> task) {
+                    try {
+                        LocationSettingsResponse response = task.getResult(ApiException.class);
+                        // All location settings are satisfied. The client can initialize location
+                        // requests here.
 
-                } catch (ApiException exception) {
-                    switch (exception.getStatusCode()) {
-                        case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                            // Location settings are not satisfied. But could be fixed by showing the
-                            // user a dialog.
-                            try {
-                                // Cast to a resolvable exception.
-                                ResolvableApiException resolvable = (ResolvableApiException) exception;
-                                // Show the dialog by calling startResolutionForResult(),
-                                // and check the result in onActivityResult().
-                                resolvable.startResolutionForResult(
-                                        MapsActivity.this,
-                                        LOCATION_SETTINGS_REQUEST);
-                            } catch (IntentSender.SendIntentException e) {
-                                // Ignore the error.
-                            } catch (ClassCastException e) {
-                                // Ignore, should be an impossible error.
-                            }
-                            break;
-                        case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                            // Location settings are not satisfied. However, we have no way to fix the
-                            // settings so we won't show the dialog.
-                            break;
+                    } catch (ApiException exception) {
+                        switch (exception.getStatusCode()) {
+                            case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                                // Location settings are not satisfied. But could be fixed by showing the
+                                // user a dialog.
+                                try {
+                                    // Cast to a resolvable exception.
+                                    ResolvableApiException resolvable = (ResolvableApiException) exception;
+                                    // Show the dialog by calling startResolutionForResult(),
+                                    // and check the result in onActivityResult().
+                                    resolvable.startResolutionForResult(
+                                            MapsActivity.this,
+                                            LOCATION_SETTINGS_REQUEST);
+                                } catch (IntentSender.SendIntentException e) {
+                                    // Ignore the error.
+                                } catch (ClassCastException e) {
+                                    // Ignore, should be an impossible error.
+                                }
+                                break;
+                            case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                                // Location settings are not satisfied. However, we have no way to fix the
+                                // settings so we won't show the dialog.
+                                break;
+                        }
                     }
                 }
-            }
-        });
+            });
         }catch (Exception e){
 
         }
@@ -1027,26 +1043,26 @@ try {
 
     private void getLocationPermission() {
         try {
-        Log.d(TAG, "getLocationPermission: getting location permissions");
-        String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION};
+            Log.d(TAG, "getLocationPermission: getting location permissions");
+            String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION};
 
-        if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
-                FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
-                    COURSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                mLocationPermissionsGranted = true;
-                initMap();
+                    FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                        COURSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    mLocationPermissionsGranted = true;
+                    initMap();
+                } else {
+                    ActivityCompat.requestPermissions(this,
+                            permissions,
+                            LOCATION_PERMISSION_REQUEST_CODE);
+                }
             } else {
                 ActivityCompat.requestPermissions(this,
                         permissions,
                         LOCATION_PERMISSION_REQUEST_CODE);
             }
-        } else {
-            ActivityCompat.requestPermissions(this,
-                    permissions,
-                    LOCATION_PERMISSION_REQUEST_CODE);
-        }
         }catch (Exception e){
 
         }
@@ -1057,27 +1073,27 @@ try {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         Log.d(TAG, "onRequestPermissionsResult: called.");
         mLocationPermissionsGranted = false;
-try {
-        switch (requestCode) {
-            case LOCATION_PERMISSION_REQUEST_CODE: {
-                if (grantResults.length > 0) {
-                    for (int i = 0; i < grantResults.length; i++) {
-                        if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
-                            mLocationPermissionsGranted = false;
-                            Log.d(TAG, "onRequestPermissionsResult: permission failed");
-                            return;
+        try {
+            switch (requestCode) {
+                case LOCATION_PERMISSION_REQUEST_CODE: {
+                    if (grantResults.length > 0) {
+                        for (int i = 0; i < grantResults.length; i++) {
+                            if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                                mLocationPermissionsGranted = false;
+                                Log.d(TAG, "onRequestPermissionsResult: permission failed");
+                                return;
+                            }
                         }
+                        Log.d(TAG, "onRequestPermissionsResult: permission granted");
+                        mLocationPermissionsGranted = true;
+                        //initialize our map
+                        initMap();
                     }
-                    Log.d(TAG, "onRequestPermissionsResult: permission granted");
-                    mLocationPermissionsGranted = true;
-                    //initialize our map
-                    initMap();
                 }
             }
-        }
-}catch (Exception e){
+        }catch (Exception e){
 
-}
+        }
     }
 
 
@@ -1114,12 +1130,12 @@ try {
      */
     private void checkCurrentUser(FirebaseUser user) {
         try {
-        Log.d(TAG, "checkCurrentUser: checking if user is logged in.");
+            Log.d(TAG, "checkCurrentUser: checking if user is logged in.");
 
-        if (user == null) {
-            Intent intent = new Intent(mContext, LoginActivity.class);
-            startActivity(intent);
-        }
+            if (user == null) {
+                Intent intent = new Intent(mContext, LoginActivity.class);
+                startActivity(intent);
+            }
         }catch (Exception e){
 
         }
@@ -1132,28 +1148,28 @@ try {
 
     private void setupFirebaseAuth() {
         try {
-        Log.d(TAG, "setupFirebaseAuth: setting up firebase auth.");
+            Log.d(TAG, "setupFirebaseAuth: setting up firebase auth.");
 
-        mAuth = FirebaseAuth.getInstance();
+            mAuth = FirebaseAuth.getInstance();
 
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
+            mAuthListener = new FirebaseAuth.AuthStateListener() {
+                @Override
+                public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                    FirebaseUser user = firebaseAuth.getCurrentUser();
 
-                //check if the user is logged in
-                checkCurrentUser(user);
+                    //check if the user is logged in
+                    checkCurrentUser(user);
 
-                if (user != null) {
-                    // User is signed in
-                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-                } else {
-                    // User is signed out
-                    Log.d(TAG, "onAuthStateChanged:signed_out");
+                    if (user != null) {
+                        // User is signed in
+                        Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                    } else {
+                        // User is signed out
+                        Log.d(TAG, "onAuthStateChanged:signed_out");
+                    }
+                    // ...
                 }
-                // ...
-            }
-        };
+            };
         }catch (Exception e){
 
         }
@@ -1211,7 +1227,7 @@ try {
     @Override
     public void click(Place place) {
         try {
-        moveCamera(new LatLng(place.getLatLng().latitude, place.getLatLng().longitude), DEFAULT_ZOOM, "Selected Location");
+            moveCamera(new LatLng(place.getLatLng().latitude, place.getLatLng().longitude), DEFAULT_ZOOM, "Selected Location");
         }catch (Exception e){
 
         }
@@ -1229,7 +1245,7 @@ try {
         cardView1 = findViewById(R.id.tot_type_cardview);
         cardView2 = findViewById(R.id.belt_type_cardview);
         cardView3 = findViewById(R.id.combine_type_cardview);
-        combine_text = findViewById(R.id.combine_text);
+        combine_Type = findViewById(R.id.combine_type);
         pick_time_text = findViewById(R.id.pick_time_text);
         time_picker_recyclerview = findViewById(R.id.time_picker_recyclerview);
         area_picker_recyclerview = findViewById(R.id.area_picker_recyclerview);
@@ -1246,11 +1262,12 @@ try {
         belt_image_3 = findViewById(R.id.belt_image_3);*/
         map_search_recyler = findViewById(R.id.map_search_recyler);
         autoCompleteTextView = findViewById(R.id.autoCompleteTextView);
-        tot_Type = findViewById(R.id.totType);
-        belt_Type = findViewById(R.id.beltType);
+        tot_Type = findViewById(R.id.tot_type);
+        belt_Type = findViewById(R.id.belt_type);
         progressBar = findViewById(R.id.pb1);
         imgAddLocation=findViewById(R.id.imgAddLoc);
         imgSavedLocations=findViewById(R.id.imgSavedLoc);
+        constraintLayout=findViewById(R.id.parent_layout);
     }//ID setups
 
 
@@ -1278,69 +1295,69 @@ try {
     private void InsertData1() {
         try {
 
-        Random r = new Random();
-        Long id = (long) r.nextInt(999999999);
+            Random r = new Random();
+            Long id = (long) r.nextInt(999999999);
 
-        cardView1.setVisibility(View.VISIBLE);
-        cardView2.setVisibility(View.VISIBLE);
-        cardView3.setVisibility(View.VISIBLE);
-        bookContraint.setVisibility(View.GONE);
-        String UUID1 = FirebaseAuth.getInstance().getUid();
+            cardView1.setVisibility(View.VISIBLE);
+            cardView2.setVisibility(View.VISIBLE);
+            cardView3.setVisibility(View.VISIBLE);
+            bookContraint.setVisibility(View.GONE);
+            String UUID1 = FirebaseAuth.getInstance().getUid();
 
-        post1.put("booking_Date", FieldValue.serverTimestamp());
-        post1.put("delivery_Date", selectedDate);
-        post1.put("booking_Id", ServiceID + id);
-        post1.put("contact_Number", phone);
-        post1.put("customer_Name", custName);
-        post1.put("delivery_Time", time);
-        post1.put("area", area);
-        post1.put("service_Type", ServiceType);
-        post1.put("latitude", lat);
-        post1.put("longitude", lon);
-        post1.put("address", autoCompleteTextView.getText().toString());
-        post1.put("picUrl", "https://i.pinimg.com/originals/c9/f5/fb/c9f5fba683ab296eb94c62de0b0e703c.png");
-        post1.put("status", "Pending");
-        post1.put("service_Provider", "Not Assigned");
-        post1.put("unique_ID", UUID1);
-        post1.put("custToken", token);
-
-
-        ProgeressDialog();
-        progressDialog.show();
-
-        // storing booking id in seperate place for checking id redundancy
-        Map<String, Object> ids = new HashMap<>();
-        ids.put("ID",ServiceID+id);
-        db.collection("All Booking ID").document(ServiceID+id).set(post1)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG,"New Booking id added");
-                    }
-                }); // storing booking id in seperate place for checking id redundancy
+            post1.put("booking_Date", FieldValue.serverTimestamp());
+            post1.put("delivery_Date", selectedDate);
+            post1.put("booking_Id", ServiceID + id);
+            post1.put("contact_Number", phone);
+            post1.put("customer_Name", custName);
+            post1.put("delivery_Time", time);
+            post1.put("area", area);
+            post1.put("service_Type", ServiceType);
+            post1.put("latitude", lat);
+            post1.put("longitude", lon);
+            post1.put("address", autoCompleteTextView.getText().toString());
+            post1.put("picUrl", "https://i.pinimg.com/originals/c9/f5/fb/c9f5fba683ab296eb94c62de0b0e703c.png");
+            post1.put("status", "Pending");
+            post1.put("service_Provider", "Not Assigned");
+            post1.put("unique_ID", UUID1);
+            post1.put("custToken", token);
 
 
-        db.collection("Bookings").document(UUID1).collection("Booking Details")
-                .document(ServiceID + id)
-                .set(post1).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                progressDialog.dismiss();
-                Toast.makeText(MapsActivity.this, "Service Booked, Please check history tab for vehicle confirmation", Toast.LENGTH_SHORT).show();
-                selectedDate = null;
-                time = null;
-                area = null;
-                autoCompleteTextView.setText(null);
-                autocompleteFragment.setText(null);
+            ProgeressDialog();
+            progressDialog.show();
 
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                progressDialog.dismiss();
-                Toast.makeText(MapsActivity.this, "Failed to book!", Toast.LENGTH_SHORT).show();
-            }
-        });
+            // storing booking id in seperate place for checking id redundancy
+            Map<String, Object> ids = new HashMap<>();
+            ids.put("ID",ServiceID+id);
+            db.collection("All Booking ID").document(ServiceID+id).set(post1)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d(TAG,"New Booking id added");
+                        }
+                    }); // storing booking id in seperate place for checking id redundancy
+
+
+            db.collection("Bookings").document(UUID1).collection("Booking Details")
+                    .document(ServiceID + id)
+                    .set(post1).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    progressDialog.dismiss();
+                    Toast.makeText(MapsActivity.this, "Service Booked, Please check history tab for vehicle confirmation", Toast.LENGTH_SHORT).show();
+                    selectedDate = null;
+                    time = null;
+                    area = null;
+                    autoCompleteTextView.setText(null);
+                    autocompleteFragment.setText(null);
+
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    progressDialog.dismiss();
+                    Toast.makeText(MapsActivity.this, "Failed to book!", Toast.LENGTH_SHORT).show();
+                }
+            });
         }catch (Exception e){
 
         }
@@ -1350,73 +1367,73 @@ try {
 
     //Adding Booking details to firestore
     private void InsertData2() {
-            try {
-        Toast.makeText(MapsActivity.this, "Processing", Toast.LENGTH_SHORT).show();
-        cardView1.setVisibility(View.VISIBLE);
-        cardView2.setVisibility(View.VISIBLE);
-        cardView3.setVisibility(View.VISIBLE);
-        bookContraint.setVisibility(View.GONE);
-        String UUID1 = FirebaseAuth.getInstance().getUid();
+        try {
+            Toast.makeText(MapsActivity.this, "Processing", Toast.LENGTH_SHORT).show();
+            cardView1.setVisibility(View.VISIBLE);
+            cardView2.setVisibility(View.VISIBLE);
+            cardView3.setVisibility(View.VISIBLE);
+            bookContraint.setVisibility(View.GONE);
+            String UUID1 = FirebaseAuth.getInstance().getUid();
 
-        post2.put("booking_Date",FieldValue.serverTimestamp());
-        post2.put("delivery_Date", selectedDate);
-        post2.put("booking_Id", ServiceID + ID);
-        post2.put("contact_Number", phone);
-        post2.put("delivery_Time", time);
-        post2.put("area", area);
-        post2.put("service_Type", ServiceType);
-        post2.put("customer_Name", custName);
-        post2.put("latitude", lat);
-        post2.put("longitude", lon);
-        post2.put("address", autoCompleteTextView.getText().toString());
-        post2.put("picUrl", "https://i.pinimg.com/originals/c9/f5/fb/c9f5fba683ab296eb94c62de0b0e703c.png");
-        post2.put("status", "Pending");
-        post2.put("service_Provider", "Not Assigned");
-        post2.put("unique_ID", UUID1);
-        post2.put("custToken", token);
+            post2.put("booking_Date",FieldValue.serverTimestamp());
+            post2.put("delivery_Date", selectedDate);
+            post2.put("booking_Id", ServiceID + ID);
+            post2.put("contact_Number", phone);
+            post2.put("delivery_Time", time);
+            post2.put("area", area);
+            post2.put("service_Type", ServiceType);
+            post2.put("customer_Name", custName);
+            post2.put("latitude", lat);
+            post2.put("longitude", lon);
+            post2.put("address", autoCompleteTextView.getText().toString());
+            post2.put("picUrl", "https://i.pinimg.com/originals/c9/f5/fb/c9f5fba683ab296eb94c62de0b0e703c.png");
+            post2.put("status", "Pending");
+            post2.put("service_Provider", "Not Assigned");
+            post2.put("unique_ID", UUID1);
+            post2.put("custToken", token);
 
-        ProgeressDialog();
-        progressDialog.show();
+            ProgeressDialog();
+            progressDialog.show();
 
 // storing booking id in seperate place for checking id redundancy
-        Map<String, Object> ids = new HashMap<>();
-        ids.put("ID",ServiceID+ID);
-        db.collection("All Booking ID").document(ServiceID+ID).set(post2)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        progressBar.setVisibility(View.INVISIBLE);
-                        Log.d(TAG,"New Booking id added");
+            Map<String, Object> ids = new HashMap<>();
+            ids.put("ID",ServiceID+ID);
+            db.collection("All Booking ID").document(ServiceID+ID).set(post2)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            progressBar.setVisibility(View.INVISIBLE);
+                            Log.d(TAG,"New Booking id added");
 
-                    }
-                }); // storing booking id in separate place for checking id redundancy
+                        }
+                    }); // storing booking id in separate place for checking id redundancy
 
-        db.collection("Bookings").document(UUID1).collection("Booking Details")
-                .document(ServiceID + ID)
-                .set(post2).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                progressDialog.dismiss();
-                Toast.makeText(MapsActivity.this, "Service has been 'Booked' , Please check history tab for vehicle confirmation", Toast.LENGTH_SHORT).show();
-                Log.d(TAG,"Service Booked, Please check history tab for vehicle confirmation");
-                selectedDate = null;
-                time = null;
-                area = null;
-                autoCompleteTextView.setText(null);
-                autocompleteFragment.setText(null);
+            db.collection("Bookings").document(UUID1).collection("Booking Details")
+                    .document(ServiceID + ID)
+                    .set(post2).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    progressDialog.dismiss();
+                    Toast.makeText(MapsActivity.this, "Service has been 'Booked' , Please check history tab for vehicle confirmation", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG,"Service Booked, Please check history tab for vehicle confirmation");
+                    selectedDate = null;
+                    time = null;
+                    area = null;
+                    autoCompleteTextView.setText(null);
+                    autocompleteFragment.setText(null);
 
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                progressDialog.dismiss();
-                Toast.makeText(MapsActivity.this, "Failed to book!", Toast.LENGTH_SHORT).show();
-                Log.d(TAG,"Failed to book!");
-            }
-        });
-            }catch (Exception e){
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    progressDialog.dismiss();
+                    Toast.makeText(MapsActivity.this, "Failed to book!", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG,"Failed to book!");
+                }
+            });
+        }catch (Exception e){
 
-            }
+        }
     } //Adding Booking details to firestore
 
     //Prompting user to enable data connection
@@ -1495,27 +1512,27 @@ try {
 
     //Sending notification after a booking has made
     private void sendNotification() {
-try {
-    Intent intent = new Intent(this, BookingHistoryActivity.class);
-    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-    PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
-    String channelId = "Default";
-    Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-    NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle("Your Booking Has Been Received")
-            .setContentText("Please check booking history for vehicle confirmation")
-            .setSound(defaultSoundUri).setAutoCancel(true).setContentIntent(pendingIntent);
-    ;
-    NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        NotificationChannel channel = new NotificationChannel(channelId, "Default channel", NotificationManager.IMPORTANCE_DEFAULT);
-        manager.createNotificationChannel(channel);
-    }
-    manager.notify(0, builder.build());
-}catch (Exception e){
+        try {
+            Intent intent = new Intent(this, BookingHistoryActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
+            String channelId = "Default";
+            Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelId)
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentTitle("Your Booking Has Been Received")
+                    .setContentText("Please check booking history for vehicle confirmation")
+                    .setSound(defaultSoundUri).setAutoCancel(true).setContentIntent(pendingIntent);
+            ;
+            NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                NotificationChannel channel = new NotificationChannel(channelId, "Default channel", NotificationManager.IMPORTANCE_DEFAULT);
+                manager.createNotificationChannel(channel);
+            }
+            manager.notify(0, builder.build());
+        }catch (Exception e){
 
-}
+        }
     }  //Sending notification after a booking has made
 }
 
