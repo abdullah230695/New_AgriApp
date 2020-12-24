@@ -234,11 +234,12 @@
         android:id="@+id/booking_constraint"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="50dp"
+        android:layout_marginBottom="90dp"
         android:background="@drawable/roundview_rounded"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/guideBottom"
+        app:layout_constraintBottom_toTopOf="@id/coordinatorLayout"
         app:layout_constraintEnd_toEndOf="@id/guideRight"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@id/guidLeft">
 
 
@@ -406,11 +407,10 @@
         android:id="@+id/gps_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="50dp"
+        android:layout_marginBottom="30dp"
         android:background="@drawable/gpsview_rounded"
         app:layout_constraintBottom_toTopOf="@id/booking_constraint"
         app:layout_constraintEnd_toEndOf="@+id/imgAddLoc"
-        app:layout_constraintHorizontal_bias="0.52"
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/ic_location_on" />
 
@@ -418,9 +418,9 @@
         android:id="@+id/rvSavedLoc"
         android:layout_width="362dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="50dp"
+        android:layout_marginBottom="90dp"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/guideBottom"
+        app:layout_constraintBottom_toTopOf="@id/coordinatorLayout"
         app:layout_constraintEnd_toEndOf="@id/guideRight"
         app:layout_constraintStart_toEndOf="@id/guidLeft" />
 
@@ -454,6 +454,7 @@
         app:layout_constraintGuide_end="58dp" />
 
     <TextView
+        android:id="@+id/tvTOT"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
@@ -465,6 +466,7 @@
         app:layout_constraintStart_toStartOf="@+id/tot_type_cardview" />
 
     <TextView
+        android:id="@+id/tvBELT"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
