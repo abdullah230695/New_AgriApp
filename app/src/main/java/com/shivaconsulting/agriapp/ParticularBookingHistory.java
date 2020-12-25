@@ -35,7 +35,9 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.ButtCap;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.JointType;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -53,19 +55,33 @@ import com.google.firebase.firestore.SetOptions;
 import com.shivaconsulting.agriapp.History.BookingHistoryActivity;
 import com.shivaconsulting.agriapp.Home.MapsActivity;
 import com.shivaconsulting.agriapp.databinding.ActivityParticularBookingHistoryBinding;
+import com.shivaconsulting.agriapp.directionhelpers.DataParser;
 import com.shivaconsulting.agriapp.directionhelpers.FetchURL;
+import com.shivaconsulting.agriapp.directionhelpers.Result;
+import com.shivaconsulting.agriapp.directionhelpers.Routes;
 import com.shivaconsulting.agriapp.directionhelpers.TaskLoadedCallback;
+import com.shivaconsulting.agriapp.retrofit.Api;
+import com.shivaconsulting.agriapp.retrofit.RetrofitClient;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 public class ParticularBookingHistory extends AppCompatActivity implements OnMapReadyCallback, TaskLoadedCallback {
 
     ActivityParticularBookingHistoryBinding binding;
+
+    public static TextView tvKMDistance, tvArrivingTime;
+    TextView BKid, svType, svProv, DVdate, DvTime, tvDriverName, btnReschedule, btnCancel, tvCurrentStatus;
+    String status, BookingId, Drivphone, DriverName = "", DriverToken, DriverID, CustPhone, CustAddress;
 
     private GoogleMap mMap;
     private Polyline currentPolyline;
@@ -76,13 +92,14 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
     GeoPoint DriverLiveLatLng;
     Button ok;
     ImageView back, imgDriverCall, imgDriverChat;
-    TextView BKid, svType, svProv,DVdate,DvTime, tvDriverName,btnReschedule,btnCancel,tvCurrentStatus;
-    public static TextView tvKMDistance,tvArrivingTime;
+    //retrofit
+    private Api apiClient;
+    private List<LatLng> listPolyline;
     CircleImageView img;
     private String UUID = FirebaseAuth.getInstance().getUid();
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private static final String TAG = "Partic Booking History";
-    String status, BookingId, Drivphone, DriverName = "", DriverToken, DriverID,CustPhone,CustAddress;
+    private PolylineOptions polylineOptions;
     SupportMapFragment mapFragment;
 
     @Override
@@ -90,6 +107,9 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
         super.onCreate(savedInstanceState);
         binding = ActivityParticularBookingHistoryBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        //api client with api
+        apiClient = new RetrofitClient().getClient().create(Api.class);
 
         // ID Setup
         back = findViewById(R.id.imgback1);
@@ -105,9 +125,9 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
         imgDriverChat = findViewById(R.id.imgDrivChat);
         tvArrivingTime = findViewById(R.id.tvArriveTime);
         tvKMDistance = findViewById(R.id.tvKmDist);
-        btnReschedule=binding.btnReschedule1;
-        btnCancel=findViewById(R.id.btnCancel);
-        tvCurrentStatus=findViewById(R.id.tvStatus);
+        btnReschedule = binding.btnReschedule1;
+        btnCancel = findViewById(R.id.btnCancel);
+        tvCurrentStatus = findViewById(R.id.tvStatus);
         // ID Setup
 
         //Retrieving Particular booking details
@@ -140,11 +160,11 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
             mapFragment.getMapAsync(this);
 
 
-        //Changing call button color
-        if (status.equals("Confirmed") || status.equals("Arriving")|| status.equals("Completed")) {
-            tvDriverName.setText(DriverName);
-        }
-        } catch(Exception e){
+            //Changing call button color
+            if (status.equals("Confirmed") || status.equals("Arriving") || status.equals("Completed")) {
+                tvDriverName.setText(DriverName);
+            }
+        } catch (Exception e) {
 
         }
 
@@ -161,22 +181,21 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
 
         bookingStatusIndicator();
 
-            try {
-                if (status.equals("Pending") || status.equals("Waiting")) {
-                    binding.spb.setCompletedPosition(0).drawView();
-                } else if (status.equals("Confirmed")) {
-                    binding.spb.setCompletedPosition(1).drawView();
-                } else if (status.equals("Arriving")) {
-                    binding.spb.setCompletedPosition(2).drawView();
-                } else if (status.equals("Completed")) {
-                    binding.spb.setCompletedPosition(3).drawView();
-                    btnReschedule.setVisibility(View.INVISIBLE);
-                    btnCancel.setVisibility(View.INVISIBLE);
-                }
-            }catch (ArrayIndexOutOfBoundsException e4){
-                Toast.makeText(this, e4.getMessage(), Toast.LENGTH_SHORT).show();
+        try {
+            if (status.equals("Pending") || status.equals("Waiting")) {
+                binding.spb.setCompletedPosition(0).drawView();
+            } else if (status.equals("Confirmed")) {
+                binding.spb.setCompletedPosition(1).drawView();
+            } else if (status.equals("Arriving")) {
+                binding.spb.setCompletedPosition(2).drawView();
+            } else if (status.equals("Completed")) {
+                binding.spb.setCompletedPosition(3).drawView();
+                btnReschedule.setVisibility(View.INVISIBLE);
+                btnCancel.setVisibility(View.INVISIBLE);
             }
-
+        } catch (ArrayIndexOutOfBoundsException e4) {
+            Toast.makeText(this, e4.getMessage(), Toast.LENGTH_SHORT).show();
+        }
 
 
         if (status.equals("Pending") || status.equals("Waiting")) {
@@ -191,29 +210,29 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                 if (status.equals("Waiting")) {
                     btnReschedule.setVisibility(View.INVISIBLE);
                 }
-            }catch(Exception e){
+            } catch (Exception e) {
 
             }
         }
 
-        if(status.equals("Confirmed")){
-            btnCancel.setText("Make Cancellation\n"+"Request");
-        } else if(status.equals("Cancelled")){
+        if (status.equals("Confirmed")) {
+            btnCancel.setText("Make Cancellation\n" + "Request");
+        } else if (status.equals("Cancelled")) {
             binding.spb.setVisibility(View.GONE);
             btnCancel.setVisibility(View.GONE);
             btnReschedule.setVisibility(View.GONE);
             tvCurrentStatus.setText("This booking has been cancelled");
             tvCurrentStatus.setTextSize(20);
             tvCurrentStatus.setTextColor(Color.RED);
-        }else if(status.equals("Waiting")){
+        } else if (status.equals("Waiting")) {
 
-        }else if(status.equals("Completed")){
+        } else if (status.equals("Completed")) {
             btnCancel.setVisibility(View.INVISIBLE);
             btnReschedule.setVisibility(View.INVISIBLE);
-        }else if(status.equals("Arriving")){
+        } else if (status.equals("Arriving")) {
             btnCancel.setVisibility(View.INVISIBLE);
             btnReschedule.setVisibility(View.INVISIBLE);
-        }else if(status.equals("Cancellation Request")){
+        } else if (status.equals("Cancellation Request")) {
             btnCancel.setVisibility(View.INVISIBLE);
             btnReschedule.setVisibility(View.INVISIBLE);
             tvCurrentStatus.setText("Cancellation Request Under Process ...");
@@ -244,7 +263,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                         }
                     }
                 });
-            }catch(Exception e){
+            } catch (Exception e) {
 
             }
         }
@@ -258,18 +277,18 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                 try {
                     if (data1 != null && data1.exists()) {
                         //status = data.getData().get("status").toString();
-                        if (status.equals("Confirmed")||status.equals("Arriving")||status.equals("Completed")) {
+                        if (status.equals("Confirmed") || status.equals("Arriving") || status.equals("Completed")) {
                             try {
                                 DriverHomeLat = data1.getDouble("driverHomeLat");
                                 DriverHomeLng = data1.getDouble("driverHomeLng");
                                 DriverLocation = new LatLng(DriverHomeLat, DriverHomeLng);
-                            }catch (NullPointerException npe){
-                                Log.d("driverLoc",npe.getMessage());
+                            } catch (NullPointerException npe) {
+                                Log.d("driverLoc", npe.getMessage());
                             }
                             MapImplement();
                             bookingStatusIndicator();
                         } else if (status.equals("Pending") || status.equals("Waiting")) {
-                                bookingStatusIndicator();
+                            bookingStatusIndicator();
 
                         }
                     }
@@ -291,7 +310,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                     intent.putExtra("CustAddress", CustAddress);
                     intent.putExtra("status", status);
                     startActivity(intent);
-                }catch(Exception e){
+                } catch (Exception e) {
 
                 }
             }
@@ -418,6 +437,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                             long elapsed;
                             float t;
                             float v;
+
                             @Override
                             public void run() {
                                 // Calculate progress using interpolator
@@ -482,13 +502,13 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
             try {
                 mMap.addMarker(homeLoc);
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(CustomerLocation, 19));  //move camera to location
-            }   catch(Exception e){
+            } catch (Exception e) {
 
-                }
+            }
         }
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED &&
-                 ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
@@ -506,96 +526,102 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
     }
 
 
-    private void MapImplement(){
+    private void MapImplement() {
         //Implementing Map
-            if(status.equals("Confirmed")||status.equals("Completed")) {
-                try {
-                    mapFragment.getMapAsync(this);
+        if (status.equals("Confirmed") || status.equals("Completed")) {
+            try {
+                mapFragment.getMapAsync(this);
                 place1_Cnf = new MarkerOptions().position(new LatLng(CustomerLatitude, CustomerLongitude)).title("Customer Location");
                 place2_Cnf = new MarkerOptions().position
                         (new LatLng(DriverHomeLat, DriverHomeLng)).title("Driver Home Location")
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.truck_png_1));
+
+                LatLng origin = new LatLng(CustomerLatitude, CustomerLongitude);
+                LatLng destination = new LatLng(DriverHomeLat, DriverHomeLng);
+
+                getDirection(origin, destination);
+
                 String url = getUrl(place1_Cnf.getPosition(), place2_Cnf.getPosition(), "driving");
                 new FetchURL(ParticularBookingHistory.this)
                         .execute(url, "driving");
                 mMap.addMarker(place1_Cnf);
                 mMap.addMarker(place2_Cnf);
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(DriverLocation, 14));  //move camera to location
-                    DistanceCalculator();
+                DistanceCalculator();
             } catch (Exception exception) {
-                    Toast.makeText(this, "Marker not added", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Marker not added", Toast.LENGTH_SHORT).show();
             }
-            } else if(status.equals("Arriving")){
-                try {
-                    mapFragment.getMapAsync(this);
-                    place1_Arv = new MarkerOptions().position(new LatLng(CustomerLatitude, CustomerLongitude)).title("Customer Location");
-                    place2_Arv = new MarkerOptions().position(new LatLng(DriverLiveLat, DriverLiveLng)).title("Driver Live Location")
-                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.truck_png_1));
-                    DriverLocation=new LatLng(DriverLiveLat,DriverLiveLng );
-                    String url = getUrl(place1_Arv.getPosition(), place2_Arv.getPosition(), "driving");
-                    new FetchURL(ParticularBookingHistory.this)
-                            .execute(url, "driving");
-                        mMap.clear();
-                        mMap.addMarker(place1_Arv);
-                        mMap.addMarker(place2_Arv);
-                    mMap.animateCamera(CameraUpdateFactory.newLatLng(DriverLocation));  //move camera to location
-                   DistanceCalculator();
-                }catch(Exception e){
-                    Toast.makeText(this, "Driver is on the way", Toast.LENGTH_SHORT).show();
-                    Log.d("LatLng",e.getMessage());
-                }
-}
+        } else if (status.equals("Arriving")) {
+            try {
+                mapFragment.getMapAsync(this);
+                place1_Arv = new MarkerOptions().position(new LatLng(CustomerLatitude, CustomerLongitude)).title("Customer Location");
+                place2_Arv = new MarkerOptions().position(new LatLng(DriverLiveLat, DriverLiveLng)).title("Driver Live Location")
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.truck_png_1));
+                DriverLocation = new LatLng(DriverLiveLat, DriverLiveLng);
+                String url = getUrl(place1_Arv.getPosition(), place2_Arv.getPosition(), "driving");
+                new FetchURL(ParticularBookingHistory.this)
+                        .execute(url, "driving");
+                mMap.clear();
+                mMap.addMarker(place1_Arv);
+                mMap.addMarker(place2_Arv);
+                mMap.animateCamera(CameraUpdateFactory.newLatLng(DriverLocation));  //move camera to location
+                DistanceCalculator();
+            } catch (Exception e) {
+                Toast.makeText(this, "Driver is on the way", Toast.LENGTH_SHORT).show();
+                Log.d("LatLng", e.getMessage());
+            }
+        }
         //Implementing Map
     }
 
 
-   /* //This methos is used to move the marker of each car smoothly when there are any updates of their position
-    public void animateMarker(final int position, final LatLng startPosition, final LatLng toPosition,
-                              final boolean hideMarker) {
+    /* //This methos is used to move the marker of each car smoothly when there are any updates of their position
+     public void animateMarker(final int position, final LatLng startPosition, final LatLng toPosition,
+                               final boolean hideMarker) {
 
 
-        final Marker marker = mMap.addMarker(new MarkerOptions()
-                .position(startPosition)
-                .title(mCarParcelableListCurrentLation.get(position).mCarName)
-                .snippet(mCarParcelableListCurrentLation.get(position).mAddress)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.car)));
+         final Marker marker = mMap.addMarker(new MarkerOptions()
+                 .position(startPosition)
+                 .title(mCarParcelableListCurrentLation.get(position).mCarName)
+                 .snippet(mCarParcelableListCurrentLation.get(position).mAddress)
+                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.car)));
 
 
-        final Handler handler = new Handler();
-        final long start = SystemClock.uptimeMillis();
+         final Handler handler = new Handler();
+         final long start = SystemClock.uptimeMillis();
 
-        final long duration = 1000;
-        final Interpolator interpolator = new LinearInterpolator();
+         final long duration = 1000;
+         final Interpolator interpolator = new LinearInterpolator();
 
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                long elapsed = SystemClock.uptimeMillis() - start;
-                float t = interpolator.getInterpolation((float) elapsed
-                        / duration);
-                double lng = t * toPosition.longitude + (1 - t)
-                        * startPosition.longitude;
-                double lat = t * toPosition.latitude + (1 - t)
-                        * startPosition.latitude;
+         handler.post(new Runnable() {
+             @Override
+             public void run() {
+                 long elapsed = SystemClock.uptimeMillis() - start;
+                 float t = interpolator.getInterpolation((float) elapsed
+                         / duration);
+                 double lng = t * toPosition.longitude + (1 - t)
+                         * startPosition.longitude;
+                 double lat = t * toPosition.latitude + (1 - t)
+                         * startPosition.latitude;
 
-                marker.setPosition(new LatLng(lat, lng));
+                 marker.setPosition(new LatLng(lat, lng));
 
-                if (t < 1.0) {
-                    // Post again 16ms later.
-                    handler.postDelayed(this, 16);
-                } else {
-                    if (hideMarker) {
-                        marker.setVisible(false);
-                    } else {
-                        marker.setVisible(true);
-                    }
-                }
-            }
-        });
-    }
-*/
+                 if (t < 1.0) {
+                     // Post again 16ms later.
+                     handler.postDelayed(this, 16);
+                 } else {
+                     if (hideMarker) {
+                         marker.setVisible(false);
+                     } else {
+                         marker.setVisible(true);
+                     }
+                 }
+             }
+         });
+     }
+ */
     private void DistanceCalculator() {
-        if(status.equals("Arriving")) {
+        if (status.equals("Arriving")) {
             try {
                 tvArrivingTime.setVisibility(View.VISIBLE);
                 tvKMDistance.setVisibility(View.VISIBLE);
@@ -608,10 +634,10 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                 int estimatedDriveTimeInMinutes = (int) (distance / speedIs1KmMinute);
                 tvKMDistance.setText("Distance : " + String.valueOf(kilometers) + " km Away");
                 tvArrivingTime.setText("Est.Time : " + String.valueOf(estimatedDriveTimeInMinutes) + " Mins");
-            } catch (Exception e){
+            } catch (Exception e) {
 
             }
-        } else if(status.equals("Confirmed")){
+        } else if (status.equals("Confirmed")) {
             try {
                 tvArrivingTime.setVisibility(View.VISIBLE);
                 tvKMDistance.setVisibility(View.VISIBLE);
@@ -624,7 +650,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                 int estimatedDriveTimeInMinutes = (int) (distance / speedIs1KmMinute);
                 tvKMDistance.setText("Distance : " + String.valueOf(kilometers) + " km Away");
                 tvArrivingTime.setText("Est.Time : " + String.valueOf(estimatedDriveTimeInMinutes) + " Mins");
-            }catch (Exception e){
+            } catch (Exception e) {
 
             }
         }
@@ -641,13 +667,13 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
             } else if (status.equals("Completed")) {
                 binding.spb.setCompletedPosition(3).drawView();
             }
-        }catch (ArrayIndexOutOfBoundsException e4){
+        } catch (ArrayIndexOutOfBoundsException e4) {
             Toast.makeText(this, e4.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
     public void DriverCall(View view) {
-        if (status.equals("Confirmed") || status.equals("Arriving")||status.equals("Completed")) {
+        if (status.equals("Confirmed") || status.equals("Arriving") || status.equals("Completed")) {
             Intent callIntent = new Intent(Intent.ACTION_CALL); //use ACTION_CALL class
             callIntent.setData(Uri.parse("tel:" + Drivphone));
             //this is the phone number calling
@@ -673,7 +699,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
     }
 
     public void onBackPressed() {
-       finish();
+        finish();
     }
 
     @Override
@@ -692,10 +718,10 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                     new LatLng(DriverLiveLat,DriverLiveLng)).width(10).color(Color.RED));
             mMap.addPolyline(new PolylineOptions().add(new LatLng(CustomerLatitude,CustomerLongitude),
                     new LatLng(DriverLiveLat,DriverLiveLng)).width(10).color(Color.BLUE));*/
-        }catch (Exception e){
+        } catch (Exception e) {
 
         }
-        }
+    }
 
     private void sendNotification() {
         try {
@@ -705,12 +731,12 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
             String channelId = "Default";
             Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelId);
-            if(status.equals("Pending")) {
+            if (status.equals("Pending")) {
                 builder.setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle("Your Booking Has Been Cancelled")
                         .setContentText("You can check the status in Booking History")
                         .setSound(defaultSoundUri).setAutoCancel(true).setContentIntent(pendingIntent);
-            }else if(status.equals("Confirmed")){
+            } else if (status.equals("Confirmed")) {
                 builder.setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle("Cancellation request sent successful")
                         .setContentText("You can check the status in Booking History")
@@ -722,9 +748,49 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                 manager.createNotificationChannel(channel);
             }
             manager.notify(0, builder.build());
-        }catch (Exception e){
+        } catch (Exception e) {
 
         }
     }  //Sending notification after a booking has made
+
+
+    private void getDirection(LatLng origin, LatLng destination) {
+        Call<Result> call = apiClient.getDirection("driving", origin.latitude + "," + origin.longitude, destination.latitude + "," + destination.longitude, getResources().getString(R.string.google_maps_key));
+
+        call.enqueue(new Callback<Result>() {
+            @Override
+            public void onResponse(Call<Result> call, Response<Result> response) {
+
+                Log.i(TAG, "getDirection : Success got Result from API");
+
+                listPolyline = new ArrayList<>();
+                polylineOptions = new PolylineOptions();
+
+                Result result = response.body();
+                List<Routes> routesList = result.getRoutes();
+
+                for (int i = 0; i < routesList.size(); i++) {
+                    String polyline = routesList.get(i).getOverview_polyline().getPoints();
+                    listPolyline.addAll(new DataParser().decodePoly(polyline));
+                }
+
+                polylineOptions.color(R.color.colorPrimary);
+                polylineOptions.width(20F);
+                polylineOptions.startCap(new ButtCap());
+                polylineOptions.jointType(JointType.ROUND);
+                polylineOptions.addAll(listPolyline);
+                mMap.addPolyline(polylineOptions);
+
+            }
+
+            @Override
+            public void onFailure(Call<Result> call, Throwable t) {
+                Log.e(TAG, " getDirection : Failed to get Result from API", t);
+                Toast.makeText(getApplicationContext(), "Failed" + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
+
+
+}
 
