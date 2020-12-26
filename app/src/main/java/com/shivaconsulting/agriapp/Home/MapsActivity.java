@@ -571,9 +571,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View view) {
                 try {
-
-                    if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) |
-                            selectedDate == null | time == null | area == null |
+                    if (
                             autocompleteFragment==null | autoCompleteTextView.length()==0) {
 
                         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -581,20 +579,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             try {
                                 enableLoc();
                                 getDeviceLocation();
+                                getAddress();
                             } catch (Exception e) {
                                 Log.d(TAG,e.getMessage());
                             }
-                        } else if (selectedDate == null | time == null | area == null) {
-                            Toast.makeText(mContext, "Please select Date,Time,Area", Toast.LENGTH_SHORT).show();
-                            try {
-                                getDeviceLocation();
-                                getAddress();
-                            } catch (Exception e) {
-                                Toast.makeText(mContext, "Unable to get device location", Toast.LENGTH_SHORT).show();
-                            }
-                        } else if (autocompleteFragment==null | autoCompleteTextView.length()==0) {
-                            Toast.makeText(mContext, "Please check your delivery address above", Toast.LENGTH_SHORT).show();
-                            try {
+                        }
+                    }else if (selectedDate == null | time == null | area == null) {
+                        Toast.makeText(mContext, "Please select Date,Time,Area", Toast.LENGTH_SHORT).show();
+                    } else if (autocompleteFragment==null | autoCompleteTextView.length()==0) {
+                        Toast.makeText(mContext, "Please check your delivery address above", Toast.LENGTH_SHORT).show();
+                      /*      try {
                                 if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                                     Toast.makeText(mContext, "Please Enable GPS First", Toast.LENGTH_SHORT).show();
                                     enableLoc();
@@ -606,8 +600,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 }
                             } catch (Exception e) {
 
-                            }
-                        }
+                            }*/
                     } else {
 
                         final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);

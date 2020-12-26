@@ -37,7 +37,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -54,12 +53,10 @@ import com.shivaconsulting.agriapp.databinding.ActivityParticularBookingHistoryB
 import com.shivaconsulting.agriapp.directionhelpers.DataParser;
 import com.shivaconsulting.agriapp.directionhelpers.Result;
 import com.shivaconsulting.agriapp.directionhelpers.Routes;
-import com.shivaconsulting.agriapp.directionhelpers.TaskLoadedCallback;
 import com.shivaconsulting.agriapp.retrofit.Api;
 import com.shivaconsulting.agriapp.retrofit.RetrofitClient;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +67,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 
-public class ParticularBookingHistory extends AppCompatActivity implements OnMapReadyCallback, TaskLoadedCallback {
+public class ParticularBookingHistory extends AppCompatActivity implements OnMapReadyCallback {
 
     ActivityParticularBookingHistoryBinding binding;
 
@@ -79,7 +76,6 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
     String status, BookingId, Drivphone, DriverName = "", DriverToken, DriverID, CustPhone, CustAddress;
 
     private GoogleMap mMap;
-    private Polyline currentPolyline;
     private MarkerOptions markerDriverHomeLoc, markerDriverLiveLoc, homeLoc;
     private Marker DriverHomeMarker,DriverLiveMarker;
     LatLng CustomerLocation, DriverLocation;
@@ -238,7 +234,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
 
 
         //Getting DriverLiveLocation
-        if (status.equals("Arriving")|| status.equals("Reached")|| status.equals("Started")|| status.equals("Completed")) {
+        if (status.equals("Arriving")|| status.equals("Reached")|| status.equals("Started") ||status.equals("Completed")) {
 
             DocumentReference dr1 = db.collection("All Booking ID").document(BookingId);
             dr1.addSnapshotListener(new EventListener<DocumentSnapshot>() {
@@ -251,6 +247,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                                     DriverHomeLat = data1.getDouble("driverHomeLat");
                                     DriverHomeLng = data1.getDouble("driverHomeLng");
                                     DriverLocation = new LatLng(DriverHomeLat, DriverHomeLng);
+
                                     markerDriverHomeLoc = new MarkerOptions().position(new LatLng(DriverHomeLat,
                                             DriverHomeLng)).title("Driver Location");
                                     DriverHomeMarker = mMap.addMarker(markerDriverHomeLoc);
@@ -281,7 +278,12 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                             DriverLiveLatLng = data2.getGeoPoint("geoPoint");
                             DriverLiveLat = DriverLiveLatLng.getLatitude();
                             DriverLiveLng = DriverLiveLatLng.getLongitude();
-
+                            if (status.equals("Completed")) {
+                                markerDriverHomeLoc = new MarkerOptions().position(new LatLng(DriverHomeLat,
+                                        DriverHomeLng)).title("Driver Location")
+                                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.truck_png_1));
+                                DriverHomeMarker = mMap.addMarker(markerDriverHomeLoc);
+                            }
                             markerDriverLiveLoc= new MarkerOptions().position(new LatLng(DriverLiveLat,
                                     DriverLiveLng)).title("Driver Live Location")
                                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.truck_png_1));
@@ -432,96 +434,10 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                 finish();
             }
         });
-
-
-        /*if (status.equals("Arriving")) {
-            try {
-        *//*    if (mMap == null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                    mapFragment = ((MapFragment) getFragmentManager().findFragmentById(R.id.mapView)).getMap();
-                    mMap = ((SupportMapFragment) SupportMapFragment().findFragmentById(R.id.map)).getMap();
-                    mMap = (SupportMapFragment) ((SupportMapFragment) getSupportFragmentManager()
-                            .findFragmentById(R.id.mapView)).getMapAsync();
-                }
-            }*//*
-                mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                mMap.setTrafficEnabled(true);
-                mMap.setIndoorEnabled(false);
-                mMap.setBuildingsEnabled(true);
-                mMap.getUiSettings().setZoomControlsEnabled(true);
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(DriverLocation));
-                mMap.moveCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
-                        .target(mMap.getCameraPosition().target)
-                        .zoom(17)
-                        .bearing(30)
-                        .tilt(45)
-                        .build()));
-
-                final Marker myMarker = mMap.addMarker(new MarkerOptions()
-                        .position(DriverLocation)
-                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_launcher))
-                        .title("Hello world"));
-
-
-                mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-
-                    @Override
-                    public boolean onMarkerClick(Marker arg0) {
-
-                        final LatLng startPosition = myMarker.getPosition();
-                        final LatLng finalPosition = new LatLng(CustomerLatitude, CustomerLongitude);
-                        final Handler handler = new Handler();
-                        final long start = SystemClock.uptimeMillis();
-                        final Interpolator interpolator = new AccelerateDecelerateInterpolator();
-                        final float durationInMs = 3000;
-                        final boolean hideMarker = false;
-
-                        handler.post(new Runnable() {
-                            long elapsed;
-                            float t;
-                            float v;
-
-                            @Override
-                            public void run() {
-                                // Calculate progress using interpolator
-                                elapsed = SystemClock.uptimeMillis() - start;
-                                t = elapsed / durationInMs;
-
-                                LatLng currentPosition = new LatLng(
-                                        startPosition.latitude * (1 - t) + finalPosition.latitude * t,
-                                        startPosition.longitude * (1 - t) + finalPosition.longitude * t);
-
-                                myMarker.setPosition(currentPosition);
-
-                                // Repeat till progress is complete.
-                                if (t < 1) {
-                                    // Post again 16ms later.
-                                    handler.postDelayed(this, 16);
-                                } else {
-                                    if (hideMarker) {
-                                        myMarker.setVisible(false);
-                                    } else {
-                                        myMarker.setVisible(true);
-                                    }
-                                }
-                            }
-                        });
-
-                        return true;
-
-                    }
-
-                });
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        }*/
     }
 
 
-    private String getUrl(LatLng origin, LatLng dest, String directionMode) {
+/*    private String getUrl(LatLng origin, LatLng dest, String directionMode) {
         // Origin of route
         String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
         // Destination of route
@@ -536,7 +452,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
         String url = "https://maps.googleapis.com/maps/api/directions/"
                 + output + "?" + parameters + "&key=" + getString(R.string.google_maps_key);
         return url;
-    }
+    }*/
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -561,137 +477,9 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        mMap.setMyLocationEnabled(false);
-        mMap.setIndoorEnabled(false);
         mMap.getUiSettings().setZoomControlsEnabled(true);
     }
 
-
-/*    private void MapImplement() {
-        //Implementing Map
-        if (status.equals("Confirmed") || status.equals("Completed")) {
-            try {
-                mapFragment.getMapAsync(this);
-                markerDriverHomeLoc = new MarkerOptions().position(new LatLng(CustomerLatitude, CustomerLongitude)).title("Customer Location");
-                markerDriverHomeLoc = new MarkerOptions().position
-                        (new LatLng(DriverHomeLat, DriverHomeLng)).title("Driver Home Location")
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.truck_png_1));
-
-
-                String url = getUrl(place1_Cnf.getPosition(), place2_Cnf.getPosition(), "driving");
-                new FetchURL(ParticularBookingHistory.this)
-                        .execute(url, "driving");
-                mMap.addMarker(place1_Cnf);
-                mMap.addMarker(place2_Cnf);
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(DriverLocation, 14));  //move camera to location
-                //DistanceCalculator();
-            } catch (Exception exception) {
-                Toast.makeText(this, "Marker not added", Toast.LENGTH_SHORT).show();
-            }
-        } else if (status.equals("Arriving")) {
-            try {
-                mapFragment.getMapAsync(this);
-                place1_Arv = new MarkerOptions().position(new LatLng(CustomerLatitude, CustomerLongitude)).title("Customer Location");
-                place2_Arv = new MarkerOptions().position(new LatLng(DriverLiveLat, DriverLiveLng)).title("Driver Live Location")
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.truck_png_1));
-                DriverLocation = new LatLng(DriverLiveLat, DriverLiveLng);
-                String url = getUrl(place1_Arv.getPosition(), place2_Arv.getPosition(), "driving");
-                new FetchURL(ParticularBookingHistory.this)
-                        .execute(url, "driving");
-                mMap.clear();
-                mMap.addMarker(place1_Arv);
-                mMap.addMarker(place2_Arv);
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(DriverLocation,14));  //move camera to location
-                //DistanceCalculator();
-            } catch (Exception e) {
-                Toast.makeText(this, "Driver is on the way", Toast.LENGTH_SHORT).show();
-                Log.d("LatLng", e.getMessage());
-            }
-        }
-        //Implementing Map
-    }*/
-
-
-    /* //This methos is used to move the marker of each car smoothly when there are any updates of their position
-     public void animateMarker(final int position, final LatLng startPosition, final LatLng toPosition,
-                               final boolean hideMarker) {
-
-
-         final Marker marker = mMap.addMarker(new MarkerOptions()
-                 .position(startPosition)
-                 .title(mCarParcelableListCurrentLation.get(position).mCarName)
-                 .snippet(mCarParcelableListCurrentLation.get(position).mAddress)
-                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.car)));
-
-
-         final Handler handler = new Handler();
-         final long start = SystemClock.uptimeMillis();
-
-         final long duration = 1000;
-         final Interpolator interpolator = new LinearInterpolator();
-
-         handler.post(new Runnable() {
-             @Override
-             public void run() {
-                 long elapsed = SystemClock.uptimeMillis() - start;
-                 float t = interpolator.getInterpolation((float) elapsed
-                         / duration);
-                 double lng = t * toPosition.longitude + (1 - t)
-                         * startPosition.longitude;
-                 double lat = t * toPosition.latitude + (1 - t)
-                         * startPosition.latitude;
-
-                 marker.setPosition(new LatLng(lat, lng));
-
-                 if (t < 1.0) {
-                     // Post again 16ms later.
-                     handler.postDelayed(this, 16);
-                 } else {
-                     if (hideMarker) {
-                         marker.setVisible(false);
-                     } else {
-                         marker.setVisible(true);
-                     }
-                 }
-             }
-         });
-     }
- */
- /*   private void DistanceCalculator() {
-        if (status.equals("Arriving")) {
-            try {
-                tvArrivingTime.setVisibility(View.VISIBLE);
-                tvKMDistance.setVisibility(View.VISIBLE);
-                float[] results = new float[1];
-                Location.distanceBetween(DriverLiveLat, DriverLiveLng, CustomerLatitude, CustomerLongitude, results);
-                float distance = results[0];
-                int kilometers = (int) distance / 1000;
-                //calculating time
-                int speedIs1KmMinute = 500;
-                int estimatedDriveTimeInMinutes = (int) (distance / speedIs1KmMinute);
-                tvKMDistance.setText("Distance : " + String.valueOf(kilometers) + " km Away");
-                tvArrivingTime.setText("Est.Time : " + String.valueOf(estimatedDriveTimeInMinutes) + " Mins");
-            } catch (Exception e) {
-
-            }
-        } else if (status.equals("Confirmed")) {
-            try {
-                tvArrivingTime.setVisibility(View.VISIBLE);
-                tvKMDistance.setVisibility(View.VISIBLE);
-                float[] results = new float[1];
-                Location.distanceBetween(DriverHomeLat, DriverHomeLng, CustomerLatitude, CustomerLongitude, results);
-                float distance = results[0];
-                int kilometers = (int) distance / 1000;
-                //calculating time
-                int speedIs1KmMinute = 500;
-                int estimatedDriveTimeInMinutes = (int) (distance / speedIs1KmMinute);
-                tvKMDistance.setText("Distance : " + String.valueOf(kilometers) + " km Away");
-                tvArrivingTime.setText("Est.Time : " + String.valueOf(estimatedDriveTimeInMinutes) + " Mins");
-            } catch (Exception e) {
-
-            }
-        }
-    }*/
 
     private void bookingStatusIndicator() {
         try {
@@ -746,7 +534,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
         finish();
     }
 
-    @Override
+/*    @Override
     public void onTaskDone(Object... values) {
         try {
             if (currentPolyline != null) {
@@ -758,14 +546,14 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
             } else {
                 currentPolyline = mMap.addPolyline((PolylineOptions) values[0]);
             }
-           /* mMap.addPolyline(new PolylineOptions().add(new LatLng(CustomerLatitude,CustomerLongitude),
+           *//* mMap.addPolyline(new PolylineOptions().add(new LatLng(CustomerLatitude,CustomerLongitude),
                     new LatLng(DriverLiveLat,DriverLiveLng)).width(10).color(Color.RED));
             mMap.addPolyline(new PolylineOptions().add(new LatLng(CustomerLatitude,CustomerLongitude),
-                    new LatLng(DriverLiveLat,DriverLiveLng)).width(10).color(Color.BLUE));*/
+                    new LatLng(DriverLiveLat,DriverLiveLng)).width(10).color(Color.BLUE));*//*
         } catch (Exception e) {
 
         }
-    }
+    }*/
 
     private void sendNotification() {
         try {
@@ -798,7 +586,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
     }  //Sending notification after a booking has made
 
 
-    private void getDirection(final LatLng origin, final LatLng destination) {
+    private void getDirection(final LatLng origin,final LatLng destination) {
         Call<Result> call = apiClient.getDirection("driving",
                 origin.latitude + "," + origin.longitude, destination.latitude + ","
                         + destination.longitude, getResources().getString(R.string.google_maps_key));

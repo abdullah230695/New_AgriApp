@@ -236,6 +236,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="90dp"
         android:background="@drawable/roundview_rounded"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/coordinatorLayout"
         app:layout_constraintEnd_toEndOf="@id/guideRight"
         app:layout_constraintHorizontal_bias="0.0"
