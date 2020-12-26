@@ -9,23 +9,19 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.location.Location;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.Interpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
@@ -36,9 +32,9 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.ButtCap;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.JointType;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
@@ -56,7 +52,6 @@ import com.shivaconsulting.agriapp.History.BookingHistoryActivity;
 import com.shivaconsulting.agriapp.Home.MapsActivity;
 import com.shivaconsulting.agriapp.databinding.ActivityParticularBookingHistoryBinding;
 import com.shivaconsulting.agriapp.directionhelpers.DataParser;
-import com.shivaconsulting.agriapp.directionhelpers.FetchURL;
 import com.shivaconsulting.agriapp.directionhelpers.Result;
 import com.shivaconsulting.agriapp.directionhelpers.Routes;
 import com.shivaconsulting.agriapp.directionhelpers.TaskLoadedCallback;
@@ -85,7 +80,8 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
 
     private GoogleMap mMap;
     private Polyline currentPolyline;
-    private MarkerOptions place1_Cnf, place2_Cnf, place1_Arv, place2_Arv, homeLoc;
+    private MarkerOptions markerDriverHomeLoc, markerDriverLiveLoc, homeLoc;
+    private Marker DriverHomeMarker,DriverLiveMarker;
     LatLng CustomerLocation, DriverLocation;
     String[] data = {"Booked", "Confirmed", "Arriving", "Over"};
     private Double CustomerLatitude, CustomerLongitude, DriverHomeLat, DriverHomeLng, DriverLiveLat, DriverLiveLng;
@@ -160,7 +156,6 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
             mapFragment.getMapAsync(this);
 
 
-            //Changing call button color
             if (status.equals("Confirmed") || status.equals("Arriving") || status.equals("Completed")) {
                 tvDriverName.setText(DriverName);
             }
@@ -243,7 +238,39 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
 
 
         //Getting DriverLiveLocation
-        if (status.equals("Arriving")) {
+        if (status.equals("Arriving")|| status.equals("Reached")|| status.equals("Started")|| status.equals("Completed")) {
+
+            DocumentReference dr1 = db.collection("All Booking ID").document(BookingId);
+            dr1.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                @Override
+                public void onEvent(@Nullable DocumentSnapshot data1, @Nullable FirebaseFirestoreException e) {
+                    try {
+                        if (data1 != null && data1.exists()) {
+                            //status = data.getData().get("status").toString();
+                                try {
+                                    DriverHomeLat = data1.getDouble("driverHomeLat");
+                                    DriverHomeLng = data1.getDouble("driverHomeLng");
+                                    DriverLocation = new LatLng(DriverHomeLat, DriverHomeLng);
+                                    markerDriverHomeLoc = new MarkerOptions().position(new LatLng(DriverHomeLat,
+                                            DriverHomeLng)).title("Driver Location");
+                                    DriverHomeMarker = mMap.addMarker(markerDriverHomeLoc);
+                                } catch (NullPointerException npe) {
+                                    Log.d("driverLoc", npe.getMessage());
+                                }
+
+                                //MapImplement();
+                                bookingStatusIndicator();
+
+                        }
+                    } catch (ArrayIndexOutOfBoundsException e2) {
+
+                    }
+                }
+
+            });
+
+
+
             try {
                 btnReschedule.setVisibility(View.INVISIBLE);
                 DocumentReference dr2 = db.collection("LiveLocation").document(DriverID);
@@ -255,14 +282,22 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                             DriverLiveLat = DriverLiveLatLng.getLatitude();
                             DriverLiveLng = DriverLiveLatLng.getLongitude();
 
-                            if (status.equals("Arriving")) {
-                                MapImplement();
-                                bookingStatusIndicator();
-                            }
+                            markerDriverLiveLoc= new MarkerOptions().position(new LatLng(DriverLiveLat,
+                                    DriverLiveLng)).title("Driver Live Location")
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.truck_png_1));
+                            if(DriverLiveMarker!=null){
+                            DriverLiveMarker.remove();}
+                            DriverLiveMarker= mMap.addMarker(markerDriverLiveLoc);
+                            LatLng origin =new LatLng(DriverLiveLat,DriverLiveLng);
+                            LatLng destination =new LatLng(CustomerLatitude,CustomerLongitude );
+                            getDirection(origin,destination);
 
+                                //MapImplement();
+                                bookingStatusIndicator();
                         }
                     }
                 });
+
             } catch (Exception e) {
 
             }
@@ -277,15 +312,23 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                 try {
                     if (data1 != null && data1.exists()) {
                         //status = data.getData().get("status").toString();
-                        if (status.equals("Confirmed") || status.equals("Arriving") || status.equals("Completed")) {
+                        if (status.equals("Confirmed")) {
                             try {
                                 DriverHomeLat = data1.getDouble("driverHomeLat");
                                 DriverHomeLng = data1.getDouble("driverHomeLng");
+                                markerDriverHomeLoc = new MarkerOptions().position(new LatLng(DriverHomeLat,
+                                        DriverHomeLng)).title("Driver Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.truck_png_1));
+                                mMap.addMarker(markerDriverHomeLoc);
                                 DriverLocation = new LatLng(DriverHomeLat, DriverHomeLng);
+                                LatLng origin =new LatLng(DriverHomeLat,DriverHomeLng );
+                                LatLng destination =new LatLng(CustomerLatitude,CustomerLongitude );
+                                getDirection(origin,destination);
                             } catch (NullPointerException npe) {
                                 Log.d("driverLoc", npe.getMessage());
                             }
-                            MapImplement();
+
+
+                            //MapImplement();
                             bookingStatusIndicator();
                         } else if (status.equals("Pending") || status.equals("Waiting")) {
                             bookingStatusIndicator();
@@ -391,16 +434,16 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
         });
 
 
-        if (status.equals("Arriving")) {
+        /*if (status.equals("Arriving")) {
             try {
-        /*    if (mMap == null) {
+        *//*    if (mMap == null) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                     mapFragment = ((MapFragment) getFragmentManager().findFragmentById(R.id.mapView)).getMap();
                     mMap = ((SupportMapFragment) SupportMapFragment().findFragmentById(R.id.map)).getMap();
                     mMap = (SupportMapFragment) ((SupportMapFragment) getSupportFragmentManager()
                             .findFragmentById(R.id.mapView)).getMapAsync();
                 }
-            }*/
+            }*//*
                 mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                 mMap.setTrafficEnabled(true);
                 mMap.setIndoorEnabled(false);
@@ -474,7 +517,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                 e.printStackTrace();
             }
 
-        }
+        }*/
     }
 
 
@@ -519,27 +562,21 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
             return;
         }
         mMap.setMyLocationEnabled(false);
-        mMap.setTrafficEnabled(true);
         mMap.setIndoorEnabled(false);
-        mMap.setBuildingsEnabled(true);
         mMap.getUiSettings().setZoomControlsEnabled(true);
     }
 
 
-    private void MapImplement() {
+/*    private void MapImplement() {
         //Implementing Map
         if (status.equals("Confirmed") || status.equals("Completed")) {
             try {
                 mapFragment.getMapAsync(this);
-                place1_Cnf = new MarkerOptions().position(new LatLng(CustomerLatitude, CustomerLongitude)).title("Customer Location");
-                place2_Cnf = new MarkerOptions().position
+                markerDriverHomeLoc = new MarkerOptions().position(new LatLng(CustomerLatitude, CustomerLongitude)).title("Customer Location");
+                markerDriverHomeLoc = new MarkerOptions().position
                         (new LatLng(DriverHomeLat, DriverHomeLng)).title("Driver Home Location")
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.truck_png_1));
 
-                LatLng origin = new LatLng(CustomerLatitude, CustomerLongitude);
-                LatLng destination = new LatLng(DriverHomeLat, DriverHomeLng);
-
-                getDirection(origin, destination);
 
                 String url = getUrl(place1_Cnf.getPosition(), place2_Cnf.getPosition(), "driving");
                 new FetchURL(ParticularBookingHistory.this)
@@ -547,7 +584,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                 mMap.addMarker(place1_Cnf);
                 mMap.addMarker(place2_Cnf);
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(DriverLocation, 14));  //move camera to location
-                DistanceCalculator();
+                //DistanceCalculator();
             } catch (Exception exception) {
                 Toast.makeText(this, "Marker not added", Toast.LENGTH_SHORT).show();
             }
@@ -564,15 +601,15 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                 mMap.clear();
                 mMap.addMarker(place1_Arv);
                 mMap.addMarker(place2_Arv);
-                mMap.animateCamera(CameraUpdateFactory.newLatLng(DriverLocation));  //move camera to location
-                DistanceCalculator();
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(DriverLocation,14));  //move camera to location
+                //DistanceCalculator();
             } catch (Exception e) {
                 Toast.makeText(this, "Driver is on the way", Toast.LENGTH_SHORT).show();
                 Log.d("LatLng", e.getMessage());
             }
         }
         //Implementing Map
-    }
+    }*/
 
 
     /* //This methos is used to move the marker of each car smoothly when there are any updates of their position
@@ -620,7 +657,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
          });
      }
  */
-    private void DistanceCalculator() {
+ /*   private void DistanceCalculator() {
         if (status.equals("Arriving")) {
             try {
                 tvArrivingTime.setVisibility(View.VISIBLE);
@@ -654,7 +691,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
 
             }
         }
-    }
+    }*/
 
     private void bookingStatusIndicator() {
         try {
@@ -664,7 +701,14 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                 binding.spb.setCompletedPosition(1).drawView();
             } else if (status.equals("Arriving")) {
                 binding.spb.setCompletedPosition(2).drawView();
-            } else if (status.equals("Completed")) {
+            } else if (status.equals("Reached")) {
+                binding.spb.setCompletedPosition(2).drawView();
+                data[2]="Arrived";
+            }else if (status.equals("Started")) {
+                binding.spb.setCompletedPosition(2).drawView();
+                data[2]="Trip Started";
+            }else if (status.equals("Completed")) {
+                data[2]="Trip Finished";
                 binding.spb.setCompletedPosition(3).drawView();
             }
         } catch (ArrayIndexOutOfBoundsException e4) {
@@ -709,7 +753,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                 //currentPolyline.remove();
                 currentPolyline.setVisible(true);
                 currentPolyline.setPoints(Collections.singletonList(DriverLocation));
-                currentPolyline.setColor(Color.BLACK);
+                currentPolyline.setColor(Color.RED);
                 currentPolyline = mMap.addPolyline((PolylineOptions) values[0]);
             } else {
                 currentPolyline = mMap.addPolyline((PolylineOptions) values[0]);
@@ -754,10 +798,13 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
     }  //Sending notification after a booking has made
 
 
-    private void getDirection(LatLng origin, LatLng destination) {
-        Call<Result> call = apiClient.getDirection("driving", origin.latitude + "," + origin.longitude, destination.latitude + "," + destination.longitude, getResources().getString(R.string.google_maps_key));
+    private void getDirection(final LatLng origin, final LatLng destination) {
+        Call<Result> call = apiClient.getDirection("driving",
+                origin.latitude + "," + origin.longitude, destination.latitude + ","
+                        + destination.longitude, getResources().getString(R.string.google_maps_key));
 
         call.enqueue(new Callback<Result>() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onResponse(Call<Result> call, Response<Result> response) {
 
@@ -774,13 +821,26 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                     listPolyline.addAll(new DataParser().decodePoly(polyline));
                 }
 
-                polylineOptions.color(R.color.colorPrimary);
+                polylineOptions.color(getColor(R.color.quantum_googgreen));
                 polylineOptions.width(20F);
                 polylineOptions.startCap(new ButtCap());
+                polylineOptions.endCap(new ButtCap());
                 polylineOptions.jointType(JointType.ROUND);
                 polylineOptions.addAll(listPolyline);
                 mMap.addPolyline(polylineOptions);
+                LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                builder.include(origin);
+                builder.include(destination);
 
+                String duration = routesList.get(0).getLegs().get(0).getDuration().getText();
+                String distance = routesList.get(0).getLegs().get(0).getDistance().getText();
+                tvKMDistance.setText(distance);
+                tvArrivingTime.setText(duration);
+
+                homeLoc = new MarkerOptions().position(new LatLng(CustomerLatitude, CustomerLongitude)).title("Your's :"+CustAddress);
+                mMap.addMarker(homeLoc);
+                //LatLngBounds bounds = builder.build();
+                mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build() ,120));
             }
 
             @Override

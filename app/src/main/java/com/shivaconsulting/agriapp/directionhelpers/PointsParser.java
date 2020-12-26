@@ -82,7 +82,7 @@ public class PointsParser extends AsyncTask<String, Integer, List<List<HashMap<S
             lineOptions.addAll(points);
             if (directionMode.equalsIgnoreCase("walking")) {
                 lineOptions.width(10);
-                lineOptions.color(Color.MAGENTA);
+                lineOptions.color(Color.BLUE);
                 lineOptions.startCap(new RoundCap());
                 lineOptions.endCap(new RoundCap());
                 lineOptions.getJointType();
@@ -91,7 +91,7 @@ public class PointsParser extends AsyncTask<String, Integer, List<List<HashMap<S
                 //Toast.makeText((android.content.Context) Context, "dis is "+distance, Toast.LENGTH_SHORT).show();
             } else {
                 lineOptions.width(20);
-                lineOptions.color(Color.BLUE);
+                lineOptions.color(Color.RED);
                 lineOptions.startCap(new RoundCap());
                 lineOptions.endCap(new RoundCap());
                 lineOptions.getJointType();

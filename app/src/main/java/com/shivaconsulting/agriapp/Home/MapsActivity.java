@@ -311,81 +311,86 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         imgSavedLocations.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                bookContraint.setVisibility(View.GONE);
-                rvAddress.setVisibility(View.VISIBLE);
-                autoCompleteTextView.setText(null);
-                autocompleteFragment.setText(null);
-                autoCompleteTextView.setVisibility(View.GONE);
+                try {
+                    bookContraint.setVisibility(View.GONE);
+                    rvAddress.setVisibility(View.VISIBLE);
+                    autoCompleteTextView.setText(null);
+                    autocompleteFragment.setText(null);
+                    autoCompleteTextView.setVisibility(View.GONE);
 
-                ConstraintSet constraintSet = new ConstraintSet();
-                constraintLayout=findViewById(R.id.parent_layout);
-                constraintSet.clone(constraintLayout);
-                constraintSet.connect(R.id.gps_button,ConstraintSet.BOTTOM,R.id.rvSavedLoc, ConstraintSet.BOTTOM,350);
-                constraintSet.applyTo(constraintLayout);
-                //constraintSet.clear(R.id.gps_button,ConstraintSet.BOTTOM);
-                //constraintSet.applyTo(constraintLayout);
+                    ConstraintSet constraintSet = new ConstraintSet();
+                    constraintLayout = findViewById(R.id.parent_layout);
+                    constraintSet.clone(constraintLayout);
+                    constraintSet.connect(R.id.gps_button, ConstraintSet.BOTTOM, R.id.rvSavedLoc, ConstraintSet.BOTTOM, 350);
+                    constraintSet.applyTo(constraintLayout);
+                    //constraintSet.clear(R.id.gps_button,ConstraintSet.BOTTOM);
+                    //constraintSet.applyTo(constraintLayout);
+                }catch (Exception e){}
             }
         });
 
         imgAddLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                autoCompleteTextView.setVisibility(View.VISIBLE);
-                rvAddress.setVisibility(View.GONE);
-                if((autoCompleteTextView.length() ==0)){
-                    autoCompleteTextView.setError("Please enter address to save location");
-                }else {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-                    builder.setTitle("Add New Location ?");
-                    builder.setMessage("Please enter name of person in that address ?");
-                    builder.setCancelable(false);
-                    final EditText input2 = new EditText(mContext);
-                    input2.setInputType(InputType.TYPE_CLASS_TEXT );
-                    builder.setView(input2);
-                    builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            personName=input2.getText().toString();
-                            Query query=db.collection("Bookings").document(UUID)
-                                    .collection("Saved Locations");
-                            try {
-                                query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                        if (task.isSuccessful()) {
-                                            Map<String, Object> createNewID = new HashMap<>();
-                                            createNewID.put("address", autoCompleteTextView.getText().toString());
-                                            createNewID.put("latitude", lat);
-                                            createNewID.put("longitude", lon);
-                                            createNewID.put("name", personName);
-                                            db.collection("Bookings").document(UUID)
-                                                    .collection("Saved Locations").document()
-                                                    .set(createNewID);
-                                            Toast.makeText(mContext, "Your new address is \n" + autoCompleteTextView.getText().toString() +
-                                                    "\n Saved Successful", Toast.LENGTH_LONG).show();
-                                            autoCompleteTextView.setText(null);
-                                            autoCompleteTextView.setVisibility(View.GONE);
-                                            autocompleteFragment.setText(null);
+                try {
+                    autoCompleteTextView.setVisibility(View.VISIBLE);
+                    rvAddress.setVisibility(View.GONE);
+                    if ((autoCompleteTextView.length() == 0)) {
+                        autoCompleteTextView.setError("Please enter address to save location");
+                    } else {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                        builder.setTitle("Add New Location ?");
+                        builder.setMessage("Please enter name of person in that address ?");
+                        builder.setCancelable(false);
+                        final EditText input2 = new EditText(mContext);
+                        input2.setInputType(InputType.TYPE_CLASS_TEXT);
+                        builder.setView(input2);
+                        builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                personName = input2.getText().toString();
+                                Query query = db.collection("Bookings").document(UUID)
+                                        .collection("Saved Locations");
+                                try {
+                                    query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                            if (task.isSuccessful()) {
+                                                Map<String, Object> createNewID = new HashMap<>();
+                                                createNewID.put("address", autoCompleteTextView.getText().toString());
+                                                createNewID.put("latitude", lat);
+                                                createNewID.put("longitude", lon);
+                                                createNewID.put("name", personName);
+                                                db.collection("Bookings").document(UUID)
+                                                        .collection("Saved Locations").document()
+                                                        .set(createNewID);
+                                                Toast.makeText(mContext, "Your new address is \n" + autoCompleteTextView.getText().toString() +
+                                                        "\n Saved Successful", Toast.LENGTH_LONG).show();
+                                                autoCompleteTextView.setText(null);
+                                                autoCompleteTextView.setVisibility(View.GONE);
+                                                autocompleteFragment.setText(null);
 
 
-                                        } else {
+                                            } else {
 
+                                            }
                                         }
-                                    }
-                                });
-                            }catch (Exception e){
+                                    });
+                                } catch (Exception e) {
 
+                                }
                             }
-                        }
-                    }).setNegativeButton("NO", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                        }
-                    }).setIcon(R.drawable.ic_baseline_add_location_24).show();
+                        }).setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        }).setIcon(R.drawable.ic_baseline_add_location_24).show();
 
-                }
+                    }
+                }catch(Exception e){}
             }
+
         });
 
 
