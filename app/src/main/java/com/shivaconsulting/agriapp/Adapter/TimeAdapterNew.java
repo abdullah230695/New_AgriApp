@@ -22,7 +22,6 @@ import static com.shivaconsulting.agriapp.Home.MapsActivity.pick_date_text;
 import static com.shivaconsulting.agriapp.Home.MapsActivity.pick_time_text;
 import static com.shivaconsulting.agriapp.Home.MapsActivity.time;
 import static com.shivaconsulting.agriapp.Home.MapsActivity.time_picker_recyclerview;
-
 import static com.shivaconsulting.agriapp.RescheduleBooking.area_picker_recyclerview2;
 import static com.shivaconsulting.agriapp.RescheduleBooking.datePickerTimeline2;
 import static com.shivaconsulting.agriapp.RescheduleBooking.pick_area_text2;
@@ -78,9 +77,15 @@ int selectedPosition=-1;
                     holder.time.setBackgroundColor(Color.TRANSPARENT);
                 }
                 selectedPosition=position;
-                time=ArList.get(position).getTime()+ArList.get(position).getAmpm();
+                time=ArList.get(position).getTime()/*+ArList.get(position).getAmpm()*/;
                 time2=ArList.get(position).getTime()+ArList.get(position).getAmpm();
-
+//                selectedDate=selectedDate+" 0"+time+":00:00";
+//                try {
+//                    dateFormat=new SimpleDateFormat("dd/MM/yyyy'T'HH:mm:ss'Z'").parse(selectedDate);
+//
+//                } catch (ParseException e) {
+//                    e.printStackTrace();
+//                }
                 notifyDataSetChanged();
 
             }
@@ -116,7 +121,13 @@ int selectedPosition=-1;
                     selectedPosition=position;
                     time=ArList.get(position).getTime()+ArList.get(position).getAmpm();
                     time2=ArList.get(position).getTime()+ArList.get(position).getAmpm();
+          /*          selectedDate=selectedDate+time;
+                    try {
+                        dateFormat=new SimpleDateFormat("dd/MM/yyyy'T'HH:mm:ss'Z'").parse(selectedDate);
 
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }*/
                     notifyDataSetChanged();
 
                 }

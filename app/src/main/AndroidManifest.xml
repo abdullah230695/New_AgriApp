@@ -26,18 +26,64 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".RescheduleBooking"></activity>
-        <activity android:name=".ParticularBookingHistory" />
-        <activity android:name=".Profile.SignUpActivity" />
+        <activity android:name=".Driver.DriverProfile"></activity>
+        <activity
+            android:name=".RescheduleBooking"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ParticularBookingHistory"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Profile.SignUpActivity"
+            android:screenOrientation="portrait" />
         <activity android:name=".Profile.LoginActivity">
+            android:screenOrientation="portrait"
+        </activity>
+        <activity
+            android:name=".Profile.ProfileActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".History.BookingHistoryActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Home.MapsActivity"
+            android:label="@string/title_activity_maps"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name=".History.BookingHistoryActivity" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".SplashActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Profile.ProfileActivity" />
-        <activity android:name=".History.BookingHistoryActivity" />
+        <activity
+            android:name=".chat.ChatActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".chat.SelectUserActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".UserPWActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".photoview.ViewPagerActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -52,19 +98,15 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBNS5C6OLlfFIG-1VjwfuUm73mG8HqW-wI" />
-
-        <activity
-            android:name=".Home.MapsActivity"
-            android:label="@string/title_activity_maps"></activity>
-
-        <service
+        <!--
+  <service
             android:name=".FCM.MyFirebaseMessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
+        -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/tractor" />
@@ -75,6 +117,16 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorAccent" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
     </application>
 
 </manifest>

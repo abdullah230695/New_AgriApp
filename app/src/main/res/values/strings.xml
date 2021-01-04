@@ -8,5 +8,7 @@
     <string name="date_time"><![CDATA[Date]]></string>
     <string name="time"><![CDATA[Time]]></string>
     <string name="api_key">AIzaSyBNS5C6OLlfFIG-1VjwfuUm73mG8HqW-wI</string>
-
+    <item name="photoView" type="id" />
+    <string name="open">open</string>
+    <string name="close">close</string>
 </resources>

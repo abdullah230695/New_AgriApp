@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "288183576904",
+    "project_id": "firestorechatapp-769a9",
+    "storage_bucket": "firestorechatapp-769a9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:288183576904:android:e15e8f5d7e43ca90586b7d",
+        "android_client_info": {
+          "package_name": "com.codingwithmitch.firestorechatapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "288183576904-fhja872imrd07n3ikop10rjcn0jf1elt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDdZOBnzKjhvn12SCm5zKeYa3oGmkNQHcY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "288183576904-fhja872imrd07n3ikop10rjcn0jf1elt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:288183576904:android:6730beca2ec4164d586b7d",
+        "android_client_info": {
+          "package_name": "gujc.directtalk9"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "288183576904-fhja872imrd07n3ikop10rjcn0jf1elt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDdZOBnzKjhvn12SCm5zKeYa3oGmkNQHcY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "288183576904-fhja872imrd07n3ikop10rjcn0jf1elt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,11 +1,13 @@
 package com.shivaconsulting.agriapp.Models;
 
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.ServerTimestamp;
 
 import java.util.Date;
 
 public class DB_TO_RECYCLERVIEW {
-    String delivery_Date;
+    String customer_Name;
     String booking_Id;
     String area;
     String address;
@@ -21,10 +23,11 @@ public class DB_TO_RECYCLERVIEW {
     Double driverLng;
     GeoPoint location;
     String driverNumber,driverName,driverToken,driverId,contact_Number;
-
-    public DB_TO_RECYCLERVIEW(String delivery_Date,String address,String contact_Number,String driverToken,String driverName,String driverNumber,String driverId,String booking_Id, String area, String service_Type, String picUrl, String status, String delivery_Time, String service_Provider,
+    @ServerTimestamp
+    Timestamp delivery_Date;
+    public DB_TO_RECYCLERVIEW(String customer_Name,Timestamp delivery_Date,String address,String contact_Number,String driverToken,String driverName,String driverNumber,String driverId,String booking_Id, String area, String service_Type, String picUrl, String status, String delivery_Time, String service_Provider,
                               Date booking_Date, Double latitude, Double longitude, Double driverLat, Double driverLng, GeoPoint location) {
-        this.delivery_Date = delivery_Date;
+        this.delivery_Date=delivery_Date;
         this.booking_Id = booking_Id;
         this.area = area;
         this.service_Type = service_Type;
@@ -44,6 +47,15 @@ public class DB_TO_RECYCLERVIEW {
         this.driverId=driverId;
         this.contact_Number=contact_Number;
         this.address=address;
+        this.customer_Name=customer_Name;
+    }
+
+    public String getCustomer_Name() {
+        return customer_Name;
+    }
+
+    public void setCustomer_Name(String customer_Name) {
+        this.customer_Name = customer_Name;
     }
 
     public String getAddress() {
@@ -94,11 +106,11 @@ public class DB_TO_RECYCLERVIEW {
         this.driverNumber = driverNumber;
     }
 
-    public String getDelivery_Date() {
+    public Timestamp getDelivery_Date() {
         return delivery_Date;
     }
 
-    public void setDelivery_Date(String delivery_Date) {
+    public void setDelivery_Date(Timestamp delivery_Date) {
         this.delivery_Date = delivery_Date;
     }
 

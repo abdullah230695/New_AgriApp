@@ -1,9 +1,11 @@
 package com.shivaconsulting.agriapp.Profile;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,6 +29,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.shivaconsulting.agriapp.Home.MapsActivity;
 import com.shivaconsulting.agriapp.R;
+import com.shivaconsulting.agriapp.common.Util9;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -45,6 +48,7 @@ public class LoginActivity extends AppCompatActivity {
     private ImageView phone_login,google_login;
     private ProgressBar progressBar;
     private EditText email_id_login,password_login;
+    SharedPreferences sharedPreferences;
 
 
     @Override
@@ -61,6 +65,12 @@ public class LoginActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar2);
         email_id_login = findViewById(R.id.email_id_login);
         password_login = findViewById(R.id.password_login);
+
+        sharedPreferences = getSharedPreferences("agri", Activity.MODE_PRIVATE);
+        String id = sharedPreferences.getString("user_id", "");
+        if (!"".equals(id)) {
+            email_id_login.setText(id);
+        }
 
         setupFirebaseAuth();
         init();
@@ -114,10 +124,10 @@ public class LoginActivity extends AppCompatActivity {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if (task.isSuccessful()) {
+                                        sharedPreferences.edit().putString("user_id", email_id_login.getText().toString()).commit();
                                         // Sign in success, update UI with the signed-in user's information
                                         progressBar.setVisibility(View.INVISIBLE);
                                         Log.d(TAG, "signInWithEmail:success");
-                                        FirebaseUser user = mAuth.getCurrentUser();
                                         Toast.makeText(LoginActivity.this, "Login Success", Toast.LENGTH_SHORT).show();
                                         startActivity(new Intent(LoginActivity.this, MapsActivity.class));
                                         finish();
@@ -126,9 +136,7 @@ public class LoginActivity extends AppCompatActivity {
                                         // If sign in fails, display a message to the user.
                                         progressBar.setVisibility(View.INVISIBLE);
                                         Log.w(TAG, "signInWithEmail:failure", task.getException());
-                                        Toast.makeText(LoginActivity.this, "Authentication failed.",
-                                                Toast.LENGTH_SHORT).show();
-
+                                        Util9.showMessage(getApplicationContext(), task.getException().getMessage());
                                         // ...
                                     }
 
@@ -137,7 +145,7 @@ public class LoginActivity extends AppCompatActivity {
                             }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+
 
                         }
                     });

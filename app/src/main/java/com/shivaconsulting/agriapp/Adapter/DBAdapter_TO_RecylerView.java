@@ -1,5 +1,6 @@
 package com.shivaconsulting.agriapp.Adapter;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class DBAdapter_TO_RecylerView extends FirestoreRecyclerAdapter<DB_TO_RECYCLERVIEW,DBAdapter_TO_RecylerView.viewHolder> {
 
+    String rmvChar;
     public DBAdapter_TO_RecylerView(@NonNull FirestoreRecyclerOptions<DB_TO_RECYCLERVIEW> options) {
         super(options);
     }
@@ -26,11 +28,15 @@ public class DBAdapter_TO_RecylerView extends FirestoreRecyclerAdapter<DB_TO_REC
     @Override
     protected void onBindViewHolder(@NonNull viewHolder holder, final int position, @NonNull final DB_TO_RECYCLERVIEW model) {
         holder.Status.setText(String.valueOf(model.getStatus()));
-        holder.Delivery_Date.setText(model.getDelivery_Date()+" @" +model.getDelivery_Time());
+        rmvChar=model.getDelivery_Date().toDate().toString();
+        String search = "00:00:00 GMT+05:30";
+        int index = rmvChar.lastIndexOf(search);
+        if (index > 0) {rmvChar = rmvChar.substring(0, index); }
+        Log.d("date",rmvChar);
+        holder.Delivery_Date.setText(rmvChar+" @" +model.getDelivery_Time());
         holder.Booking_Id.setText(model.getBooking_Id());
         //holder.Area.setText("Area :"+model.getArea());
         holder.Service_Type.setText(model.getService_Type());
-
         holder.Service_Provider.setText(model.getService_Provider());
         //holder.Contact_Number.setText("Contact No :"+model.getContact_Number());
         //holder.Location.setText("Location :"+model.getLocation());

@@ -86,6 +86,7 @@ import com.vivekkaushik.datepicker.DatePickerTimeline;
 import com.vivekkaushik.datepicker.OnDateSelectedListener;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -122,7 +123,7 @@ public class RescheduleBooking extends AppCompatActivity implements OnMapReadyCa
     private PlacesAutoCompleteAdapter mAutoCompleteAdapter;
     private AutocompleteSupportFragment autocompleteFragment;
 
-
+    Date dateFormat;
 
     //Id's
     private ImageView home, booking_history, profile;
@@ -350,8 +351,10 @@ public class RescheduleBooking extends AppCompatActivity implements OnMapReadyCa
         datePickerTimeline2.setOnDateSelectedListener(new OnDateSelectedListener() {
             @Override
             public void onDateSelected(int year, int month, int day, int dayOfWeek) {
+                try{
                 month = month + 1;
                 selectedDate = day + "/" + month + "/" + year;
+                dateFormat=new SimpleDateFormat("dd/MM/yyyy").parse(selectedDate);
                 Log.d(TAG, "onDateSelected: date: " + year + month + day);
                 Log.d(TAG, "onDateSelected: SelectedDate reform: " + selectedDate);
 
@@ -361,6 +364,9 @@ public class RescheduleBooking extends AppCompatActivity implements OnMapReadyCa
                 pick_time_text2.setTextSize(18);
                 pick_date_text2.setTextSize(14);
                 pick_area_text2.setTextSize(14);
+            } catch (Exception e) {
+                Log.d(TAG, "e is "+e.getMessage());
+            }
             }
 
             @Override
@@ -957,7 +963,7 @@ try {
     private void RecheduleCurrentBooking(){
         try {
         post.put("reschedule_Date", new Timestamp(new Date()));
-        post.put("delivery_Date", selectedDate);
+        post.put("delivery_Date", dateFormat);
         post.put("contact_Number",ChangeContact.getText().toString());
         post.put("delivery_Time", time2);
         post.put("area", area2);

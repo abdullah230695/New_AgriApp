@@ -79,7 +79,6 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -163,9 +162,24 @@
                         android:text="@string/time"
                         android:textSize="14sp"
                         android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/chatAdmin"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Chat With Admin"
+                        style="@android:style/Widget.Material.TextView.SpinnerItem"
+                        android:textSize="14sp"
+                        android:layout_marginTop="10dp"
+                        android:textColor="@color/white"
+                        android:background="@drawable/date_time_rounded"
+                        android:onClick="AdminChat"
+                        android:layout_gravity="bottom"
+                        android:textStyle="bold"/>
                 </LinearLayout>
 
             </LinearLayout>
+
+
 
         </LinearLayout>
 
@@ -222,6 +236,7 @@
                     android:layout_width="72dp"
                     android:layout_height="62dp"
                     android:layout_weight="1"
+                    android:onClick="DriverChat"
                     android:padding="5dp"
                     app:srcCompat="@drawable/cust_chat_foreground" />
             </LinearLayout>

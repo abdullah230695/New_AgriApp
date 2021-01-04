@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -15,11 +16,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -38,17 +42,20 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.SetOptions;
 import com.shivaconsulting.agriapp.History.BookingHistoryActivity;
 import com.shivaconsulting.agriapp.Home.MapsActivity;
+import com.shivaconsulting.agriapp.chat.ChatActivity;
 import com.shivaconsulting.agriapp.databinding.ActivityParticularBookingHistoryBinding;
 import com.shivaconsulting.agriapp.directionhelpers.DataParser;
 import com.shivaconsulting.agriapp.directionhelpers.Result;
@@ -72,8 +79,8 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
     ActivityParticularBookingHistoryBinding binding;
 
     public static TextView tvKMDistance, tvArrivingTime;
-    TextView BKid, svType, svProv, DVdate, DvTime, tvDriverName, btnReschedule, btnCancel, tvCurrentStatus;
-    String status, BookingId, Drivphone, DriverName = "", DriverToken, DriverID, CustPhone, CustAddress;
+    TextView BKid, svType, svProv, DVdate, DvTime, tvDriverName, btnReschedule, btnCancel, tvCurrentStatus,tvChatAdmin;
+    String status, BookingId, Drivphone, DriverName = "", DriverToken,ServiceName, DriverID, CustPhone, CustAddress,CustName,chatStatus,adminUID;
 
     private GoogleMap mMap;
     private MarkerOptions markerDriverHomeLoc, markerDriverLiveLoc, homeLoc;
@@ -93,7 +100,11 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
     private static final String TAG = "Partic Booking History";
     private PolylineOptions polylineOptions;
     SupportMapFragment mapFragment;
+    Map<String, Object> chatRequest = new HashMap<>();
+    ProgressDialog progressDialog;
 
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -120,17 +131,25 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
         btnReschedule = binding.btnReschedule1;
         btnCancel = findViewById(R.id.btnCancel);
         tvCurrentStatus = findViewById(R.id.tvStatus);
+        tvChatAdmin=binding.chatAdmin;
         // ID Setup
 
         //Retrieving Particular booking details
         try {
+            CustName = getIntent().getStringExtra("custName");
             CustPhone = getIntent().getStringExtra("CustPhone");
             CustAddress = getIntent().getStringExtra("custAddress");
             BookingId = getIntent().getStringExtra("id");
             BKid.setText(BookingId);
-            final String ServiceName = getIntent().getStringExtra("svType");
+            ServiceName = getIntent().getStringExtra("svType");
             svType.setText(ServiceName);
-            final String dvDate = getIntent().getStringExtra("DvDate");
+            String dvDate = getIntent().getStringExtra("DvDate");
+            String search = "00:00:00 GMT+05:30";
+            int index = dvDate.indexOf(search);
+            //int year = ZonedDateTime.now(  ZoneId.of( "Asia/Kolkata" )  ).getYear() ;
+            if (index > 0) {
+                dvDate = dvDate.substring(0, index);
+            }
             DVdate.setText("Del.Dt : " + dvDate);
             final String dvTime = getIntent().getStringExtra("DvTime");
             DvTime.setText("Del.Time : " + dvTime);
@@ -154,10 +173,17 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
 
             if (status.equals("Confirmed") || status.equals("Arriving") || status.equals("Completed")) {
                 tvDriverName.setText(DriverName);
+                Animation anim = new AlphaAnimation(0.0f, 1.0f);
+                anim.setDuration(500); //You can manage the blinking time with this parameter
+                anim.setStartOffset(20);
+                anim.setRepeatMode(Animation.REVERSE);
+                anim.setRepeatCount(Animation.INFINITE);
+                tvDriverName.startAnimation(anim);
             }
         } catch (Exception e) {
 
         }
+
 
         //Status Indicator
         try {
@@ -528,6 +554,133 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
         } else {
             Toast.makeText(this, "Driver not allocated yet", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public  void DriverChat(View view){
+        if (status.equals("Pending")||(status.equals("Waiting"))) {
+            Toast.makeText(ParticularBookingHistory.this, "Driver Not Allocated Yet", Toast.LENGTH_SHORT).show();
+        }else {
+            String driverID = "IjhnAE8tJgVOBPs1zvcNOyxFTvR2";
+            Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
+            intent.putExtra("toUid", driverID);
+            startActivity(intent);
+        }
+    }
+    public  void AdminChat(View view){
+        try {
+            ProgeressDialog();
+            progressDialog.show();
+            //Checking Booking id Existance
+        db.collection("Chat Requests").document("Farmer").collection("Requests").document(BookingId)
+                .get()/*.addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()){
+                    Toast.makeText(ParticularBookingHistory.this, "bk id exist", Toast.LENGTH_SHORT).show();
+                    db.collection("Chat Requests").document("Farmer")
+                            .collection("Requests").document(BookingId).delete();
+                    checkStatus();
+                    progressDialog.dismiss();
+                }else {
+                    Toast.makeText(ParticularBookingHistory.this, "bk id not exist", Toast.LENGTH_SHORT).show();
+                    sendChatRequest();
+                    progressDialog.dismiss();
+                    Log.d(TAG," This is new Request ID");
+                }
+            }
+        });*/
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        try {
+                        if(documentSnapshot.exists()){
+                            checkStatus();
+
+                            progressDialog.dismiss();
+
+                        } else {
+                            sendChatRequest();
+                            progressDialog.dismiss();
+                            Log.d(TAG," This is new Request ID");
+                        }
+                           }catch(Exception e) {
+                                Log.d(TAG,e.getMessage());
+                            }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG,e.getMessage());
+            }
+        });
+        }catch(Exception e) {
+            Log.d(TAG,e.getMessage());
+        }
+
+    }
+
+    private void checkStatus() {
+        //Checking Request Status
+        DocumentReference dr = db.collection("Chat Requests")
+                .document("Farmer").collection("Requests").document(BookingId);
+        dr.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                try {
+                    if (value.exists()) {
+                       chatStatus=value.getData().get("chat_status").toString();
+                       if(chatStatus.equals("Pending")){
+                           Toast.makeText(ParticularBookingHistory.this, "Admin Not Allocated Yet", Toast.LENGTH_SHORT).show();
+                       } else if (chatStatus.equals("Accepted")){
+                           adminUID=value.getData().get("adminUID").toString();
+                           Intent intent=new Intent(ParticularBookingHistory.this,ChatActivity.class);
+                           intent.putExtra("toUid",adminUID);
+                           startActivity(intent);
+                           finish();
+
+                       }
+                    } else{Toast.makeText(ParticularBookingHistory.this, "Admin Not Allocated Yet", Toast.LENGTH_SHORT).show();}
+                } catch (Exception e) {} }
+        });
+    }
+
+    private void sendChatRequest() {
+try {
+        chatRequest.put("name",CustName);
+        chatRequest.put("uid", UUID);
+        chatRequest.put("booking_Id", BookingId);
+        chatRequest.put("chat_status", "Pending");
+        chatRequest.put("booking_status", status);
+        chatRequest.put("service_type", ServiceName);
+        chatRequest.put("chatReqDate", FieldValue.serverTimestamp());
+
+        db.collection("Chat Requests").document("Farmer").collection("Requests").document(BookingId)
+                .set(chatRequest).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                try {
+                Toast.makeText(ParticularBookingHistory.this,
+                        "Admin Chat Request Sent Successful, Please Check Back Later", Toast.LENGTH_SHORT).show();
+                  }catch(Exception e) {
+                                Log.d(TAG,e.getMessage());
+                            }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                progressDialog.dismiss();
+                Toast.makeText(ParticularBookingHistory.this, "Failed to send request!", Toast.LENGTH_SHORT).show();
+            }
+        });
+           }catch(Exception e) {
+                                Log.d(TAG,e.getMessage());
+                            }
+    }
+
+    private void ProgeressDialog(){
+        progressDialog=new ProgressDialog(ParticularBookingHistory.this);
+        progressDialog.setCancelable(false);
+        progressDialog.setMessage("Processing please wait");
     }
 
     public void onBackPressed() {

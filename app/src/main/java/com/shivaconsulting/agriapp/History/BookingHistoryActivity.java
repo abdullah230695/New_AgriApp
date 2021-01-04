@@ -41,12 +41,14 @@ public class  BookingHistoryActivity extends AppCompatActivity implements View.O
         String UUID = FirebaseAuth.getInstance().getUid();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         Query cr=db.collection("Bookings").document(UUID).
-                collection("Booking Details").orderBy("status", Query.Direction.ASCENDING);
+                collection("Booking Details").orderBy("delivery_Date", Query.Direction.ASCENDING);
         back=findViewById(R.id.imgback2);
         home = findViewById(R.id.home);
         booking_history = findViewById(R.id.booking_history);
         profile = findViewById(R.id.profile);
         RVbooking_history = findViewById(R.id.RV_BK_History);
+
+
 
         LinearLayoutManager linearLayoutManager1 = new LinearLayoutManager(mContext,
                 LinearLayoutManager.VERTICAL, false);
@@ -61,6 +63,7 @@ public class  BookingHistoryActivity extends AppCompatActivity implements View.O
 
         adapter=new DBAdapter_TO_RecylerView(options);
         RVbooking_history.setAdapter(adapter);
+
         RVbooking_history.addOnItemTouchListener(new RecyclerItemClickListener(getApplicationContext(),
                 RVbooking_history, new RecyclerItemClickListener.OnItemClickListener() {
             @Override
@@ -70,8 +73,9 @@ public class  BookingHistoryActivity extends AppCompatActivity implements View.O
 try {
                 Intent intent = new Intent(getApplicationContext(), ParticularBookingHistory.class);
                 intent.putExtra("id",adapter.getItem(position).getBooking_Id());
+                intent.putExtra("custName",adapter.getItem(position).getCustomer_Name());
                 intent.putExtra("svType",adapter.getItem(position).getService_Type());
-                intent.putExtra("DvDate",adapter.getItem(position).getDelivery_Date());
+                intent.putExtra("DvDate",adapter.getItem(position).getDelivery_Date().toDate().toString());
                 intent.putExtra("DvTime",adapter.getItem(position).getDelivery_Time());
                 intent.putExtra("CustPhone",adapter.getItem(position).getContact_Number());
                 intent.putExtra("img",adapter.getItem(position).getPicUrl());

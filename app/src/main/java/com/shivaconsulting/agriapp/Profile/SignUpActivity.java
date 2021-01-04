@@ -2,7 +2,7 @@
 
  package com.shivaconsulting.agriapp.Profile;
 
-import android.app.AlertDialog;
+ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -29,9 +29,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.shivaconsulting.agriapp.Home.MapsActivity;
 import com.shivaconsulting.agriapp.R;
+import com.shivaconsulting.agriapp.common.Util9;
+import com.shivaconsulting.agriapp.model.UserModel;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,16 +47,15 @@ public class SignUpActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseFirestore mFirestore;
-    private Query mQuery;
     private String UUID;
-    private String emailId,password1,password2,name,phone_number;
+    private String emailId, password1, password2, name, phone_number;
 
 
     //Id's
-    private ConstraintLayout sign_up_constraint,phone_constraint;
-    private EditText mPhone_number,phone_otp;
-    private EditText email_id_signup,phone_number_signup,name_signup,password_box1,password_box2;
-    private Button sent_otp,sign_up_button;
+    private ConstraintLayout sign_up_constraint, phone_constraint;
+    private EditText mPhone_number, phone_otp;
+    private EditText email_id_signup, phone_number_signup, name_signup, password_box1, password_box2;
+    private Button sent_otp, sign_up_button;
     private ProgressBar progressBar;
 
     @Override
@@ -96,13 +96,13 @@ public class SignUpActivity extends AppCompatActivity {
         name = name_signup.getText().toString();
         phone_number = phone_number_signup.getText().toString();
 
-        if (!password1.equals(password2)){
+        if (!password1.equals(password2)) {
             password_box1.setError("password does not match!");
         }
 
         if (isStringNull(emailId) && isStringNull(password1) && isStringNull(password2) && isStringNull(name)) {
             Toast.makeText(mContext, "You Must Fill all the Fields", Toast.LENGTH_SHORT).show();
-        }else {
+        } else {
             progressBar.setVisibility(View.VISIBLE);
             mAuth.createUserWithEmailAndPassword(emailId, password1)
                     .addOnCompleteListener(SignUpActivity.this, new OnCompleteListener<AuthResult>() {
@@ -114,24 +114,19 @@ public class SignUpActivity extends AppCompatActivity {
                                 // Sign in success, update UI with the signed-in user's information
 
                                 mFirestore = FirebaseFirestore.getInstance();
-                                DocumentReference  userRef = mFirestore.collection("Users").document(UUID);
+                                DocumentReference userRef = mFirestore.collection("Users").document(UUID);
 
                                 final Map<String, Object> user_details = new HashMap<>();
                                 user_details.put("user_name", name);
                                 user_details.put("user_email_id", emailId);
                                 user_details.put("user_id", UUID);
                                 user_details.put("user_image_url", "");
-                                user_details.put("phone_number",phone_number);
+                                user_details.put("phone_number", phone_number);
 
                                 userRef.set(user_details).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
-
-                                        FirebaseAuth.getInstance().signOut();
-
-                                        Intent intent = new Intent(SignUpActivity.this, MapsActivity.class);
-                                        startActivity(intent);
-                                        finish();
+                                        Toast.makeText(mContext, "Registeration Successful", Toast.LENGTH_SHORT).show();
 
                                     }
                                 }).addOnFailureListener(new OnFailureListener() {
@@ -140,7 +135,26 @@ public class SignUpActivity extends AppCompatActivity {
                                         Toast.makeText(mContext, "Failed to create a new User" + e.getMessage(), Toast.LENGTH_SHORT).show();
                                     }
                                 });
+                                String id = email_id_signup.getText().toString();
+                                final String uid = FirebaseAuth.getInstance().getUid();
+                                UserModel userModel = new UserModel();
+                                userModel.setUid(uid);
+                                userModel.setUserid(id);
+                                userModel.setUsernm(extractIDFromEmail(id));
+                                userModel.setUsermsg("...");
 
+                                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                                db.collection("users").document(uid)
+                                        .set(userModel)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Log.d(String.valueOf(R.string.app_name), "DocumentSnapshot added with ID: " + uid);
+                                            }
+                                        });
+                                Intent intent = new Intent(SignUpActivity.this, MapsActivity.class);
+                                startActivity(intent);
+                                finish();
 
                             } else {
                                 progressBar.setVisibility(View.INVISIBLE);
@@ -148,10 +162,12 @@ public class SignUpActivity extends AppCompatActivity {
                                 Log.w(TAG, "createUserWithEmail:failure", task.getException());
                                 Toast.makeText(SignUpActivity.this, "Authentication failed.",
                                         Toast.LENGTH_SHORT).show();
-
+                                Util9.showMessage(getApplicationContext(), task.getException().getMessage());
                             }
 
                         }
+
+
                     }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
@@ -160,10 +176,16 @@ public class SignUpActivity extends AppCompatActivity {
                 }
             });
         }
-
-
-
     }
+
+    String extractIDFromEmail(String email){
+        String[] parts = email.split("@");
+        return parts[0];
+    }
+
+
+
+
 
 
     private boolean isStringNull(String string) {
