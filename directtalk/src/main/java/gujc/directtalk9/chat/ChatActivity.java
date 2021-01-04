@@ -8,10 +8,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+
 import gujc.directtalk9.R;
 import gujc.directtalk9.fragment.ChatFragment;
 import gujc.directtalk9.fragment.UserListInRoomFragment;
-import gujc.directtalk9.model.ChatModel;
 
 public class ChatActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;

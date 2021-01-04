@@ -53,6 +53,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.SetOptions;
+import com.shivaconsulting.agriapp.Driver.DriverProfile;
 import com.shivaconsulting.agriapp.History.BookingHistoryActivity;
 import com.shivaconsulting.agriapp.Home.MapsActivity;
 import com.shivaconsulting.agriapp.chat.ChatActivity;
@@ -183,7 +184,14 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
         } catch (Exception e) {
 
         }
-
+        tvDriverName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent();
+                intent.putExtra("DriverID",DriverID);
+                startActivity(new Intent(getApplicationContext(), DriverProfile.class));
+            }
+        });
 
         //Status Indicator
         try {

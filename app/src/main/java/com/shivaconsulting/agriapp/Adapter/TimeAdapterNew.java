@@ -77,7 +77,7 @@ int selectedPosition=-1;
                     holder.time.setBackgroundColor(Color.TRANSPARENT);
                 }
                 selectedPosition=position;
-                time=ArList.get(position).getTime()/*+ArList.get(position).getAmpm()*/;
+                time=ArList.get(position).getTime()+ArList.get(position).getAmpm();
                 time2=ArList.get(position).getTime()+ArList.get(position).getAmpm();
 //                selectedDate=selectedDate+" 0"+time+":00:00";
 //                try {

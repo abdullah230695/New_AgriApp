@@ -1,13 +1,13 @@
 package gujc.directtalk9.fragment;
 
-import android.graphics.Bitmap;
-import android.support.v4.app.Fragment;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,23 +17,22 @@ import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
-import gujc.directtalk9.R;
-import gujc.directtalk9.UserPWActivity;
-import gujc.directtalk9.common.Util9;
-import gujc.directtalk9.model.UserModel;
-
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 
 import java.io.ByteArrayOutputStream;
+
+import gujc.directtalk9.R;
+import gujc.directtalk9.UserPWActivity;
+import gujc.directtalk9.common.Util9;
+import gujc.directtalk9.model.UserModel;
 
 public class UserFragment extends Fragment {
     private static final int PICK_FROM_ALBUM = 1;

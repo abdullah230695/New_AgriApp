@@ -1,6 +1,5 @@
 package gujc.directtalk9.common;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;

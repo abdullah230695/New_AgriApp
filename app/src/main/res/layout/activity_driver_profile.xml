@@ -95,12 +95,22 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <TextView
-                android:id="@+id/textView8"
+                android:id="@+id/tvDriverName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
                 android:layout_marginTop="100dp"
-                android:text="TextView" />
+                android:text="Shaik Abdullah"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvTotRatingsAverage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="Ratings : 4.5"
+                android:textSize="16sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -108,28 +118,137 @@
                 android:orientation="horizontal">
 
                 <RatingBar
+                    android:id="@+id/applyRatingBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:progressTint="#188006"
+                    android:secondaryProgressTint="#BD1717"
+                    android:visibility="gone"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <RatingBar
                     android:id="@+id/driverRatingBars"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="20dp"
+                    android:stepSize="0.5"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/textView11"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/tvRateNow"
+                    style="@style/Widget.AppCompat.TextView.SpinnerItem"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="5dp"
                     android:layout_weight="1"
-                    android:text="TextView" />
+                    android:gravity="center"
+                    android:text="Rate Now"
+                    android:textColor="#F30606"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvSubmit"
+                    style="@style/Widget.AppCompat.TextView.SpinnerItem"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="5dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="Submit"
+                    android:textColor="#F30606"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
             </LinearLayout>
 
-            <RatingBar
-                android:id="@+id/applyRatingBar"
-                android:layout_width="wrap_content"
+            <EditText
+                android:id="@+id/etFeedbacks"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="gone"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:ems="10"
+                android:hint="Enter feedback"
+                android:inputType="textPersonName"
+                android:visibility="gone" />
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:cardCornerRadius="2dp"
+                app:cardElevation="2dp">
+
+                <ImageView
+                    android:id="@+id/imgProduct"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:contentDescription="TODO"
+                    android:padding="10dp"
+                    app:srcCompat="@drawable/new_truck" />
+
+                <TextView
+                    android:id="@+id/tvPriceLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center|end"
+                    android:layout_marginEnd="20dp"
+                    android:text="PRICE :"
+                    android:textSize="24sp" />
+
+                <TextView
+                    android:id="@+id/tvPricePerHr"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|end"
+                    android:layout_marginTop="40dp"
+                    android:layout_marginEnd="20dp"
+                    android:text="1500/Per Hr"
+                    android:textSize="28sp"
+                    android:textStyle="bold" />
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:id="@+id/about"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:paddingTop="2dp"
+                android:text="About"
+                android:textColor="#080CFD"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvAboutProduct"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:text='"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. ' />
+
+            <TextView
+                android:id="@+id/OtherProducts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:text="Other Products"
+                android:textColor="#D7118005"
+                android:textStyle="bold" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvOtherProducts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:id="@+id/btnBookService"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="50dp"
+                android:layout_marginEnd="50dp"
+                android:text="Book for Service" />
 
         </LinearLayout>
     </ScrollView>
