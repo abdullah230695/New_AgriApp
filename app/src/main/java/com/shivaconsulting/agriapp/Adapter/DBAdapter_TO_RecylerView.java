@@ -18,7 +18,7 @@ import com.shivaconsulting.agriapp.R;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class DBAdapter_TO_RecylerView extends FirestoreRecyclerAdapter<DB_TO_RECYCLERVIEW,DBAdapter_TO_RecylerView.viewHolder> {
-
+public static String driverID;
     String rmvChar;
     public DBAdapter_TO_RecylerView(@NonNull FirestoreRecyclerOptions<DB_TO_RECYCLERVIEW> options) {
         super(options);
@@ -38,6 +38,7 @@ public class DBAdapter_TO_RecylerView extends FirestoreRecyclerAdapter<DB_TO_REC
         //holder.Area.setText("Area :"+model.getArea());
         holder.Service_Type.setText(model.getService_Type());
         holder.Service_Provider.setText(model.getService_Provider());
+        driverID=model.getDriverId();
         //holder.Contact_Number.setText("Contact No :"+model.getContact_Number());
         //holder.Location.setText("Location :"+model.getLocation());
         //holder.DeliveryTime.setText("Delivery Time :"+model.getDelivery_Time());

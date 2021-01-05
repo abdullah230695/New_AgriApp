@@ -1,30 +1,50 @@
 package com.shivaconsulting.agriapp.Profile;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.StorageTask;
+import com.google.firebase.storage.UploadTask;
 import com.shivaconsulting.agriapp.History.BookingHistoryActivity;
 import com.shivaconsulting.agriapp.Home.MapsActivity;
 import com.shivaconsulting.agriapp.R;
+
+import java.util.HashMap;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ProfileActivity extends AppCompatActivity implements View.OnClickListener {
 FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
@@ -40,14 +60,19 @@ FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private ImageView home,booking_history,profile;
     private TextView name_textview,phone_number,Email;
     private Button logout_button;
-
-
+    CircleImageView profileimage;
+    StorageReference storageReference;
+    private static final int IMAGE_REQUEST = 1;
+    private Uri imageUri;
+    private StorageTask uploadTask;
+    String UUID,imageURL;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-        String UUID=firebaseAuth.getCurrentUser().getUid();
 
+        storageReference = FirebaseStorage.getInstance().getReference("uploadProfileimages");
+        UUID=firebaseAuth.getCurrentUser().getUid();
         enableData();
 
         home = findViewById(R.id.home);
@@ -57,12 +82,13 @@ FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         phone_number=findViewById(R.id.phone);
         logout_button = findViewById(R.id.logout_button);
         Email=findViewById(R.id.email);
+        profileimage=findViewById(R.id.circleImageView);
 
+        profile.setImageResource(R.drawable.ic_baseline_person);
         home.setOnClickListener(this);
         booking_history.setOnClickListener(this);
 
-        profile.setImageResource(R.drawable.ic_baseline_person);
-db=FirebaseFirestore.getInstance();
+        db=FirebaseFirestore.getInstance();
         DocumentReference dr=db.collection("Users").document(UUID);
 
     dr.addSnapshotListener(new EventListener<DocumentSnapshot>() {
@@ -76,6 +102,12 @@ db=FirebaseFirestore.getInstance();
                 name_textview.setText(value.getData().get("user_name").toString());
                 phone_number.setText(value.getData().get("phone_number").toString());
                 Email.setText(value.getData().get("user_email_id").toString());
+                imageURL = value.getData().get("user_image_url").toString();
+                if (imageURL.equals("")) {
+                    profileimage.setImageResource(R.drawable.ic_baseline_person_24);
+                } else {
+                    Glide.with(mContext).load(imageURL).into(profileimage);
+                }
             }
         }
     });
@@ -90,6 +122,12 @@ db=FirebaseFirestore.getInstance();
                 finish();
             }
         });
+        profileimage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openImage();
+            }
+        });
     }
 
 
@@ -99,7 +137,7 @@ db=FirebaseFirestore.getInstance();
      */
          public void onBackPressed() {
              startActivity(new Intent(getApplicationContext(),MapsActivity.class));
-finish();
+             finish();
          }
     @Override
     public void onClick(View view) {
@@ -157,4 +195,101 @@ finish();
         }
 
     }
+
+    private void openImage() {
+
+        Intent intent =new Intent();
+        intent.setType("image/* ");
+        intent.setAction(Intent.ACTION_PICK);
+        startActivityForResult(intent,IMAGE_REQUEST);
+    }
+    private  String getFileExtension(Uri uri){
+        ContentResolver contentResolver = ProfileActivity.this.getContentResolver();
+        MimeTypeMap mime = MimeTypeMap.getSingleton();
+        return  mime.getExtensionFromMimeType(contentResolver.getType(uri));
+    }
+    private void uploadImage(){
+        final ProgressDialog pd = new ProgressDialog(ProfileActivity.this);
+        pd.setMessage("Uploading");
+        pd.show();
+
+        if (imageUri != null){
+            final  StorageReference fileReference = storageReference.child(System.currentTimeMillis()
+                    + "." + getFileExtension(imageUri));
+
+            uploadTask = fileReference.putFile(imageUri);
+            uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                @Override
+                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+
+                    if (!task.isSuccessful()){
+                        throw  task.getException();
+                    }
+                    return fileReference.getDownloadUrl();
+                }
+            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                @Override
+                public void onComplete(@NonNull Task<Uri> task) {
+
+                    if (task.isSuccessful()){
+                        Uri downloadUri = task.getResult();
+                        String muri = downloadUri.toString();
+
+
+                        // reference = FirebaseDatabase.getInstance().getReference("users").child(fuser.getUid());
+                        HashMap<String,Object> hashMap1 = new HashMap<>();
+                        hashMap1.put("user_image_url",muri);
+                        // reference.updateChildren(hashMap);
+                        db.collection("Users").document(UUID).update(hashMap1)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Toast.makeText(ProfileActivity.this, "Profile Changed", Toast.LENGTH_SHORT).show();
+                                pd.dismiss();
+                            }
+                        });
+                        HashMap<String,Object> hashMap2 = new HashMap<>();
+                        hashMap2.put("userphoto",muri);
+                        db.collection("users").document(UUID)
+                                .set(hashMap2)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Log.d(String.valueOf(R.string.app_name), "DocumentSnapshot added with ID: " + UUID);
+                                    }
+                                });
+                    } else {
+                        Toast.makeText(ProfileActivity.this, "Failed to upload", Toast.LENGTH_SHORT).show();
+                        pd.dismiss();
+                    }
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(ProfileActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    pd.dismiss();
+                }
+            });
+        }  else {
+            Toast.makeText(ProfileActivity.this, "No image selected", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == IMAGE_REQUEST && resultCode == RESULT_OK
+                && data != null && data.getData() != null){
+            imageUri = data.getData();
+            Glide.with(ProfileActivity.this).load(imageUri).into(profileimage);
+
+            if (uploadTask != null && uploadTask.isInProgress()){
+                Toast.makeText(ProfileActivity.this, "Upload in progress", Toast.LENGTH_SHORT).show();
+            } else  {
+                uploadImage();
+            }
+        }
+    }
+
 }
