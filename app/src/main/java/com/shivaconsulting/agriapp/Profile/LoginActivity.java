@@ -2,6 +2,7 @@ package com.shivaconsulting.agriapp.Profile;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -14,19 +15,26 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.shivaconsulting.agriapp.Home.MapsActivity;
 import com.shivaconsulting.agriapp.R;
 import com.shivaconsulting.agriapp.common.Util9;
@@ -42,13 +50,19 @@ public class LoginActivity extends AppCompatActivity {
     //Vars
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+    private FirebaseFirestore db;
 
     //Id's
-    private Button create_account_button,login_button;
-    private ImageView phone_login,google_login;
+    private Button mobileLogin,gmailLogin,login_button;
+    private ImageView phone_signup,google_signup;
     private ProgressBar progressBar;
     private EditText email_id_login,password_login;
+    LinearLayout phoneLayout;
     SharedPreferences sharedPreferences;
+    TextInputEditText editTextCountryCode, editTextPhone;
+    AppCompatButton buttonContinue;
+    ProgressDialog progressDialog;
+    String code,number;
 
 
     @Override
@@ -58,22 +72,99 @@ public class LoginActivity extends AppCompatActivity {
 
         enableData();
 
-        create_account_button = findViewById(R.id.create_account_button);
+        gmailLogin = findViewById(R.id.signWithGmail);
         login_button = findViewById(R.id.login_button);
-        google_login = findViewById(R.id.google_login);
-        phone_login = findViewById(R.id.phone_login);
+        phone_signup = findViewById(R.id.phone_SignUp);
+        google_signup = findViewById(R.id.google_signUp);
         progressBar = findViewById(R.id.progressBar2);
         email_id_login = findViewById(R.id.email_id_login);
         password_login = findViewById(R.id.password_login);
-
+        editTextCountryCode = findViewById(R.id.editTextCountryCode);
+        editTextPhone = findViewById(R.id.editTextPhone);
+        buttonContinue = findViewById(R.id.buttonContinue);
+        mobileLogin=findViewById(R.id.signWithMobie);
+        phoneLayout=findViewById(R.id.llMobile);
+        db=FirebaseFirestore.getInstance();
         sharedPreferences = getSharedPreferences("agri", Activity.MODE_PRIVATE);
         String id = sharedPreferences.getString("user_id", "");
         if (!"".equals(id)) {
+            if(email_id_login.getVisibility()==View.VISIBLE){
             email_id_login.setText(id);
+            }
         }
 
         setupFirebaseAuth();
         init();
+        buttonContinue.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                 code = editTextCountryCode.getText().toString().trim();
+                 number = editTextPhone.getText().toString().trim();
+
+                if (number.isEmpty() || number.length() < 10) {
+                    editTextPhone.setError("Valid number is required");
+                    editTextPhone.requestFocus();
+                    return;
+                }
+                ProgeressDialog();
+                progressDialog.show();
+                Query query = db.collection("Users");
+                query.whereEqualTo("phone_number", code+number).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot verify) {
+                        if (!verify.isEmpty()) {
+                            progressDialog.dismiss();
+                            String phoneNumber = code + number;
+                            Intent intent = new Intent(LoginActivity.this, VerifyPhoneLoginActivity.class);
+                            intent.putExtra("phoneNumber", phoneNumber);
+                            startActivity(intent);
+                        } else {
+                            progressDialog.dismiss();
+                            editTextPhone.setError("This number not registered, Please create an account");
+                        }
+
+                    }
+                });
+
+            }
+        });
+        mobileLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mobileLogin.setVisibility(View.GONE);
+                gmailLogin.setVisibility(View.VISIBLE);
+                email_id_login.setVisibility(View.GONE);
+                password_login.setVisibility(View.GONE);
+                login_button.setVisibility(View.GONE);
+                phoneLayout.setVisibility(View.VISIBLE);
+            }
+        });
+        gmailLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mobileLogin.setVisibility(View.VISIBLE);
+                gmailLogin.setVisibility(View.GONE);
+                email_id_login.setVisibility(View.VISIBLE);
+                password_login.setVisibility(View.VISIBLE);
+                login_button.setVisibility(View.VISIBLE);
+                phoneLayout.setVisibility(View.GONE);
+            }
+        });
+        google_signup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(mContext,SignUpActivity.class));
+                finish();
+            }
+        });
+        phone_signup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(mContext,Phone_Signup.class));
+                finish();
+            }
+        });
+
     }
     public void onBackPressed() {
         AlertDialog.Builder builderExit=new AlertDialog.Builder(mContext);
@@ -116,6 +207,8 @@ public class LoginActivity extends AppCompatActivity {
                 String password = password_login.getText().toString();
 
                 if (isStringNull(email) && isStringNull(password)){
+                    email_id_login.setError("Please enter valid Email");
+                    password_login.setError("Please enter valid password");
                     Toast.makeText(mContext, "You must fill all the fields", Toast.LENGTH_SHORT).show();
                 }else {
                     progressBar.setVisibility(View.VISIBLE);
@@ -154,11 +247,10 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         //Moving to register Activity when clicked
-        create_account_button.setOnClickListener(new View.OnClickListener() {
+        gmailLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(mContext,SignUpActivity.class);
-                startActivity(intent);
+
             }
         });
 
@@ -243,6 +335,10 @@ public class LoginActivity extends AppCompatActivity {
             builderExit.show();
 
         }
-
+    }
+    private void ProgeressDialog(){
+        progressDialog=new ProgressDialog(LoginActivity.this);
+        progressDialog.setCancelable(false);
+        progressDialog.setMessage("Processing please wait");
     }
 }

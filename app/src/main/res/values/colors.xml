@@ -3,10 +3,18 @@
     <color name="colorPrimary">#6200EE</color>
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#03DAC5</color>
+
     <color name="white">#F8F7F7</color>
     <color name="transperant">#00000000</color>
     <color name="black">#090909</color>
     <color name="orange_300">#FFB74D</color>
+    <color name="grey_40">#999999</color>
+    <color name="grey_60">#666666</color>
+    <color name="grey_80">#37474F</color>
+    <color name="grey_90">#263238</color>
+
+    <color name="red_300">#E57373</color>
+    <color name="red_400">#EF5350</color>
     <drawable name="red">#F40303</drawable>
     <drawable name="blue">#6200EE</drawable>
 </resources>

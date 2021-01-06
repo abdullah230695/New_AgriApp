@@ -58,24 +58,22 @@ public class SignUpActivity extends AppCompatActivity {
     private Button sent_otp, sign_up_button;
     private ProgressBar progressBar;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sign_up2);
+        setContentView(R.layout.activity_email_sign_up);
 
         enableData();
 
         sign_up_constraint = findViewById(R.id.sign_up_constraint);
-        phone_constraint = findViewById(R.id.phone_constraint);
         mPhone_number = findViewById(R.id.phone_number);
-        phone_otp = findViewById(R.id.phone_otp);
         email_id_signup = findViewById(R.id.email_id_signup);
         phone_number_signup = findViewById(R.id.phone_number_signup);
         name_signup = findViewById(R.id.name_signup);
         password_box1 = findViewById(R.id.password1);
         password_box2 = findViewById(R.id.password2);
         progressBar = findViewById(R.id.progressBar);
-        sent_otp = findViewById(R.id.send_otp);
         sign_up_button = findViewById(R.id.sign_up_button);
 
         setupFirebaseAuth();
@@ -221,7 +219,8 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     public void onBackPressed() {
-finish();
+        startActivity(new Intent(mContext,LoginActivity.class));
+        finish();
     }
     @Override
     public void onStart() {
@@ -274,6 +273,5 @@ finish();
             builderExit.show();
 
         }
-
     }
 }
