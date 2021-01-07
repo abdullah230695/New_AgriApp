@@ -124,6 +124,12 @@ public class LoginActivity extends AppCompatActivity {
                         }
 
                     }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        progressDialog.dismiss();
+                        Toast.makeText(mContext, "No records found, create a account now", Toast.LENGTH_SHORT).show();
+                    }
                 });
 
             }

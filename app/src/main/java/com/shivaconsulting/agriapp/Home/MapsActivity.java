@@ -824,18 +824,16 @@ imgChatList.setOnClickListener(new View.OnClickListener() {
         private void getLiveLat() {
             try {
                 CollectionReference cr= db.collection("LiveLocation");
-               cr.addSnapshotListener(new EventListener<QuerySnapshot>() {
+                cr.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
-                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                        if(e!=null){
-                            Log.d("LiveUpdate","Error Getting live location update");
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            GeoPointList.add(document.getGeoPoint("geoPoint"));
+                            addLiveLatMarkers();
                         }
-                          for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                                GeoPointList.add(document.getGeoPoint("geoPoint"));
-                                addLiveLatMarkers();
-                            }
                     }
                 });
+
             }catch(Exception e){
             }
     }

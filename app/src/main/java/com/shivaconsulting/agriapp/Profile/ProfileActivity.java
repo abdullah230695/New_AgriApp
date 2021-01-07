@@ -251,7 +251,7 @@ FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
                         HashMap<String,Object> hashMap2 = new HashMap<>();
                         hashMap2.put("userphoto",muri);
                         db.collection("users").document(UUID)
-                                .set(hashMap2)
+                                .update(hashMap2)
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {

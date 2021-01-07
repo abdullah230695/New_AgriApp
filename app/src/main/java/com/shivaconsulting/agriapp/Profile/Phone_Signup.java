@@ -7,9 +7,11 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -70,6 +72,16 @@ public class Phone_Signup extends AppCompatActivity {
                             startActivity(intent);
                         }
 
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        progressDialog.dismiss();
+                        String phoneNumber = code + number;
+                        Intent intent = new Intent(Phone_Signup.this, VerifyPhoneSignUpActivity.class);
+                        intent.putExtra("phoneNumber", phoneNumber);
+                        intent.putExtra("name", sName);
+                        startActivity(intent);
                     }
                 });
             }

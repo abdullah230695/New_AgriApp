@@ -343,13 +343,14 @@ public class ChatFragment extends Fragment {
 
                 WriteBatch batch = firestore.batch();
 
-                // save last message
-                batch.set(docRef, messages, SetOptions.merge());
+
 
                 // save message
                 List<String> readUsers = new ArrayList();
                 readUsers.add(myUid);
                 messages.put("readUsers", readUsers);//new String[]{myUid} );
+                // save last message
+
                 batch.set(docRef.collection("messages").document(), messages);
 
                 // inc unread message count
@@ -358,9 +359,11 @@ public class ChatFragment extends Fragment {
 
                 for( String key : users.keySet() ){
                     if (!myUid.equals(key)) users.put(key, users.get(key)+1);
+
                 }
                 document.getReference().update("users", users);
-
+                messages.put("messengers", users);
+                batch.set(docRef, messages, SetOptions.merge());
                 batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
