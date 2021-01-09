@@ -74,7 +74,6 @@ FirebaseFirestore db= FirebaseFirestore.getInstance();
         binding=ActivityDriverProfileBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         //Getting Extras
-        DriverID = getIntent().getStringExtra("DriverID");
         UUID= FirebaseAuth.getInstance().getUid();
         setupid();
 
@@ -151,7 +150,7 @@ FirebaseFirestore db= FirebaseFirestore.getInstance();
 
     private void retrieveDriverProfile() {
 
-        DocumentReference dr = db.collection("OperatorUsers").document("V2lLirdM5oWO7r3YZWtaS0RadUw2");
+        DocumentReference dr = db.collection("OperatorUsers").document(driverID);
         dr.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -174,7 +173,7 @@ FirebaseFirestore db= FirebaseFirestore.getInstance();
 
 
     private void RetrieveAllFeedbacks() {
-        DocumentReference dr = db.collection("DriverRatings").document("V2lLirdM5oWO7r3YZWtaS0RadUw2");
+        DocumentReference dr = db.collection("DriverRatings").document(driverID);
 
         dr.addSnapshotListener(new EventListener<DocumentSnapshot>() {
                     @Override
@@ -198,7 +197,7 @@ FirebaseFirestore db= FirebaseFirestore.getInstance();
 
     private void RetrieveCurrentRatings() {
         //Retrieve current ratings
-        DocumentReference dr = db.collection("OperatorUsers").document("V2lLirdM5oWO7r3YZWtaS0RadUw2");
+        DocumentReference dr = db.collection("OperatorUsers").document(driverID);
         dr.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot data1, @Nullable FirebaseFirestoreException e) {
@@ -224,7 +223,7 @@ FirebaseFirestore db= FirebaseFirestore.getInstance();
     }
 
     private void checkPreviousRatings() {
-        DocumentReference dr= db.collection("DriverRatings").document(/*"V2lLirdM5oWO7r3YZWtaS0RadUw2"*/driverID)
+        DocumentReference dr= db.collection("DriverRatings").document(driverID)
                 .collection(UUID).document(UUID);
         dr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -259,14 +258,14 @@ FirebaseFirestore db= FirebaseFirestore.getInstance();
         updateRatingGlobally.put("farmerUID",UUID);
         updateRatingGlobally.put("feedbacks",myFeedback);
 
-        db.collection("OperatorUsers").document(driverID/*"V2lLirdM5oWO7r3YZWtaS0RadUw2"*/).update(updateRating).addOnCompleteListener(new OnCompleteListener<Void>() {
+        db.collection("OperatorUsers").document(driverID).update(updateRating).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
 
             }
         });
         if(myPrevRating==0) {
-            db.collection("DriverRatings").document(/*"V2lLirdM5oWO7r3YZWtaS0RadUw2"*/driverID)
+            db.collection("DriverRatings").document(driverID)
                     .collection(UUID).document(UUID).set(updateRatingGlobally).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
@@ -274,7 +273,7 @@ FirebaseFirestore db= FirebaseFirestore.getInstance();
                 }
             });
         }else{
-            db.collection("DriverRatings").document(/*"V2lLirdM5oWO7r3YZWtaS0RadUw2"*/driverID)
+            db.collection("DriverRatings").document(driverID)
                     .collection(UUID).document(UUID).update(updateRatingGlobally).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
@@ -284,7 +283,7 @@ FirebaseFirestore db= FirebaseFirestore.getInstance();
         }
 
         feedbacksInArray.put("feedbacks", FieldValue.arrayUnion(myFeedback));
-        db.collection("DriverRatings").document(/*"V2lLirdM5oWO7r3YZWtaS0RadUw2"*/driverID)
+        db.collection("DriverRatings").document(driverID)
                 .set(feedbacksInArray, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {

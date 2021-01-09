@@ -362,7 +362,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        getLiveLat();
+        final Handler handler = new Handler();
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                getLiveLat();
+                handler.postDelayed(this, 15000);
+            }
+        };
+
+//Start
+        handler.postDelayed(runnable, 15000);
+
         imgSavedLocations.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -42,8 +42,10 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -74,6 +76,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.shivaconsulting.agriapp.Adapter.DBAdapter_TO_RecylerView.driverID;
+
 
 public class ParticularBookingHistory extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -81,7 +85,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
 
     public static TextView tvKMDistance, tvArrivingTime;
     TextView BKid, svType, svProv, DVdate, DvTime, tvDriverName, btnReschedule, btnCancel, tvCurrentStatus,tvChatAdmin;
-    String status, BookingId, Drivphone, DriverName = "", DriverToken,ServiceName, DriverID, CustPhone, CustAddress,CustName,chatStatus,adminUID;
+    String status, BookingId, Drivphone, DriverName = "Not Allocated", DriverToken,ServiceName, DriverID, CustPhone, CustAddress,CustName,chatStatus,adminUID;
 
     private GoogleMap mMap;
     private MarkerOptions markerDriverHomeLoc, markerDriverLiveLoc, homeLoc;
@@ -102,6 +106,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
     private PolylineOptions polylineOptions;
     SupportMapFragment mapFragment;
     Map<String, Object> chatRequest = new HashMap<>();
+    Map<String, Object> driverHomeLocationMap = new HashMap<>();
     ProgressDialog progressDialog;
 
 
@@ -157,7 +162,6 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
             final String svProvider = getIntent().getStringExtra("svProv");
             svProv.setText(svProvider);
             status = getIntent().getStringExtra("status");
-            Drivphone = getIntent().getStringExtra("DriverNumber");
             DriverName = getIntent().getStringExtra("DriverName");
             DriverToken = getIntent().getStringExtra("DriverToken");
             DriverID = getIntent().getStringExtra("DriverID");
@@ -172,7 +176,8 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
             mapFragment.getMapAsync(this);
 
 
-            if (status.equals("Confirmed") || status.equals("Arriving") || status.equals("Completed")) {
+            if (status.equals("Confirmed") || status.equals("Arriving") ||status.equals("Reached")||
+                    status.equals("Started") || status.equals("Completed")|| status.equals("Cancellation Request")|| status.equals("Cancelled")) {
                 tvDriverName.setText(DriverName);
                 Animation anim = new AlphaAnimation(0.0f, 1.0f);
                 anim.setDuration(500); //You can manage the blinking time with this parameter
@@ -187,9 +192,13 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
         tvDriverName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent=new Intent();
-                intent.putExtra("DriverID",DriverID);
-                startActivity(new Intent(getApplicationContext(), DriverProfile.class));
+                if (tvDriverName.getText().equals("Not Allocated")) {
+            Toast.makeText(ParticularBookingHistory.this, "Driver Not Allocated Yet", Toast.LENGTH_SHORT).show();
+        }else {
+                    Intent intent = new Intent();
+                    intent.putExtra("DriverID", driverID);
+                    startActivity(new Intent(getApplicationContext(), DriverProfile.class));
+                }
             }
         });
 
@@ -266,74 +275,81 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
             binding.spb.setVisibility(View.GONE);
         }
 
-
         //Getting DriverLiveLocation
-        if (status.equals("Arriving")|| status.equals("Reached")|| status.equals("Started") ||status.equals("Completed")) {
+        if (status.equals("Confirmed")||status.equals("Arriving")|| status.equals("Reached")||
+                status.equals("Started") ||status.equals("Completed")||status.equals("Cancellation Request")) {
 
-            DocumentReference dr1 = db.collection("All Booking ID").document(BookingId);
-            dr1.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                @Override
-                public void onEvent(@Nullable DocumentSnapshot data1, @Nullable FirebaseFirestoreException e) {
-                    try {
-                        if (data1 != null && data1.exists()) {
-                            //status = data.getData().get("status").toString();
-                                try {
-                                    DriverHomeLat = data1.getDouble("driverHomeLat");
-                                    DriverHomeLng = data1.getDouble("driverHomeLng");
-                                    DriverLocation = new LatLng(DriverHomeLat, DriverHomeLng);
+         DocumentReference dr=db.collection("OperatorUsers").document("0Dv1RNH25PQw5T9JKWxVzkULGaJ2");
+                 dr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                     @Override
+                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                         try {
+                             if (task.isSuccessful()) {
+                                 try {
+                                     DocumentSnapshot snapshot=task.getResult();
+                                     driverHomeLocationMap = (Map<String, Object>) snapshot.getData().get("home");
+                                     DriverHomeLat = (Double) driverHomeLocationMap.get("lat");
+                                     DriverHomeLng = (Double) driverHomeLocationMap.get("lng");
+                                     DriverLocation = new LatLng(DriverHomeLat, DriverHomeLng);
 
-                                    markerDriverHomeLoc = new MarkerOptions().position(new LatLng(DriverHomeLat,
-                                            DriverHomeLng)).title("Driver Location");
-                                    DriverHomeMarker = mMap.addMarker(markerDriverHomeLoc);
-                                } catch (NullPointerException npe) {
-                                    Log.d("driverLoc", npe.getMessage());
-                                }
+                                     Drivphone=snapshot.getData().get("phoneNo").toString();
 
-                                //MapImplement();
-                                bookingStatusIndicator();
+                                     markerDriverHomeLoc = new MarkerOptions().position(new LatLng(DriverHomeLat,
+                                             DriverHomeLng)).title("Driver Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.truck_png_1));;
+                                     DriverHomeMarker = mMap.addMarker(markerDriverHomeLoc);
+                                     DriverLocation = new LatLng(DriverHomeLat, DriverHomeLng);
+                                     LatLng origin =new LatLng(DriverHomeLat,DriverHomeLng );
+                                     LatLng destination =new LatLng(CustomerLatitude,CustomerLongitude );
+                                     getDirection(origin,destination);
+                                 } catch (NullPointerException npe) {
+                                     Log.d("driverLoc", npe.getMessage());
+                                 }
 
-                        }
-                    } catch (ArrayIndexOutOfBoundsException e2) {
+                                 //MapImplement();
+                                 bookingStatusIndicator();
 
-                    }
-                }
+                             }else{
+                                 Log.d(TAG,"Driver details not available now");
+                             }
+                         } catch (ArrayIndexOutOfBoundsException e2) {
 
-            });
-
-
+                         }
+                     }
+                 }).addOnFailureListener(new OnFailureListener() {
+                     @Override
+                     public void onFailure(@NonNull Exception e) {
+                        Log.e("check1",e.getMessage());
+                     }
+                 });
 
             try {
                 btnReschedule.setVisibility(View.INVISIBLE);
-                DocumentReference dr2 = db.collection("LiveLocation").document(DriverID);
-                dr2.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable DocumentSnapshot data2, @Nullable FirebaseFirestoreException e) {
-                        if (data2 != null && data2.exists()) {
-                            DriverLiveLatLng = data2.getGeoPoint("geoPoint");
-                            DriverLiveLat = DriverLiveLatLng.getLatitude();
-                            DriverLiveLng = DriverLiveLatLng.getLongitude();
-                            if (status.equals("Completed")) {
-                                markerDriverHomeLoc = new MarkerOptions().position(new LatLng(DriverHomeLat,
-                                        DriverHomeLng)).title("Driver Location")
+                if (status.equals("Arriving")|| status.equals("Reached")||
+                        status.equals("Started") ||status.equals("Completed")) {
+                    db.collection("LiveLocation").document("0Dv1RNH25PQw5T9JKWxVzkULGaJ2").addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                        @Override
+                        public void onEvent(@Nullable DocumentSnapshot data2, @Nullable FirebaseFirestoreException e) {
+                            if (data2 != null & data2.exists()) {
+                                DriverLiveLatLng = data2.getGeoPoint("geoPoint");
+                                DriverLiveLat = DriverLiveLatLng.getLatitude();
+                                DriverLiveLng = DriverLiveLatLng.getLongitude();
+                                markerDriverLiveLoc = new MarkerOptions().position(new LatLng(DriverLiveLat,
+                                        DriverLiveLng)).title("Driver Live Location")
                                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.truck_png_1));
-                                DriverHomeMarker = mMap.addMarker(markerDriverHomeLoc);
-                            }
-                            markerDriverLiveLoc= new MarkerOptions().position(new LatLng(DriverLiveLat,
-                                    DriverLiveLng)).title("Driver Live Location")
-                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.truck_png_1));
-                            if(DriverLiveMarker!=null){
-                            DriverLiveMarker.remove();}
-                            DriverLiveMarker= mMap.addMarker(markerDriverLiveLoc);
-                            LatLng origin =new LatLng(DriverLiveLat,DriverLiveLng);
-                            LatLng destination =new LatLng(CustomerLatitude,CustomerLongitude );
-                            getDirection(origin,destination);
+                                if (DriverLiveMarker != null) {
+                                    DriverLiveMarker.remove();
+                                }
+                                DriverLiveMarker = mMap.addMarker(markerDriverLiveLoc);
+                                LatLng origin = new LatLng(DriverLiveLat, DriverLiveLng);
+                                LatLng destination = new LatLng(CustomerLatitude, CustomerLongitude);
+                                getDirection(origin, destination);
 
                                 //MapImplement();
                                 bookingStatusIndicator();
+                            }
                         }
-                    }
-                });
-
+                    });
+                }
             } catch (Exception e) {
 
             }
@@ -539,7 +555,8 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
     }
 
     public void DriverCall(View view) {
-        if (status.equals("Confirmed") || status.equals("Arriving") || status.equals("Completed")) {
+        if (status.equals("Confirmed") || status.equals("Arriving") ||status.equals("Reached")||
+                status.equals("Started") || status.equals("Completed")||status.equals("Cancellation Request")) {
             Intent callIntent = new Intent(Intent.ACTION_CALL); //use ACTION_CALL class
             callIntent.setData(Uri.parse("tel:" + Drivphone));
             //this is the phone number calling
@@ -565,12 +582,11 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
     }
 
     public  void DriverChat(View view){
-        if (status.equals("Pending")||(status.equals("Waiting"))) {
+        if (tvDriverName.getText().equals("Not Allocated")||status.equals("Cancelled")) {
             Toast.makeText(ParticularBookingHistory.this, "Driver Not Allocated Yet", Toast.LENGTH_SHORT).show();
         }else {
-            String driverID = "IjhnAE8tJgVOBPs1zvcNOyxFTvR2";
             Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
-            intent.putExtra("toUid", driverID);
+            intent.putExtra("toUid", DriverID);
             startActivity(intent);
         }
     }
@@ -579,25 +595,9 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
             ProgeressDialog();
             progressDialog.show();
             //Checking Booking id Existance
-        db.collection("Chat Requests").document("Farmer").collection("Requests").document(BookingId)
-                .get()/*.addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(task.isSuccessful()){
-                    Toast.makeText(ParticularBookingHistory.this, "bk id exist", Toast.LENGTH_SHORT).show();
-                    db.collection("Chat Requests").document("Farmer")
-                            .collection("Requests").document(BookingId).delete();
-                    checkStatus();
-                    progressDialog.dismiss();
-                }else {
-                    Toast.makeText(ParticularBookingHistory.this, "bk id not exist", Toast.LENGTH_SHORT).show();
-                    sendChatRequest();
-                    progressDialog.dismiss();
-                    Log.d(TAG," This is new Request ID");
-                }
-            }
-        });*/
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        db.collection("Chat Requests").document("Farmer")
+                .collection("Requests").document(BookingId)
+                .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         try {
@@ -628,6 +628,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
     }
 
     private void checkStatus() {
+        try{
         //Checking Request Status
         DocumentReference dr = db.collection("Chat Requests")
                 .document("Farmer").collection("Requests").document(BookingId);
@@ -649,7 +650,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                        }
                     } else{Toast.makeText(ParticularBookingHistory.this, "Admin Not Allocated Yet", Toast.LENGTH_SHORT).show();}
                 } catch (Exception e) {} }
-        });
+        });} catch (Exception e) {}
     }
 
     private void sendChatRequest() {
@@ -694,27 +695,6 @@ try {
     public void onBackPressed() {
         finish();
     }
-
-/*    @Override
-    public void onTaskDone(Object... values) {
-        try {
-            if (currentPolyline != null) {
-                //currentPolyline.remove();
-                currentPolyline.setVisible(true);
-                currentPolyline.setPoints(Collections.singletonList(DriverLocation));
-                currentPolyline.setColor(Color.RED);
-                currentPolyline = mMap.addPolyline((PolylineOptions) values[0]);
-            } else {
-                currentPolyline = mMap.addPolyline((PolylineOptions) values[0]);
-            }
-           *//* mMap.addPolyline(new PolylineOptions().add(new LatLng(CustomerLatitude,CustomerLongitude),
-                    new LatLng(DriverLiveLat,DriverLiveLng)).width(10).color(Color.RED));
-            mMap.addPolyline(new PolylineOptions().add(new LatLng(CustomerLatitude,CustomerLongitude),
-                    new LatLng(DriverLiveLat,DriverLiveLng)).width(10).color(Color.BLUE));*//*
-        } catch (Exception e) {
-
-        }
-    }*/
 
     private void sendNotification() {
         try {

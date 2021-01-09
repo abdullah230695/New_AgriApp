@@ -287,12 +287,15 @@ public class ChatFragment extends Fragment {
     public void CreateChattingRoom(final DocumentReference room) {
         Map<String, Integer> users = new HashMap<>();
         String title = "";
+        ArrayList<String> messengers = new ArrayList<>();
         for( String key : userList.keySet() ){
             users.put(key, 0);
+            messengers.add(key);
         }
         Map<String, Object> data = new HashMap<>();
         data.put("title", null);
         data.put("users", users);
+        data.put("messengers", messengers);
 
         room.set(data).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -342,9 +345,6 @@ public class ChatFragment extends Fragment {
                 if (!task.isSuccessful()) {return;}
 
                 WriteBatch batch = firestore.batch();
-
-
-
                 // save message
                 List<String> readUsers = new ArrayList();
                 readUsers.add(myUid);
@@ -362,7 +362,7 @@ public class ChatFragment extends Fragment {
 
                 }
                 document.getReference().update("users", users);
-                messages.put("messengers", users);
+
                 batch.set(docRef, messages, SetOptions.merge());
                 batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
