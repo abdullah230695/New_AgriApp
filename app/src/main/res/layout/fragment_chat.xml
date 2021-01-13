@@ -17,29 +17,29 @@
         android:layout_weight="1"
         android:orientation="horizontal">
 
-        <Button
+        <ImageView
             android:id="@+id/imageBtn"
             android:layout_width="40dp"
-            android:layout_height="wrap_content"
-            android:background="@android:drawable/ic_menu_gallery" />
+            android:layout_height="40dp"
+            android:background="@drawable/ic_baseline_photo_library_24" />
 
-        <Button
+        <ImageView
             android:id="@+id/fileBtn"
             android:layout_width="40dp"
-            android:layout_height="wrap_content"
-            android:background="@android:drawable/ic_menu_save" />
+            android:layout_height="40dp"
+            android:background="@drawable/ic_baseline_attach_file_24" />
 
         <EditText
             android:id="@+id/msg_input"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            />
+            android:hint="Start Typing ..." />
 
-        <Button
+        <ImageView
             android:id="@+id/sendBtn"
             android:layout_width="40dp"
-            android:layout_height="wrap_content"
-            android:background="@android:drawable/ic_menu_send"/>
+            android:layout_height="40dp"
+            android:background="@drawable/ic_baseline_send_24" />
     </LinearLayout>
 </LinearLayout>

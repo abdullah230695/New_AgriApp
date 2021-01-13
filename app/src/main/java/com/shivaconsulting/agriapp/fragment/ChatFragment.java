@@ -95,7 +95,7 @@ public class ChatFragment extends Fragment {
     private static final int PICK_FROM_FILE = 2;
     private static String rootPath = Util9.getRootPath()+"/DirectTalk9/";
 
-    private Button sendBtn;
+    private ImageView sendBtn;
     private EditText msg_input;
     private RecyclerView recyclerView;
     private RecyclerViewAdapter mAdapter;

@@ -194,6 +194,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private List<Double> ListDoubleLng = new ArrayList<>();
     private List<LatLng> LiveLatLngList = new ArrayList<>();
     Marker liveMarkers;
+    final Handler handler = new Handler();
    /* private DrawerLayout dl;
     private ActionBarDrawerToggle t;
     private NavigationView nv;*/
@@ -362,7 +363,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        final Handler handler = new Handler();
+
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
@@ -1417,22 +1418,34 @@ private void addLiveLatMarkers(){
 
     @Override
     public void onBackPressed() {
-        AlertDialog.Builder builderExit = new AlertDialog.Builder(mContext);
-        builderExit.setTitle("Exit ?");
-        builderExit.setMessage("Do you want to exit ?");
-        builderExit.setCancelable(false);
+        handler.removeCallbacks(null);
+        if(rvAddress.getVisibility()==View.VISIBLE) {
+            rvAddress.setVisibility(View.GONE);
+            ConstraintSet constraintSet = new ConstraintSet();
+            constraintSet.clone(constraintLayout);
+            constraintSet.connect(R.id.gps_button, ConstraintSet.BOTTOM, R.id.booking_constraint,
+                    ConstraintSet.BOTTOM, 100);
+            constraintSet.applyTo(constraintLayout);
+        }else {
+            AlertDialog.Builder builderExit = new AlertDialog.Builder(mContext);
+            builderExit.setTitle("Exit ?");
+            builderExit.setMessage("Do you want to exit ?");
+            builderExit.setCancelable(false);
 
-        builderExit.setPositiveButton("YES", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                finishAffinity();
-            }
-        }).setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        }).setIcon(R.drawable.ic_baseline_commute_24).show();
+            builderExit.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    handler.removeCallbacks(null);
+                    finishAffinity();
+                }
+            }).setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    handler.removeCallbacks(null);
+                    dialog.cancel();
+                }
+            }).setIcon(R.drawable.ic_baseline_commute_24).show();
+        }
     }
 
 

@@ -13,27 +13,15 @@
         android:gravity="center"
         android:orientation="horizontal">
 
-        <View
-            android:layout_width="100dp"
-            android:layout_height="1dp"
-            android:layout_weight="1"
-            android:background="@android:color/darker_gray"
-            android:visibility="visible">
-        </View>
         <TextView
             android:id="@+id/divider_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:background="@drawable/shape2"
+            android:text="1999-01-01"
             android:textAlignment="center"
-            android:text="1999-01-01"/>
-        <View
-            android:layout_width="100dp"
-            android:layout_height="1dp"
-            android:layout_weight="1"
-            android:background="@android:color/darker_gray"
-            android:visibility="visible">
-        </View>
+            android:textColor="@color/white"
+            android:textStyle="bold" />
     </LinearLayout>
 
     <LinearLayout

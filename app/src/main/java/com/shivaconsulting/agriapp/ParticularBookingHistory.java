@@ -76,8 +76,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static com.shivaconsulting.agriapp.Adapter.DBAdapter_TO_RecylerView.driverID;
-
 
 public class ParticularBookingHistory extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -195,9 +193,9 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                 if (tvDriverName.getText().equals("Not Allocated")) {
             Toast.makeText(ParticularBookingHistory.this, "Driver Not Allocated Yet", Toast.LENGTH_SHORT).show();
         }else {
-                    Intent intent = new Intent();
-                    intent.putExtra("DriverID", driverID);
-                    startActivity(new Intent(getApplicationContext(), DriverProfile.class));
+                    Intent intent = new Intent(getApplicationContext(), DriverProfile.class);
+                    intent.putExtra("driverID", DriverID);
+                    startActivity(intent);
                 }
             }
         });
@@ -279,7 +277,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
         if (status.equals("Confirmed")||status.equals("Arriving")|| status.equals("Reached")||
                 status.equals("Started") ||status.equals("Completed")||status.equals("Cancellation Request")) {
 
-         DocumentReference dr=db.collection("OperatorUsers").document("0Dv1RNH25PQw5T9JKWxVzkULGaJ2");
+         DocumentReference dr=db.collection("OperatorUsers").document(DriverID);
                  dr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                      @Override
                      public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -326,7 +324,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                 btnReschedule.setVisibility(View.INVISIBLE);
                 if (status.equals("Arriving")|| status.equals("Reached")||
                         status.equals("Started") ||status.equals("Completed")) {
-                    db.collection("LiveLocation").document("0Dv1RNH25PQw5T9JKWxVzkULGaJ2").addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                    db.collection("LiveLocation").document(DriverID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
                         @Override
                         public void onEvent(@Nullable DocumentSnapshot data2, @Nullable FirebaseFirestoreException e) {
                             if (data2 != null & data2.exists()) {
@@ -364,28 +362,28 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                 try {
                     if (data1 != null && data1.exists()) {
                         //status = data.getData().get("status").toString();
-                        if (status.equals("Confirmed")) {
                             try {
-                                DriverHomeLat = data1.getDouble("driverHomeLat");
-                                DriverHomeLng = data1.getDouble("driverHomeLng");
-                                markerDriverHomeLoc = new MarkerOptions().position(new LatLng(DriverHomeLat,
-                                        DriverHomeLng)).title("Driver Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.truck_png_1));
-                                mMap.addMarker(markerDriverHomeLoc);
-                                DriverLocation = new LatLng(DriverHomeLat, DriverHomeLng);
-                                LatLng origin =new LatLng(DriverHomeLat,DriverHomeLng );
-                                LatLng destination =new LatLng(CustomerLatitude,CustomerLongitude );
-                                getDirection(origin,destination);
-                            } catch (NullPointerException npe) {
-                                Log.d("driverLoc", npe.getMessage());
-                            }
-
-
-                            //MapImplement();
-                            bookingStatusIndicator();
-                        } else if (status.equals("Pending") || status.equals("Waiting")) {
+                                status=data1.getString("status");
+                                if (status.equals("Confirmed")) {
+                                    DriverHomeLat = data1.getDouble("driverHomeLat");
+                                    DriverHomeLng = data1.getDouble("driverHomeLng");
+                                    markerDriverHomeLoc = new MarkerOptions().position(new LatLng(DriverHomeLat,
+                                            DriverHomeLng)).title("Driver Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.truck_png_1));
+                                    mMap.addMarker(markerDriverHomeLoc);
+                                    DriverLocation = new LatLng(DriverHomeLat, DriverHomeLng);
+                                    LatLng origin = new LatLng(DriverHomeLat, DriverHomeLng);
+                                    LatLng destination = new LatLng(CustomerLatitude, CustomerLongitude);
+                                    getDirection(origin, destination);
+                                } else if (status.equals("Pending") || status.equals("Waiting")) {
                             bookingStatusIndicator();
 
                         }
+                            } catch (NullPointerException npe) {
+                                Log.d("driverLoc", npe.getMessage());
+                            }
+                            //MapImplement();
+                            bookingStatusIndicator();
+
                     }
                 } catch (ArrayIndexOutOfBoundsException e2) {
 
@@ -539,15 +537,17 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                 binding.spb.setCompletedPosition(1).drawView();
             } else if (status.equals("Arriving")) {
                 binding.spb.setCompletedPosition(2).drawView();
+                data[2]="Arriving";
             } else if (status.equals("Reached")) {
                 binding.spb.setCompletedPosition(2).drawView();
                 data[2]="Arrived";
             }else if (status.equals("Started")) {
                 binding.spb.setCompletedPosition(2).drawView();
-                data[2]="Trip Started";
+                data[2]="Started";
             }else if (status.equals("Completed")) {
-                data[2]="Trip Finished";
+                data[2]="Finished";
                 binding.spb.setCompletedPosition(3).drawView();
+                data[3]="Over";
             }
         } catch (ArrayIndexOutOfBoundsException e4) {
             Toast.makeText(this, e4.getMessage(), Toast.LENGTH_SHORT).show();

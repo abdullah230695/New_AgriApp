@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -43,8 +42,6 @@ import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.shivaconsulting.agriapp.Adapter.DBAdapter_TO_RecylerView.driverID;
-
 public class DriverProfile extends AppCompatActivity {
 
     ActivityDriverProfileBinding binding;
@@ -53,7 +50,6 @@ EditText etFeedbacks;
 private RatingBar averageRatings,applyRating;
 private ImageView imgProductType,homeMain,pendingMain,profileMain;
 private RecyclerView rvOtherProducts;
-private Button BookServices;
 private CardView cvProduct;
 private CircleImageView profileimage;
 String DriverID,imageURL,myFeedback,othersFeedback;
@@ -77,9 +73,11 @@ FirebaseFirestore db= FirebaseFirestore.getInstance();
         UUID= FirebaseAuth.getInstance().getUid();
         setupid();
 
-     RetrieveCurrentRatings();
-     RetrieveAllFeedbacks();
-     retrieveDriverProfile();
+        DriverID=getIntent().getStringExtra("driverID");
+
+         RetrieveCurrentRatings();
+         RetrieveAllFeedbacks();
+         retrieveDriverProfile();
 
         tvRateNow.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,17 +92,18 @@ FirebaseFirestore db= FirebaseFirestore.getInstance();
         tvSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(myFeedback.isEmpty()){
+                myFeedback=etFeedbacks.getText().toString();
+                if(myFeedback.length()==0){
                     Toast.makeText(DriverProfile.this, "Please enter feedback", Toast.LENGTH_SHORT).show();
                     etFeedbacks.setError("Enter feedback");
+                }else {
+                    averageRatings.setVisibility(View.VISIBLE);
+                    applyRating.setVisibility(View.GONE);
+                    tvRateNow.setVisibility(View.VISIBLE);
+                    etFeedbacks.setVisibility(View.GONE);
+                    tvSubmit.setVisibility(View.GONE);
+                    checkPreviousRatings();
                 }
-                averageRatings.setVisibility(View.VISIBLE);
-                applyRating.setVisibility(View.GONE);
-                tvRateNow.setVisibility(View.VISIBLE);
-                etFeedbacks.setVisibility(View.GONE);
-                tvSubmit.setVisibility(View.GONE);
-                myFeedback=etFeedbacks.getText().toString();
-                checkPreviousRatings();
             }
         });
         applyRating.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
@@ -150,7 +149,7 @@ FirebaseFirestore db= FirebaseFirestore.getInstance();
 
     private void retrieveDriverProfile() {
 
-        DocumentReference dr = db.collection("OperatorUsers").document(driverID);
+        DocumentReference dr = db.collection("OperatorUsers").document(DriverID);
         dr.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -173,7 +172,7 @@ FirebaseFirestore db= FirebaseFirestore.getInstance();
 
 
     private void RetrieveAllFeedbacks() {
-        DocumentReference dr = db.collection("DriverRatings").document(driverID);
+        DocumentReference dr = db.collection("DriverRatings").document(DriverID);
 
         dr.addSnapshotListener(new EventListener<DocumentSnapshot>() {
                     @Override
@@ -196,34 +195,36 @@ FirebaseFirestore db= FirebaseFirestore.getInstance();
     }
 
     private void RetrieveCurrentRatings() {
-        //Retrieve current ratings
-        DocumentReference dr = db.collection("OperatorUsers").document(driverID);
-        dr.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot data1, @Nullable FirebaseFirestoreException e) {
-                try {
-                    if (data1 != null && data1.exists()) {
-                        try {
-                            currentRatings = (float) Double.parseDouble(data1.get("totalRatings").toString());
-                            currentCounts = Integer.parseInt(data1.get("totalCountOfRatings").toString());
-                            tvAverageRatings.setText("Ratings : "+currentRatings/currentCounts);
-                            averageRatings.setRating(currentRatings/currentCounts);
-                        }catch (Exception e2){
-                            currentRatings=0;
-                            currentCounts=0;
+        try {
+            //Retrieve current ratings
+            DocumentReference dr = db.collection("OperatorUsers").document(DriverID);
+            dr.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                @Override
+                public void onEvent(@Nullable DocumentSnapshot data1, @Nullable FirebaseFirestoreException e) {
+                    try {
+                        if (data1 != null && data1.exists()) {
+                            try {
+                                currentRatings = (float) Double.parseDouble(data1.get("totalRatings").toString());
+                                currentCounts = Integer.parseInt(data1.get("totalCountOfRatings").toString());
+                                tvAverageRatings.setText("Ratings : " + currentRatings / currentCounts);
+                                averageRatings.setRating(currentRatings / currentCounts);
+                            } catch (Exception e2) {
+                                currentRatings = 0;
+                                currentCounts = 0;
+                            }
                         }
+                    } catch (ArrayIndexOutOfBoundsException e2) {
+                        currentRatings = 0;
+                        currentCounts = 0;
                     }
-                } catch (ArrayIndexOutOfBoundsException e2) {
-                    currentRatings=0;
-                    currentCounts=0;
                 }
-            }
 
-        });
+            });
+        }catch (Exception e){}
     }
 
     private void checkPreviousRatings() {
-        DocumentReference dr= db.collection("DriverRatings").document(driverID)
+        DocumentReference dr= db.collection("DriverRatings").document(DriverID)
                 .collection(UUID).document(UUID);
         dr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -258,14 +259,14 @@ FirebaseFirestore db= FirebaseFirestore.getInstance();
         updateRatingGlobally.put("farmerUID",UUID);
         updateRatingGlobally.put("feedbacks",myFeedback);
 
-        db.collection("OperatorUsers").document(driverID).update(updateRating).addOnCompleteListener(new OnCompleteListener<Void>() {
+        db.collection("OperatorUsers").document(DriverID).update(updateRating).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
 
             }
         });
         if(myPrevRating==0) {
-            db.collection("DriverRatings").document(driverID)
+            db.collection("DriverRatings").document(DriverID)
                     .collection(UUID).document(UUID).set(updateRatingGlobally).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
@@ -273,7 +274,7 @@ FirebaseFirestore db= FirebaseFirestore.getInstance();
                 }
             });
         }else{
-            db.collection("DriverRatings").document(driverID)
+            db.collection("DriverRatings").document(DriverID)
                     .collection(UUID).document(UUID).update(updateRatingGlobally).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
@@ -283,7 +284,7 @@ FirebaseFirestore db= FirebaseFirestore.getInstance();
         }
 
         feedbacksInArray.put("feedbacks", FieldValue.arrayUnion(myFeedback));
-        db.collection("DriverRatings").document(driverID)
+        db.collection("DriverRatings").document(DriverID)
                 .set(feedbacksInArray, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
@@ -325,7 +326,6 @@ FirebaseFirestore db= FirebaseFirestore.getInstance();
     applyRating=binding.applyRatingBar;
     imgProductType =binding.imgProduct;
     rvOtherProducts=binding.rvOtherProducts;
-    BookServices=binding.btnBookService;
     homeMain=binding.homeMain;
     pendingMain=binding.pendingHistoryMain;
     profileMain=binding.profileMain;
