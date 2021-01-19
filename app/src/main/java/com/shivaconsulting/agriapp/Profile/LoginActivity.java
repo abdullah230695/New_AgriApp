@@ -23,7 +23,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -45,7 +44,6 @@ public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
     private Context mContext = LoginActivity.this;
     private static final int RC_SIGN_IN = 1;
-    private GoogleSignInClient googleSignInClient;
 
     //Vars
     private FirebaseAuth mAuth;
@@ -208,6 +206,7 @@ public class LoginActivity extends AppCompatActivity {
         login_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                try{
                 Log.d(TAG, "onClick: Attempting to login");
                 String email = email_id_login.getText().toString();
                 String password = password_login.getText().toString();
@@ -222,6 +221,7 @@ public class LoginActivity extends AppCompatActivity {
                             .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
+                                    try{
                                     if (task.isSuccessful()) {
                                         sharedPreferences.edit().putString("user_id", email_id_login.getText().toString()).commit();
                                         // Sign in success, update UI with the signed-in user's information
@@ -240,6 +240,7 @@ public class LoginActivity extends AppCompatActivity {
                                     }
 
                                     // ...
+                                    }catch (Exception e){Log.d("error : ",e.getMessage());}
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
                         @Override
@@ -249,6 +250,7 @@ public class LoginActivity extends AppCompatActivity {
                         }
                     });
                 }
+                }catch (Exception e){Log.d("error : ",e.getMessage());}
             }
         });
 
@@ -275,9 +277,8 @@ public class LoginActivity extends AppCompatActivity {
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                try{
                 FirebaseUser user = firebaseAuth.getCurrentUser();
-
-
                 if (user != null) {
                     // User is signed in
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
@@ -286,6 +287,7 @@ public class LoginActivity extends AppCompatActivity {
                     Log.d(TAG, "onAuthStateChanged:signed_out");
                 }
                 // ...
+                }catch (Exception e){Log.d("error : ",e.getMessage());}
             }
         };
     }
@@ -293,7 +295,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-        mAuth.addAuthStateListener(mAuthListener);
+
     }
 
     @Override

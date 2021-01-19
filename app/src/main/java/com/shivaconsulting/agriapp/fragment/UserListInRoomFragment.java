@@ -2,6 +2,7 @@ package com.shivaconsulting.agriapp.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,17 +39,20 @@ public class UserListInRoomFragment extends Fragment {
     }
 
     public static final UserListInRoomFragment getInstance(String roomID, Map<String, UserModel> userModels) {
+
         List<UserModel> users = new ArrayList();
+        try{
         for( Map.Entry<String, UserModel> elem : userModels.entrySet() ){
             users.add(elem.getValue());
         }
 
+        }catch (Exception e){
+            Log.d("error : ",e.getMessage());}
         UserListInRoomFragment f = new UserListInRoomFragment();
         f.setUserList(users);
         Bundle bdl = new Bundle();
         bdl.putString("roomID", roomID);
         f.setArguments(bdl);
-
         return f;
     }
 

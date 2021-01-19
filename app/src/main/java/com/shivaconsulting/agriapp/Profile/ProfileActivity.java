@@ -94,6 +94,7 @@ FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     dr.addSnapshotListener(new EventListener<DocumentSnapshot>() {
         @Override
         public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+            try{
             if (error != null) {
                 Toast.makeText(getApplicationContext(), "Unable to retrive " + error.getMessage(), Toast.LENGTH_SHORT).show();
                 return;
@@ -109,6 +110,7 @@ FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
                     Glide.with(mContext).load(imageURL).into(profileimage);
                 }
             }
+            }catch (Exception e){Log.d("error : ",e.getMessage());}
         }
     });
 

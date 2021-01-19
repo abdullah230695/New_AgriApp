@@ -6,11 +6,27 @@
     android:layout_height="match_parent">
 
 
+    <ToggleButton
+        android:id="@+id/blnChangeAddress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="60dp"
+        android:checkMark="@drawable/ic_baseline_check_24"
+        android:checked="true"
+        android:gravity="center"
+        android:text="Change Address"
+        android:textOff="Don't Change"
+        android:textOn="Change Address"
+        app:layout_constraintStart_toStartOf="@+id/map"
+        app:layout_constraintTop_toTopOf="@id/map" />
+
     <androidx.cardview.widget.CardView
-        android:id="@+id/cardView2"
+        android:id="@+id/cvAddressSearch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#FFFFFF"
+        android:visibility="invisible"
         app:cardCornerRadius="5dp"
         app:layout_constraintEnd_toStartOf="@+id/map_search_recyler"
         app:layout_constraintStart_toStartOf="@+id/map_search_recyler"
@@ -455,7 +471,7 @@
         android:layout_width="180dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="17dp"
-        android:layout_marginTop="68dp"
+        android:layout_marginTop="116dp"
         android:layout_marginEnd="32dp"
         android:background="@drawable/shape_transparent"
         android:ems="10"
@@ -465,6 +481,7 @@
         android:maxLength="10"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.68"
         app:layout_constraintStart_toEndOf="@+id/ctvChangeContact"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -472,8 +489,8 @@
         android:id="@+id/ctvChangeContact"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="60dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="108dp"
         android:checkMark="@drawable/ic_baseline_check_24"
         android:checked="true"
         android:gravity="center"

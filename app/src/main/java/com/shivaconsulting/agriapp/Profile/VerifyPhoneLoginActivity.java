@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -64,7 +65,7 @@ public class VerifyPhoneLoginActivity extends AppCompatActivity {
         buttonSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+try{
                 String code = editText.getText().toString().trim();
 
                 if (code.isEmpty() || code.length() < 6) {
@@ -74,6 +75,8 @@ public class VerifyPhoneLoginActivity extends AppCompatActivity {
                     return;
                 }
                 verifyCode(code);
+}catch (Exception e){
+    Log.d("error : ",e.getMessage());}
             }
         });
 
@@ -89,6 +92,7 @@ public class VerifyPhoneLoginActivity extends AppCompatActivity {
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
+                        try{
                         if (task.isSuccessful()) {
                             Intent intent = new Intent(VerifyPhoneLoginActivity.this, MapsActivity.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -98,11 +102,13 @@ public class VerifyPhoneLoginActivity extends AppCompatActivity {
                             Toast.makeText(VerifyPhoneLoginActivity.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
                             progressBar.setVisibility(View.GONE);
                         }
+                        }catch (Exception e){Log.d("error : ",e.getMessage());}
                     }
                 });
     }
 
     private void sendVerificationCode(String number) {
+        try{
         progressBar.setVisibility(View.VISIBLE);
         PhoneAuthProvider.getInstance().verifyPhoneNumber(
                 number,
@@ -113,6 +119,7 @@ public class VerifyPhoneLoginActivity extends AppCompatActivity {
         );
 
         progressBar.setVisibility(View.GONE);
+        }catch (Exception e){Log.d("error : ",e.getMessage());}
     }
 
     private PhoneAuthProvider.OnVerificationStateChangedCallbacks

@@ -137,10 +137,9 @@ public class RescheduleBooking extends AppCompatActivity implements OnMapReadyCa
     public static DatePickerTimeline datePickerTimeline2;
     private AreaAdapter.OnAreaItemSelectedListener areaItemSelectedListener;
     private ProgressBar progressBar;
-    String phone,custName;
     public static String time2;
     public static String area2;
-    String address,currentAddress,ServiceType,ServiceID,token,BookingId,CustomerNumber,CustNumsubstr,status;
+    String address,oldAddress,currentAddress,ServiceType,ServiceID,token,BookingId,CustomerNumber,CustNumsubstr,status;
     double lat, lon,markerLat,markerLng;
     Random rnd = new Random(); //To generate random booking id
     final Long ID = (long) rnd.nextInt(99999999); //To generate random booking id
@@ -154,7 +153,8 @@ public class RescheduleBooking extends AppCompatActivity implements OnMapReadyCa
     Map <String, Object> post = new HashMap<>();
     MarkerOptions options = new MarkerOptions();
     private  EditText ChangeContact;
-    private ToggleButton tbChangeContact;
+    private ToggleButton tbChangeContact,tbChangeAddress;
+    CardView cvAddressSearch;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -167,6 +167,7 @@ public class RescheduleBooking extends AppCompatActivity implements OnMapReadyCa
         CustNumsubstr = CustomerNumber.substring(CustomerNumber.length() - 10);
         ChangeContact.setText(CustNumsubstr);
         address=getIntent().getStringExtra("CustAddress");
+        oldAddress=getIntent().getStringExtra("CustAddress");
         autocompleteFragment.setText(address);
         autoCompleteTextView.setText(address);
         status=getIntent().getStringExtra("status");
@@ -410,49 +411,36 @@ tbChangeContact.setOnClickListener(new View.OnClickListener() {
     }
 });
 
+        tbChangeAddress.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!tbChangeAddress.isChecked()){
+                    autocompleteFragment.setText(oldAddress);
+                    autoCompleteTextView.setText(oldAddress);
+                    cvAddressSearch.setVisibility(View.VISIBLE);
+                } else {
+                    cvAddressSearch.setVisibility(View.INVISIBLE);
+
+                }
+            }
+        });
+
 
         //Booking Event
         Reschedule1.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View view) {
-try {
-                if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) |
-                        selectedDate == null | time2 == null | area2 == null |
+                    try {
+                if (selectedDate == null | time2 == null | area2 == null |
                         autocompleteFragment==null | autoCompleteTextView.length()==0) {
-
-                    if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                        Toast.makeText(mContext, "Please Enable GPS First", Toast.LENGTH_SHORT).show();
-                        try {
-                            enableLoc();
-                        } catch (Exception e) {
-                            Log.d(TAG,e.getMessage());
-                        }
-                    } else if (selectedDate == null | time2 == null | area2 == null ) {
+                 if (selectedDate == null | time2 == null | area2 == null ) {
                         Toast.makeText(mContext, "Please select Date,Time,Area", Toast.LENGTH_SHORT).show();
-                        try {
-                            getDeviceLocation();
-                            getAddress();
-                        } catch (Exception e) {
-                            Toast.makeText(mContext, "Unable to get device location", Toast.LENGTH_SHORT).show();
-                        }
                     } else if (autocompleteFragment==null | autoCompleteTextView.length()==0) {
                         Toast.makeText(mContext, "Please check your delivery address above", Toast.LENGTH_SHORT).show();
-                        try {
-                            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                                Toast.makeText(mContext, "Please Enable GPS First", Toast.LENGTH_SHORT).show();
-                                enableLoc();
-
-                            } else if (ChangeContact.length()==0 || ChangeContact.length()<10) {
+                             if (ChangeContact.length()==0 || ChangeContact.length()<10) {
                                 ChangeContact.setError("Please Enter 10 Digit Number");
-                            } else {
-                                getDeviceLocation();
-                                getAddress();
-
                             }
-                        } catch (Exception e) {
-
-                        }
                     }
                 }else if(ServiceType==null){
                     Toast.makeText(mContext, "Please select service type", Toast.LENGTH_SHORT).show();
@@ -614,34 +602,34 @@ try {
             mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                 @Override
                 public void onMapClick(LatLng latLng) {
-                    bookContraint.setVisibility(View.GONE);
-                    cardView1.setVisibility(View.VISIBLE);
-                    cardView2.setVisibility(View.VISIBLE);
-                    cardView3.setVisibility(View.VISIBLE);
-                    tbChangeContact.setVisibility(View.INVISIBLE);
-                    ChangeContact.setVisibility(View.INVISIBLE);
+                    if (!tbChangeAddress.isChecked()) {
+                        bookContraint.setVisibility(View.GONE);
+                        cardView1.setVisibility(View.VISIBLE);
+                        cardView2.setVisibility(View.VISIBLE);
+                        cardView3.setVisibility(View.VISIBLE);
+                        tbChangeContact.setVisibility(View.INVISIBLE);
+                        ChangeContact.setVisibility(View.INVISIBLE);
 
-                    Marker dragMarker = mMap.addMarker(new MarkerOptions().position(mCenterLatLong).title("Marker Location"));
-                    dragMarker.setPosition(latLng);
-                    mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
-                    markerLat= dragMarker.getPosition().latitude;
-                    markerLng=dragMarker.getPosition().longitude;
-                    Geocoder geocoder = new Geocoder(mContext, Locale.getDefault());
-                    try {
+                        Marker dragMarker = mMap.addMarker(new MarkerOptions().position(mCenterLatLong).title("Marker Location"));
+                        dragMarker.setPosition(latLng);
+                        mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+                        lat = dragMarker.getPosition().latitude;
+                        lon = dragMarker.getPosition().longitude;
+                        Geocoder geocoder = new Geocoder(mContext, Locale.getDefault());
+                        try {
 
-                        List<Address> addresses = geocoder.getFromLocation
-                                (markerLat,markerLng, 1);
-                        currentAddress =addresses.get(0).getAddressLine(0);
-                        if(autoCompleteTextView.length()==0 ) {
-                            autoCompleteTextView.setText(currentAddress);
+                            List<Address> addresses = geocoder.getFromLocation
+                                    (lat, lon, 1);
+                            currentAddress = addresses.get(0).getAddressLine(0);
                             autocompleteFragment.setText(currentAddress);
+                            autoCompleteTextView.setText(currentAddress);
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
-                        autocompleteFragment.setText(currentAddress);
-                    } catch (IOException e) {
-                        e.printStackTrace();
                     }
                 }
             });
+
         }
 }catch (Exception e){
 
@@ -922,6 +910,8 @@ try {
         Reschedule1 = findViewById(R.id.Reschedulebtn);
         ChangeContact=findViewById(R.id.etChangeNumber);
         tbChangeContact=findViewById(R.id.ctvChangeContact);
+        tbChangeAddress=findViewById(R.id.blnChangeAddress);
+        cvAddressSearch=findViewById(R.id.cvAddressSearch);
         datePickerTimeline2 = findViewById(R.id.datePickerTimeline);
         bookContraint = findViewById(R.id.booking_constraint);
         cardView1 = findViewById(R.id.tot_type_cardview);
@@ -968,9 +958,13 @@ try {
         post.put("delivery_Time", time2);
         post.put("area", area2);
         post.put("service_Type", ServiceType);
-        post.put("latitude", options.getPosition().latitude);
-        post.put("longitude", options.getPosition().longitude);
-        post.put("address",   autoCompleteTextView.getText().toString());
+        if(!tbChangeAddress.isChecked()) {
+            post.put("address", autoCompleteTextView.getText().toString());
+            post.put("latitude", lat);
+            post.put("longitude", lon);
+        }else{
+            post.put("address", oldAddress);
+        }
         if(status.equals("Confirmed")) {
             post.put("status", "Reschedule Request");
             post.put("rescheduleReqFrom", "Farmer");

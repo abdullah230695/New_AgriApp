@@ -14,14 +14,15 @@ import com.shivaconsulting.agriapp.Profile.LoginActivity;
 
 public class SplashActivity extends Activity {
     private final int SPLASH_DISPLAY_LENGTH = 100;
-
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
+    private static final String TAG = "SplashActivity";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        //FirebaseAuth.getInstance().signOut();
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
                 .setTimestampsInSnapshotsEnabled(true)
@@ -39,7 +40,9 @@ public class SplashActivity extends Activity {
                 }
                 SplashActivity.this.startActivity(mainIntent);
                 SplashActivity.this.finish();
+
             }
         }, SPLASH_DISPLAY_LENGTH);
     }
+
 }

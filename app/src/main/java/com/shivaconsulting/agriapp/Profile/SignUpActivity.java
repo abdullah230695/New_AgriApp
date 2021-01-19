@@ -87,6 +87,7 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private void init() {
+        try{
 
         emailId = email_id_signup.getText().toString();
         password1 = password_box1.getText().toString();
@@ -106,6 +107,7 @@ public class SignUpActivity extends AppCompatActivity {
                     .addOnCompleteListener(SignUpActivity.this, new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
+                            try{
                             if (task.isSuccessful()) {
                                 progressBar.setVisibility(View.VISIBLE);
                                 UUID = FirebaseAuth.getInstance().getUid();
@@ -162,7 +164,7 @@ public class SignUpActivity extends AppCompatActivity {
                                         Toast.LENGTH_SHORT).show();
                                 Util9.showMessage(getApplicationContext(), task.getException().getMessage());
                             }
-
+                            }catch (Exception e){Log.d("error : ",e.getMessage());}
                         }
 
 
@@ -174,6 +176,7 @@ public class SignUpActivity extends AppCompatActivity {
                 }
             });
         }
+        }catch (Exception e){Log.d("error : ",e.getMessage());}
     }
 
     String extractIDFromEmail(String email){

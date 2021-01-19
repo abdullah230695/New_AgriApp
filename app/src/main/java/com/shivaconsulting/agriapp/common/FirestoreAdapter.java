@@ -46,6 +46,7 @@ public abstract class FirestoreAdapter<VH extends RecyclerView.ViewHolder>
 
         // Dispatch the event
         Log.d(TAG, "onEvent:numChanges:" + documentSnapshots.getDocumentChanges().size());
+        try{
         for (DocumentChange change : documentSnapshots.getDocumentChanges()) {
             switch (change.getType()) {
                 case ADDED:
@@ -61,6 +62,7 @@ public abstract class FirestoreAdapter<VH extends RecyclerView.ViewHolder>
         }
 
         onDataChanged();
+        }catch (Exception e2){Log.d("error : ",e2.getMessage());}
     }
 
     public void startListening() {
@@ -102,11 +104,14 @@ public abstract class FirestoreAdapter<VH extends RecyclerView.ViewHolder>
     }
 
     protected void onDocumentAdded(DocumentChange change) {
+        try{
         mSnapshots.add(change.getNewIndex(), change.getDocument());
         notifyItemInserted(change.getNewIndex());
+        }catch (Exception e){Log.d("error : ",e.getMessage());}
     }
 
     protected void onDocumentModified(DocumentChange change) {
+        try{
         if (change.getOldIndex() == change.getNewIndex()) {
             // Item changed but remained in same position
             mSnapshots.set(change.getOldIndex(), change.getDocument());
@@ -117,6 +122,7 @@ public abstract class FirestoreAdapter<VH extends RecyclerView.ViewHolder>
             mSnapshots.add(change.getNewIndex(), change.getDocument());
             notifyItemMoved(change.getOldIndex(), change.getNewIndex());
         }
+        }catch (Exception e){Log.d("error : ",e.getMessage());}
     }
 
     protected void onDocumentRemoved(DocumentChange change) {

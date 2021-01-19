@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -103,7 +104,7 @@ import com.shivaconsulting.agriapp.Adapter.AddressAdapter;
 import com.shivaconsulting.agriapp.Adapter.AreaAdapter;
 import com.shivaconsulting.agriapp.Adapter.PlacesAutoCompleteAdapter;
 import com.shivaconsulting.agriapp.Adapter.TimeAdapterNew;
-import com.shivaconsulting.agriapp.Classes.RecyclerItemClickListener;
+import com.shivaconsulting.agriapp.RecyclerItemClick.RecyclerItemClickListener;
 import com.shivaconsulting.agriapp.History.BookingHistoryActivity;
 import com.shivaconsulting.agriapp.MainActivity;
 import com.shivaconsulting.agriapp.Models.AddressModel;
@@ -179,6 +180,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     final Long ID = (long) rnd.nextInt(99999999); //To generate random booking id
     String UUID = FirebaseAuth.getInstance().getUid();
     FirebaseFirestore db = FirebaseFirestore.getInstance();
+    int count;
     DocumentReference dr = db.collection("Users").document(UUID);
     final Map<String, Object> post1 = new HashMap<>();
     final Map<String, Object> post2 = new HashMap<>();
@@ -195,50 +197,21 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private List<LatLng> LiveLatLngList = new ArrayList<>();
     Marker liveMarkers;
     final Handler handler = new Handler();
-   /* private DrawerLayout dl;
-    private ActionBarDrawerToggle t;
-    private NavigationView nv;*/
-
+    SharedPreferences prefs ;
+    SharedPreferences.Editor spEditor ;
+    double lastLat,lastLong;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-/*
 
-        dl = findViewById(R.id.drawer_layout);
-        t = new ActionBarDrawerToggle(this, dl,R.string.open, R.string.close);
-        dl.addDrawerListener(t);
-        t.syncState();
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-*/
-
-  /*      nv = (NavigationView)findViewById(R.id.nv);
-        nv.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                int id = item.getItemId();
-                switch(id)
-                {
-                    case R.id.profile:
-                        Toast.makeText(MapsActivity.this, "My Account",Toast.LENGTH_SHORT).show();break;
-                    case R.id.chat:
-                        Toast.makeText(MapsActivity.this, "chat",Toast.LENGTH_SHORT).show();break;
-                    default:
-                        return true;
-                }
-
-
-                return true;
-
-            }
-        });*/
         GetToken();
         enableData();
         setupID();
         enableLoc();
         getDeviceLocation();
-
+        savedAddressCounter();
         //Getting Customer Phone Number
         dr.addSnapshotListener(new EventListener<DocumentSnapshot>() {
 
@@ -262,8 +235,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
         if(getIntent().getExtras()!=null){
             startActivity(new Intent(mContext,BookingHistoryActivity.class));
-
-
         }
 
 
@@ -352,8 +323,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         home.setImageResource(R.drawable.ic_baseline_home);
 
         setupFirebaseAuth();
-
-
         getLocationPermission();
 
         this.setFinishOnTouchOutside(true);
@@ -372,13 +341,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         };
 
-//Start
+        //Start
         handler.postDelayed(runnable, 15000);
 
         imgSavedLocations.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
+                    if(count==0){
+                        Toast.makeText(mContext, "There is no saved location found", Toast.LENGTH_SHORT).show();
+                    }else {
+
                     bookContraint.setVisibility(View.GONE);
                     rvAddress.setVisibility(View.VISIBLE);
                     autoCompleteTextView.setText(null);
@@ -392,6 +365,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     constraintSet.applyTo(constraintLayout);
                     //constraintSet.clear(R.id.gps_button,ConstraintSet.BOTTOM);
                     //constraintSet.applyTo(constraintLayout);
+                    }
                 } catch (Exception e) {
                 }
             }
@@ -405,6 +379,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     rvAddress.setVisibility(View.GONE);
                     if ((autoCompleteTextView.length() == 0)) {
                         autoCompleteTextView.setError("Please enter address to save location");
+                        Toast.makeText(mContext, "Please enter a address", Toast.LENGTH_SHORT).show();
                     } else {
                         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
                         builder.setTitle("Add New Location ?");
@@ -472,10 +447,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         Toast.makeText(mContext, "Please Enable GPS First", Toast.LENGTH_SHORT).show();
                         Log.d(TAG, "onClick: Gps not enabled");
                         enableLoc();
-                        //TODO:NEED TO IMPLEMENT LIKE SWIGGY ONCE GPS TURNED ON
+                        moveCamera(new LatLng(lat, lon)
+                                , DEFAULT_ZOOM, "My Location");
 
                     } else {
                         Log.d(TAG, "onClick: Clicked after Gps Is On");
+                        moveCamera(new LatLng(lat, lon)
+                                , DEFAULT_ZOOM, "My Location");
                         getDeviceLocation();
                         getAddress();
                     }
@@ -653,27 +631,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         getDeviceLocation();
                         getAddress();
                         Toast.makeText(mContext, "Please select Date,Time,Area", Toast.LENGTH_SHORT).show();
-                    } else if (autocompleteFragment.equals(null) | autoCompleteTextView.equals(null)) {
+                    } else if (autoCompleteTextView.equals(null)) {
                         Toast.makeText(mContext, "Please check your delivery address above", Toast.LENGTH_SHORT).show();
                         getDeviceLocation();
                         getAddress();
-
-                      /*      try {
-                                if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                                    Toast.makeText(mContext, "Please Enable GPS First", Toast.LENGTH_SHORT).show();
-                                    enableLoc();
-                                    getAddress();
-                                } else {
-                                    getDeviceLocation();
-                                    getAddress();
-
-                                }
-                            } catch (Exception e) {
-
-                            }*/
                     } else {
-                        getDeviceLocation();
-                        getAddress();
                         final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
                         builder.setTitle("Confirm Booking");
                         builder.setMessage("Selected service type is " + ServiceType + ". Do you want to proceed ?");
@@ -831,9 +793,21 @@ imgChatList.setOnClickListener(new View.OnClickListener() {
 
     }
 });
+
     }
 
-        private void getLiveLat() {
+    private void getSharedPrefs() {
+       lastLat= Double.parseDouble(prefs.getString("lat", "0.0"));
+        lastLong= Double.parseDouble(prefs.getString("lon", "0.0"));
+
+        LatLng latLng = new LatLng(lastLat, lastLong);
+        Marker lastMarker = mMap.addMarker(new MarkerOptions().position(latLng).title("Last Booking Address"));
+        lastMarker.setPosition(latLng);
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 19));
+        Log.d("lastLocations ", String.valueOf(lastLat+"\n"+lastLong));
+    }
+
+    private void getLiveLat() {
             try {
                 CollectionReference cr= db.collection("LiveLocation");
                 cr.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -1122,6 +1096,7 @@ private void addLiveLatMarkers(){
         } catch (Exception e) {
 
         }
+        getSharedPrefs();
     }
 
     private TextWatcher filterTextWatcher = new TextWatcher() {
@@ -1419,7 +1394,8 @@ private void addLiveLatMarkers(){
     @Override
     public void onBackPressed() {
         handler.removeCallbacks(null);
-        if(rvAddress.getVisibility()==View.VISIBLE) {
+        if(rvAddress.getVisibility()==View.VISIBLE || bookContraint.getVisibility()==View.VISIBLE) {
+            bookContraint.setVisibility(View.GONE);
             rvAddress.setVisibility(View.GONE);
             ConstraintSet constraintSet = new ConstraintSet();
             constraintSet.clone(constraintLayout);
@@ -1477,14 +1453,6 @@ private void addLiveLatMarkers(){
         pick_date_text = findViewById(R.id.pick_date_text);
         pick_area_text = findViewById(R.id.pick_area_text);
         rvAddress = findViewById(R.id.rvSavedLoc);
-        /*combine_image_1 = findViewById(R.id.combine_image_1);
-        combine_image_2 = findViewById(R.id.combine_image_2);
-        combine_image_3 = findViewById(R.id.combine_image_3);
-        tot_image_1 = findViewById(R.id.tot_image_1);
-        tot_image_2 = findViewById(R.id.tot_image_2);
-        belt_image_1 = findViewById(R.id.belt_image_1);
-        belt_image_2 = findViewById(R.id.belt_image_2);
-        belt_image_3 = findViewById(R.id.belt_image_3);*/
         map_search_recyler = findViewById(R.id.map_search_recyler);
         autoCompleteTextView = findViewById(R.id.autoCompleteTextView);
         tot_Type = findViewById(R.id.tot_type);
@@ -1494,6 +1462,8 @@ private void addLiveLatMarkers(){
         imgSavedLocations = findViewById(R.id.imgSavedLoc);
         constraintLayout = findViewById(R.id.parent_layout);
         imgChatList=findViewById(R.id.imgChat);
+        prefs = getSharedPreferences("locations", MODE_PRIVATE);
+        spEditor = getSharedPreferences("locations", MODE_PRIVATE).edit();
     }//ID setups
 
 
@@ -1585,7 +1555,9 @@ private void addLiveLatMarkers(){
         } catch (Exception e) {
 
         }
-
+        spEditor.putString("lat", String.valueOf(lat));
+        spEditor.putString("lon", String.valueOf(lon));
+        spEditor.apply();
     } //Adding Booking details to firestore if Bookig id exist
 
 
@@ -1610,6 +1582,7 @@ private void addLiveLatMarkers(){
             post2.put("latitude", lat);
             post2.put("longitude", lon);
             post2.put("address", autoCompleteTextView.getText().toString());
+
             post2.put("picUrl", "https://i.pinimg.com/originals/c9/f5/fb/c9f5fba683ab296eb94c62de0b0e703c.png");
             post2.put("status", "Pending");
             post2.put("service_Provider", "Not Assigned");
@@ -1659,6 +1632,9 @@ private void addLiveLatMarkers(){
         } catch (Exception e) {
 
         }
+        spEditor.putString("lat", String.valueOf(lat));
+        spEditor.putString("lon", String.valueOf(lon));
+        spEditor.apply();
     } //Adding Booking details to firestore
 
     //Prompting user to enable data connection
@@ -1768,7 +1744,15 @@ private void addLiveLatMarkers(){
             return true;
         return super.onOptionsItemSelected(item);
     }*/
+    private void savedAddressCounter() {
+        db.collection("Bookings").document(UUID).collection("Saved Locations").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                count = task.getResult().size();
 
+            }
+        });
+    }
 }
 
 

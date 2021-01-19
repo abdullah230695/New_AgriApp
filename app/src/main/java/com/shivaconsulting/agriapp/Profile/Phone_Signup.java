@@ -3,6 +3,7 @@ package com.shivaconsulting.agriapp.Profile;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -40,6 +41,7 @@ public class Phone_Signup extends AppCompatActivity {
         buttonContinue.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                try{
                      code = editTextCountryCode.getText().toString().trim();
                      number = editTextPhone.getText().toString().trim();
                      sName=name.getText().toString();
@@ -59,6 +61,7 @@ public class Phone_Signup extends AppCompatActivity {
                 query.whereEqualTo("phone_number", code+number).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot verify) {
+                        try{
                         if (!verify.isEmpty()) {
                             progressDialog.dismiss();
                             Toast.makeText(getApplicationContext(), "This phone number already registered, Please sign in with OTP", Toast.LENGTH_SHORT).show();
@@ -71,7 +74,7 @@ public class Phone_Signup extends AppCompatActivity {
                             intent.putExtra("name", sName);
                             startActivity(intent);
                         }
-
+                        }catch (Exception e){Log.d("error : ",e.getMessage());}
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
@@ -84,6 +87,8 @@ public class Phone_Signup extends AppCompatActivity {
                         startActivity(intent);
                     }
                 });
+                }catch (Exception e){
+                    Log.d("error : ",e.getMessage());}
             }
         });
     }

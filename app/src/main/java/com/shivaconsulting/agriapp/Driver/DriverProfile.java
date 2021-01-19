@@ -92,6 +92,7 @@ FirebaseFirestore db= FirebaseFirestore.getInstance();
         tvSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                try{
                 myFeedback=etFeedbacks.getText().toString();
                 if(myFeedback.length()==0){
                     Toast.makeText(DriverProfile.this, "Please enter feedback", Toast.LENGTH_SHORT).show();
@@ -104,6 +105,7 @@ FirebaseFirestore db= FirebaseFirestore.getInstance();
                     tvSubmit.setVisibility(View.GONE);
                     checkPreviousRatings();
                 }
+                }catch (Exception e){Log.d("error : ",e.getMessage());}
             }
         });
         applyRating.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
@@ -148,11 +150,12 @@ FirebaseFirestore db= FirebaseFirestore.getInstance();
     }
 
     private void retrieveDriverProfile() {
-
+try{
         DocumentReference dr = db.collection("OperatorUsers").document(DriverID);
         dr.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                try{
                 if (error != null) {
                     Toast.makeText(getApplicationContext(), "Unable to retrive " + error.getMessage(), Toast.LENGTH_SHORT).show();
                     return;
@@ -166,8 +169,10 @@ FirebaseFirestore db= FirebaseFirestore.getInstance();
                         Glide.with(getApplicationContext()).load(imageURL).into(profileimage);
                     }
                 }
+                }catch (Exception e){Log.d("error : ",e.getMessage());}
             }
         });
+}catch (Exception e){Log.d("error : ",e.getMessage());}
     }
 
 
@@ -177,6 +182,7 @@ FirebaseFirestore db= FirebaseFirestore.getInstance();
         dr.addSnapshotListener(new EventListener<DocumentSnapshot>() {
                     @Override
                     public void onEvent(@Nullable DocumentSnapshot feedbacks, @Nullable FirebaseFirestoreException e) {
+                        try{
                         if (feedbacks != null && feedbacks.exists()) {
                             try {
                                 feedbackList=(List<String>) feedbacks.get("feedbacks");
@@ -190,6 +196,7 @@ FirebaseFirestore db= FirebaseFirestore.getInstance();
 
                             Log.d("feedbackList","No Data");
                         }
+                        }catch (Exception e2){Log.d("error : ",e2.getMessage());}
                     }
         });
     }
@@ -224,6 +231,7 @@ FirebaseFirestore db= FirebaseFirestore.getInstance();
     }
 
     private void checkPreviousRatings() {
+        try{
         DocumentReference dr= db.collection("DriverRatings").document(DriverID)
                 .collection(UUID).document(UUID);
         dr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -242,9 +250,11 @@ FirebaseFirestore db= FirebaseFirestore.getInstance();
                     Log.d("rating",e.getMessage()); myPrevRating=0; sFeedback=null;  submitRatings();}
             }
         });
+        }catch (Exception e){Log.d("error : ",e.getMessage());}
     }
 
     private void submitRatings() {
+        try{
         totalRating=  (setRating+currentRatings);
         if(myPrevRating!=0){
             CountOfRatings=currentCounts;
@@ -291,6 +301,7 @@ FirebaseFirestore db= FirebaseFirestore.getInstance();
 
             }
         });
+        }catch (Exception e){Log.d("error : ",e.getMessage());}
     }
     public void onClick(View view) {
 

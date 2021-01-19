@@ -180,7 +180,7 @@ public class ChatFragment extends Fragment {
             getUserInfoFromServer(toUid);
             userCount = 2;
         };
-
+try{
         recyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v,
@@ -202,7 +202,7 @@ public class ChatFragment extends Fragment {
                 }
             }
         });
-
+    }catch (Exception e){}
         return view;
     }
 
@@ -219,12 +219,14 @@ public class ChatFragment extends Fragment {
         firestore.collection("users").document(id).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
+                try{
                 UserModel userModel = documentSnapshot.toObject(UserModel.class);
                 userList.put(userModel.getUid(), userModel);
                 if (roomID != null & userCount == userList.size()) {
                     mAdapter = new RecyclerViewAdapter();
                     recyclerView.setAdapter(mAdapter);
                 }
+                }catch (Exception e){}
             }
         });
     }
@@ -235,6 +237,7 @@ public class ChatFragment extends Fragment {
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        try{
                         if (!task.isSuccessful()) {return;}
 
                         for (QueryDocumentSnapshot document : task.getResult()) {
@@ -244,6 +247,7 @@ public class ChatFragment extends Fragment {
                                 break;
                             }
                         }
+                        }catch (Exception e){}
                     }
                 });
     }
@@ -254,6 +258,7 @@ public class ChatFragment extends Fragment {
         firestore.collection("rooms").document(roomID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                try{
                 if (!task.isSuccessful()) {return;}
                 DocumentSnapshot document = task.getResult();
                 Map<String, Long> users = (Map<String, Long>) document.get("users");
@@ -264,6 +269,7 @@ public class ChatFragment extends Fragment {
                 userCount = users.size();
                 //users.put(myUid, (long) 0);
                 //document.getReference().update("users", users);
+                }catch (Exception e){}
             }
         });
     }
@@ -274,17 +280,20 @@ public class ChatFragment extends Fragment {
         firestore.collection("rooms").document(roomID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                try{
                 if (!task.isSuccessful()) {return;}
                 DocumentSnapshot document = task.getResult();
                 Map<String, Long> users = (Map<String, Long>) document.get("users");
 
                 users.put(myUid, (long) 0);
                 document.getReference().update("users", users);
+                }catch (Exception e){}
             }
         });
     }
 
     public void CreateChattingRoom(final DocumentReference room) {
+        try{
         Map<String, Integer> users = new HashMap<>();
         String title = "";
         ArrayList<String> messengers = new ArrayList<>();
@@ -306,6 +315,7 @@ public class ChatFragment extends Fragment {
                 }
             }
         });
+        }catch (Exception e){}
     }
     public Map<String, UserModel> getUserList() {
         return userList;
@@ -320,6 +330,7 @@ public class ChatFragment extends Fragment {
     };
 
     private void sendMessage(final String msg, String msgtype, final ChatModel.FileInfo fileinfo) {
+        try{
         sendBtn.setEnabled(false);
 
         if (roomID==null) {             // create chatting room for two user
@@ -342,6 +353,7 @@ public class ChatFragment extends Fragment {
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                try{
                 if (!task.isSuccessful()) {return;}
 
                 WriteBatch batch = firestore.batch();
@@ -367,18 +379,23 @@ public class ChatFragment extends Fragment {
                 batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
+                        try{
                         if (task.isSuccessful()) {
                             sendGCM();
                             sendBtn.setEnabled(true);
                         }
+                        }catch (Exception e){}
                     }
                 });
+                }catch (Exception e){}
             }
 
         });
+        }catch (Exception e){}
     };
 
     void sendGCM(){
+        try{
         Gson gson = new Gson();
         NotificationModel notificationModel = new NotificationModel();
         notificationModel.notification.title = userList.get(myUid).getUsernm();
@@ -406,6 +423,7 @@ public class ChatFragment extends Fragment {
                 public void onResponse(Call call, Response response) throws IOException {                }
             });
         }
+        }catch (Exception e){}
     }
 
     // choose image
@@ -430,6 +448,7 @@ public class ChatFragment extends Fragment {
     // uploading image / file
     @Override
     public void onActivityResult(final int requestCode, int resultCode, Intent data) {
+        try{
         if (resultCode!= RESULT_OK) { return;}
         Uri fileUri = data.getData();
         final String filename = Util9.getUniqueValue();
@@ -460,10 +479,12 @@ public class ChatFragment extends Fragment {
                         storageReference.child("filesmall/"+filename).putBytes(data);
                     }
                 });
+        }catch (Exception e){}
     }
 
     // get file name and size from Uri
     public static ChatModel.FileInfo getFileDetailFromUri(final Context context, final Uri uri) {
+
         if (uri == null) { return null; }
 
         ChatModel.FileInfo fileDetail = new ChatModel.FileInfo();
@@ -487,6 +508,7 @@ public class ChatFragment extends Fragment {
         }
 
         return fileDetail;
+
     }
 
     public void showProgressDialog(String title ) {
@@ -508,6 +530,7 @@ public class ChatFragment extends Fragment {
     // =======================================================================================
 
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
+
         final private RequestOptions requestOptions = new RequestOptions().transforms(new CenterCrop(), new RoundedCorners(90));
 
         List<Message> messageList;
@@ -515,6 +538,7 @@ public class ChatFragment extends Fragment {
         MessageViewHolder beforeViewHolder;
 
         RecyclerViewAdapter() {
+            try{
             File dir = new File(rootPath);
             if (!dir.exists()) {
                 if (!Util9.isPermissionGranted(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
@@ -526,9 +550,11 @@ public class ChatFragment extends Fragment {
             messageList = new ArrayList<Message>();
             setUnread2Read();
             startListening();
+            }catch (Exception e){Log.d("error : ",e.getMessage());}
         }
 
         public void startListening() {
+            try{
             beforeDay = null;
             messageList.clear();
 
@@ -537,6 +563,7 @@ public class ChatFragment extends Fragment {
             listenerRegistration = roomRef.orderBy("timestamp").addSnapshotListener(new EventListener<QuerySnapshot>() {
                 @Override
                 public void onEvent(@Nullable QuerySnapshot documentSnapshots, @Nullable FirebaseFirestoreException e) {
+                    try{
                     if (e != null) {return;}
 
                     Message message;
@@ -565,8 +592,10 @@ public class ChatFragment extends Fragment {
                         }
                     }
                     recyclerView.scrollToPosition(messageList.size() - 1);
+                    }catch (Exception e1){Log.d("error : ",e1.getMessage());}
                 }
             });
+            }catch (Exception e){Log.d("error : ",e.getMessage());}
         }
 
         public void stopListening() {
@@ -581,6 +610,7 @@ public class ChatFragment extends Fragment {
 
         @Override
         public int getItemViewType(int position) {
+
             Message message = messageList.get(position);
             if (myUid.equals(message.getUid()) ) {
                 switch(message.getMsgtype()){
@@ -595,6 +625,7 @@ public class ChatFragment extends Fragment {
                     default:  return R.layout.item_chatmsg_left;
                 }
             }
+
         }
         @NonNull
         @Override
@@ -606,6 +637,7 @@ public class ChatFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+            try{
             final MessageViewHolder messageViewHolder = (MessageViewHolder) holder;
             final Message message = messageList.get(position);
 
@@ -690,6 +722,7 @@ public class ChatFragment extends Fragment {
             }
             beforeViewHolder = messageViewHolder;
             beforeDay = day;*/
+            }catch (Exception e){Log.d("error : ",e.getMessage());}
         }
 
         void setReadCounter (Message message, final TextView textView) {
@@ -711,6 +744,7 @@ public class ChatFragment extends Fragment {
     }
 
     private class MessageViewHolder extends RecyclerView.ViewHolder {
+
         public ImageView user_photo;
         public TextView msg_item;
         public ImageView img_item;          // only item_chatimage_
@@ -726,6 +760,7 @@ public class ChatFragment extends Fragment {
 
         public MessageViewHolder(View view) {
             super(view);
+            try{
             user_photo = view.findViewById(R.id.user_photo);
             msg_item = view.findViewById(R.id.msg_item);
             img_item = view.findViewById(R.id.img_item);
@@ -742,6 +777,7 @@ public class ChatFragment extends Fragment {
             if (img_item!=null) {                                       // for image
                 img_item.setOnClickListener(imageClickListener);
             }
+            }catch (Exception e){Log.d("error : ",e.getMessage());}
         }
         // file download and open
         Button.OnClickListener downloadClickListener = new View.OnClickListener() {
@@ -753,6 +789,7 @@ public class ChatFragment extends Fragment {
                 }
             }
             public void download() {
+                try{
                 if (!Util9.isPermissionGranted(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     return ;
                 }
@@ -773,9 +810,11 @@ public class ChatFragment extends Fragment {
                         Log.e("DirectTalk9 ","local file not created  " +exception.toString());
                     }
                 });
+                }catch (Exception e){Log.d("error : ",e.getMessage());}
             }
 
             public void openWith() {
+                try{
                 File newFile = new File(rootPath + filename);
                 MimeTypeMap mime = MimeTypeMap.getSingleton();
                 String ext = newFile.getName().substring(newFile.getName().lastIndexOf(".") + 1);
@@ -797,6 +836,7 @@ public class ChatFragment extends Fragment {
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 intent.setDataAndType(uri, type);//"application/vnd.android.package-archive");
                 startActivity(Intent.createChooser(intent, "Your title"));
+                }catch (Exception e){Log.d("error : ",e.getMessage());}
             }
         };
         // photo view

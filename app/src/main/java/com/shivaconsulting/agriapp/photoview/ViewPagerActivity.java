@@ -97,6 +97,7 @@ public class ViewPagerActivity extends AppCompatActivity {
 	}
 	Button.OnClickListener downloadBtnClickListener = new View.OnClickListener() {
 		public void onClick(final View view) {
+			try{
             if (!Util9.isPermissionGranted((Activity) view.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 return ;
             }
@@ -109,9 +110,11 @@ public class ViewPagerActivity extends AppCompatActivity {
 			FirebaseStorage.getInstance().getReference().child("files/"+message.getMsg()).getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
 				@Override
 				public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+					try{
 					// hideProgressDialog();
 					Util9.showMessage(view.getContext(), "Downloaded file");
 					Log.e("DirectTalk9 ","local file created " +localFile.toString());
+					}catch (Exception e){Log.d("error : ",e.getMessage());}
 				}
 			}).addOnFailureListener(new OnFailureListener() {
 				@Override
@@ -119,6 +122,7 @@ public class ViewPagerActivity extends AppCompatActivity {
 					Log.e("DirectTalk9 ","local file not created  " +exception.toString());
 				}
 			});
+			}catch (Exception e){Log.d("error : ",e.getMessage());}
 		}
 	};
 
@@ -142,6 +146,7 @@ public class ViewPagerActivity extends AppCompatActivity {
 					.addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
 						@Override
 						public void onComplete(@NonNull Task<QuerySnapshot> task) {
+							try{
 							if (!task.isSuccessful()) { return;}
 
 							for (QueryDocumentSnapshot document : task.getResult()) {
@@ -153,6 +158,7 @@ public class ViewPagerActivity extends AppCompatActivity {
 							if (inx>-1) {
 								viewPager.setCurrentItem(inx);
 							}
+							}catch (Exception e){Log.d("error : ",e.getMessage());}
 						}
 					});
 		}
@@ -166,13 +172,14 @@ public class ViewPagerActivity extends AppCompatActivity {
 		public View instantiateItem(final ViewGroup container, final int position) {
 			final PhotoView photoView = new PhotoView(container.getContext());
             photoView.setId(R.id.photoView);
-
+try{
 			Glide.with(container.getContext())
 					.load(storageReference.child("filesmall/"+imgList.get(position).getMsg()))
 					.into(photoView);
 
 			container.addView(photoView, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 
+}catch (Exception e){Log.d("error : ",e.getMessage());}
 			return photoView;
 		}
 

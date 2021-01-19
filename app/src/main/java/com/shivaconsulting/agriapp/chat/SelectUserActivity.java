@@ -2,6 +2,7 @@ package com.shivaconsulting.agriapp.chat;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -102,6 +103,7 @@ public class SelectUserActivity extends AppCompatActivity {
     };
 
     public void CreateChattingRoom(final DocumentReference room) {
+        try{
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         Map<String, Integer> users = new HashMap<>();
         String title = "";
@@ -126,6 +128,8 @@ public class SelectUserActivity extends AppCompatActivity {
                 }
             }
         });
+        }catch (Exception e){
+            Log.d("error : ",e.getMessage());}
     }
 
     class RecyclerViewAdapter extends FirestoreAdapter<CustomViewHolder> {

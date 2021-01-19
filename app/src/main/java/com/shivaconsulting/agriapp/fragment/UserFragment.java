@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -72,10 +73,13 @@ public class UserFragment extends Fragment {
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
+                try{
                 userModel = documentSnapshot.toObject(UserModel.class);
                 user_id.setText(userModel.getUserid());
                 user_name.setText(userModel.getUsernm());
                 user_msg.setText(userModel.getUsermsg());
+                }catch (Exception e){
+                    Log.d("error : ",e.getMessage());}
                 if (userModel.getUserphoto()!= null && !"".equals(userModel.getUserphoto())) {
                     Glide.with(getActivity())
                             .load(FirebaseStorage.getInstance().getReference("userPhoto/"+userModel.getUserphoto()))
@@ -103,6 +107,7 @@ public class UserFragment extends Fragment {
 
     Button.OnClickListener saveBtnClickListener = new View.OnClickListener() {
         public void onClick(final View view) {
+            try{
             if (!validateForm()) return;
             userModel.setUsernm(user_name.getText().toString());
             userModel.setUsermsg(user_msg.getText().toString());
@@ -140,6 +145,7 @@ public class UserFragment extends Fragment {
                             }
                         }
                     });
+            }catch (Exception e){Log.d("error : ",e.getMessage());}
         }
     };
 

@@ -72,7 +72,7 @@ public class VerifyPhoneSignUpActivity extends AppCompatActivity {
         buttonSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+try{
                 String code = editText.getText().toString().trim();
 
                 if (code.isEmpty() || code.length() < 6) {
@@ -82,6 +82,7 @@ public class VerifyPhoneSignUpActivity extends AppCompatActivity {
                     return;
                 }
                 verifyCode(code);
+}catch (Exception e){Log.d("error : ",e.getMessage());}
             }
         });
 
@@ -93,6 +94,7 @@ public class VerifyPhoneSignUpActivity extends AppCompatActivity {
     }
 
     private void signInWithCredential(PhoneAuthCredential credential) {
+        try{
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
@@ -148,6 +150,7 @@ public class VerifyPhoneSignUpActivity extends AppCompatActivity {
                         }
                     }
                 });
+        }catch (Exception e){Log.d("error : ",e.getMessage());}
     }
 
     private void sendVerificationCode(String number) {
@@ -174,11 +177,13 @@ public class VerifyPhoneSignUpActivity extends AppCompatActivity {
 
         @Override
         public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
+            try{
             String code = phoneAuthCredential.getSmsCode();
             if (code != null) {
                 editText.setText(code);
                 verifyCode(code);
             }
+            }catch (Exception e){Log.d("error : ",e.getMessage());}
         }
 
         @Override

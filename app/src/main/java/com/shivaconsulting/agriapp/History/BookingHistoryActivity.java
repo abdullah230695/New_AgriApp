@@ -15,7 +15,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.shivaconsulting.agriapp.Adapter.DBAdapter_TO_RecylerView;
-import com.shivaconsulting.agriapp.Classes.RecyclerItemClickListener;
+import com.shivaconsulting.agriapp.RecyclerItemClick.RecyclerItemClickListener;
 import com.shivaconsulting.agriapp.Home.MapsActivity;
 import com.shivaconsulting.agriapp.Models.DB_TO_RECYCLERVIEW;
 import com.shivaconsulting.agriapp.ParticularBookingHistory;

@@ -164,7 +164,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
             DriverToken = getIntent().getStringExtra("DriverToken");
             DriverID = getIntent().getStringExtra("DriverID");
 
-            CustomerLatitude = Double.valueOf((getIntent().getStringExtra("CustomerLat")));
+           CustomerLatitude = Double.valueOf((getIntent().getStringExtra("CustomerLat")));
             CustomerLongitude = Double.valueOf((getIntent().getStringExtra("CustomerLng")));
             CustomerLocation = new LatLng(CustomerLatitude, CustomerLongitude);
         /* final String image = getIntent().getParcelableExtra("img");
@@ -175,7 +175,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
 
 
             if (status.equals("Confirmed") || status.equals("Arriving") ||status.equals("Reached")||
-                    status.equals("Started") || status.equals("Completed")|| status.equals("Cancellation Request")|| status.equals("Cancelled")) {
+                    status.equals("Started") || status.equals("Completed")|| status.equals("Cancellation Request")) {
                 tvDriverName.setText(DriverName);
                 Animation anim = new AlphaAnimation(0.0f, 1.0f);
                 anim.setDuration(500); //You can manage the blinking time with this parameter
@@ -187,15 +187,20 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
         } catch (Exception e) {
 
         }
+
         tvDriverName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (tvDriverName.getText().equals("Not Allocated")) {
-            Toast.makeText(ParticularBookingHistory.this, "Driver Not Allocated Yet", Toast.LENGTH_SHORT).show();
-        }else {
-                    Intent intent = new Intent(getApplicationContext(), DriverProfile.class);
-                    intent.putExtra("driverID", DriverID);
-                    startActivity(intent);
+            Toast.makeText(ParticularBookingHistory.this, "Driver details not available", Toast.LENGTH_SHORT).show();
+        }else if(status.equals("Cancelled")){
+                    Toast.makeText(ParticularBookingHistory.this, "Driver details not available", Toast.LENGTH_SHORT).show();
+                }else {
+                    if(DriverID.length()>0) {
+                        Intent intent = new Intent(getApplicationContext(), DriverProfile.class);
+                        intent.putExtra("driverID", DriverID);
+                        startActivity(intent);
+                    }
                 }
             }
         });
@@ -224,6 +229,9 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                 binding.spb.setCompletedPosition(3).drawView();
                 btnReschedule.setVisibility(View.INVISIBLE);
                 btnCancel.setVisibility(View.INVISIBLE);
+            }else if(status.equals("Reschedule Request")){
+                binding.spb.setCompletedPosition(1).drawView();
+                data[1]="Reshedule...";
             }
         } catch (ArrayIndexOutOfBoundsException e4) {
             Toast.makeText(this, e4.getMessage(), Toast.LENGTH_SHORT).show();
@@ -248,6 +256,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
         }
 
         if (status.equals("Confirmed")) {
+            btnReschedule.setVisibility(View.VISIBLE);
             btnCancel.setText("Make Cancellation\n" + "Request");
         } else if (status.equals("Cancelled")) {
             binding.spb.setVisibility(View.GONE);
@@ -321,7 +330,9 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                  });
 
             try {
-                btnReschedule.setVisibility(View.INVISIBLE);
+                if(status.equals("Confirmed")) {
+                    btnReschedule.setVisibility(View.VISIBLE);
+                }
                 if (status.equals("Arriving")|| status.equals("Reached")||
                         status.equals("Started") ||status.equals("Completed")) {
                     db.collection("LiveLocation").document(DriverID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
@@ -361,7 +372,6 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
             public void onEvent(@Nullable DocumentSnapshot data1, @Nullable FirebaseFirestoreException e) {
                 try {
                     if (data1 != null && data1.exists()) {
-                        //status = data.getData().get("status").toString();
                             try {
                                 status=data1.getString("status");
                                 if (status.equals("Confirmed")) {
@@ -548,6 +558,9 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                 data[2]="Finished";
                 binding.spb.setCompletedPosition(3).drawView();
                 data[3]="Over";
+            }else if(status.equals("Reschedule Request")){
+                binding.spb.setCompletedPosition(1).drawView();
+                data[1]="Recshedule...";
             }
         } catch (ArrayIndexOutOfBoundsException e4) {
             Toast.makeText(this, e4.getMessage(), Toast.LENGTH_SHORT).show();
