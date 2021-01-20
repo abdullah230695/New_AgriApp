@@ -743,7 +743,7 @@ try {
     private void getDirection(final LatLng origin,final LatLng destination) {
         Call<Result> call = apiClient.getDirection("driving",
                 origin.latitude + "," + origin.longitude, destination.latitude + ","
-                        + destination.longitude, getResources().getString(R.string.google_maps_key));
+                        + destination.longitude, getResources().getString(R.string.api_key));
 
         call.enqueue(new Callback<Result>() {
             @RequiresApi(api = Build.VERSION_CODES.M)
