@@ -192,11 +192,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     Marker dragMarker;
     ArrayList<GeoPoint> GeoPointList = new ArrayList<com.google.firebase.firestore.GeoPoint>();
     private MarkerOptions LiveMarkerOptions = new MarkerOptions();
-    private List<Double> ListDoubleLat = new ArrayList<>();
-    private List<Double> ListDoubleLng = new ArrayList<>();
-    private List<LatLng> LiveLatLngList = new ArrayList<>();
+
     Marker liveMarkers;
-    final Handler handler = new Handler();
+    //final Handler handler = new Handler();
     SharedPreferences prefs ;
     SharedPreferences.Editor spEditor ;
     double lastLat,lastLong;
@@ -212,6 +210,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         enableLoc();
         getDeviceLocation();
         savedAddressCounter();
+        getLiveLat();
         //Getting Customer Phone Number
         dr.addSnapshotListener(new EventListener<DocumentSnapshot>() {
 
@@ -333,7 +332,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        Runnable runnable = new Runnable() {
+        /*Runnable runnable = new Runnable() {
             @Override
             public void run() {
                 getLiveLat();
@@ -342,7 +341,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         };
 
         //Start
-        handler.postDelayed(runnable, 15000);
+        handler.postDelayed(runnable, 15000);*/
 
         imgSavedLocations.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -631,7 +630,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         getDeviceLocation();
                         getAddress();
                         Toast.makeText(mContext, "Please select Date,Time,Area", Toast.LENGTH_SHORT).show();
-                    } else if (autoCompleteTextView.equals(null)) {
+                    } else if (autoCompleteTextView.equals(null) || autoCompleteTextView.length()==0||autoCompleteTextView.equals("")) {
                         Toast.makeText(mContext, "Please check your delivery address above", Toast.LENGTH_SHORT).show();
                         getDeviceLocation();
                         getAddress();
@@ -1393,7 +1392,7 @@ private void addLiveLatMarkers(){
 
     @Override
     public void onBackPressed() {
-        handler.removeCallbacks(null);
+        //handler.removeCallbacks(null);
         if(rvAddress.getVisibility()==View.VISIBLE || bookContraint.getVisibility()==View.VISIBLE) {
             bookContraint.setVisibility(View.GONE);
             rvAddress.setVisibility(View.GONE);
@@ -1411,13 +1410,13 @@ private void addLiveLatMarkers(){
             builderExit.setPositiveButton("YES", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    handler.removeCallbacks(null);
+                    //handler.removeCallbacks(null);
                     finishAffinity();
                 }
             }).setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    handler.removeCallbacks(null);
+                    //handler.removeCallbacks(null);
                     dialog.cancel();
                 }
             }).setIcon(R.drawable.ic_baseline_commute_24).show();
