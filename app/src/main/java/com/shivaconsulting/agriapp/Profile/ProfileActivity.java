@@ -117,11 +117,29 @@ FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         logout_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                FirebaseAuth.getInstance().signOut();
-                Toast.makeText(getApplicationContext(),"Logout Successful",Toast.LENGTH_SHORT).show();
-                Intent intent=new Intent(getApplicationContext(),LoginActivity.class);
-                startActivity(intent);
-                finish();
+                AlertDialog.Builder builderExit = new AlertDialog.Builder(mContext);
+                builderExit.setTitle("Logout ?");
+                builderExit.setMessage("Do you want to logout ?");
+                builderExit.setCancelable(false);
+
+                builderExit.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //handler.removeCallbacks(null);
+                        FirebaseAuth.getInstance().signOut();
+                        Toast.makeText(getApplicationContext(),"Logout Success",Toast.LENGTH_SHORT).show();
+                        Intent intent=new Intent(getApplicationContext(),LoginActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }
+                }).setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //handler.removeCallbacks(null);
+                        dialog.cancel();
+                    }
+                }).setIcon(R.drawable.ic_baseline_commute_24).show();
+
             }
         });
         profileimage.setOnClickListener(new View.OnClickListener() {
@@ -234,6 +252,7 @@ FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
                 public void onComplete(@NonNull Task<Uri> task) {
 
                     if (task.isSuccessful()){
+                        try{
                         Uri downloadUri = task.getResult();
                         String muri = downloadUri.toString();
 
@@ -260,6 +279,7 @@ FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
                                         Log.d(String.valueOf(R.string.app_name), "DocumentSnapshot added with ID: " + UUID);
                                     }
                                 });
+                        }catch (Exception e){}
                     } else {
                         Toast.makeText(ProfileActivity.this, "Failed to upload", Toast.LENGTH_SHORT).show();
                         pd.dismiss();
@@ -279,6 +299,7 @@ FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+             try{
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == IMAGE_REQUEST && resultCode == RESULT_OK
@@ -292,6 +313,7 @@ FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
                 uploadImage();
             }
         }
+             }catch (Exception e){}
     }
 
 }

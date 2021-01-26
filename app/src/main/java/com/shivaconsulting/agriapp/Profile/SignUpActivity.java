@@ -199,6 +199,7 @@ public class SignUpActivity extends AppCompatActivity {
 
 
     private void setupFirebaseAuth() {
+        try{
         Log.d(TAG, "setupFirebaseAuth: setting up firebase auth.");
 
         mAuth = FirebaseAuth.getInstance();
@@ -219,6 +220,7 @@ public class SignUpActivity extends AppCompatActivity {
                 // ...
             }
         };
+        }catch (Exception e){}
     }
 
     public void onBackPressed() {
@@ -258,7 +260,7 @@ public class SignUpActivity extends AppCompatActivity {
     }   //Prompting user to enable data connection
     public void enableData() {
         final AlertDialog.Builder builderExit = new AlertDialog.Builder(mContext);
-
+try{
         if(!isOnline()==true){
             LayoutInflater factory = LayoutInflater.from(SignUpActivity.this);
             final View view = factory.inflate(R.layout.image_for_dialog, null);
@@ -276,5 +278,6 @@ public class SignUpActivity extends AppCompatActivity {
             builderExit.show();
 
         }
+}catch (Exception e){}
     }
 }

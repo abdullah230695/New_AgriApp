@@ -1,8 +1,6 @@
 package com.shivaconsulting.agriapp.Profile;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -55,17 +53,10 @@ public class VerifyPhoneLoginActivity extends AppCompatActivity {
 
         sendVerificationCode(phoneNumber);
 
-        // save phone number
-        SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF",
-                Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString("phoneNumber", phoneNumber);
-        editor.apply();
-
         buttonSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-try{
+        try{
                 String code = editText.getText().toString().trim();
 
                 if (code.isEmpty() || code.length() < 6) {
@@ -83,8 +74,10 @@ try{
     }
 
     private void verifyCode(String code) {
+        try{
         PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, code);
         signInWithCredential(credential);
+        }catch (Exception e){}
     }
 
     private void signInWithCredential(PhoneAuthCredential credential) {

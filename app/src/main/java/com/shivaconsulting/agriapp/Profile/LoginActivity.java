@@ -1,12 +1,10 @@
 package com.shivaconsulting.agriapp.Profile;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -56,7 +54,7 @@ public class LoginActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private EditText email_id_login,password_login;
     LinearLayout phoneLayout;
-    SharedPreferences sharedPreferences;
+
     TextInputEditText editTextCountryCode, editTextPhone;
     AppCompatButton buttonContinue;
     ProgressDialog progressDialog;
@@ -83,19 +81,13 @@ public class LoginActivity extends AppCompatActivity {
         mobileLogin=findViewById(R.id.signWithMobie);
         phoneLayout=findViewById(R.id.llMobile);
         db=FirebaseFirestore.getInstance();
-        sharedPreferences = getSharedPreferences("agri", Activity.MODE_PRIVATE);
-        String id = sharedPreferences.getString("user_id", "");
-        if (!"".equals(id)) {
-            if(email_id_login.getVisibility()==View.VISIBLE){
-            email_id_login.setText(id);
-            }
-        }
 
         setupFirebaseAuth();
         init();
         buttonContinue.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                try{
                  code = editTextCountryCode.getText().toString().trim();
                  number = editTextPhone.getText().toString().trim();
 
@@ -129,7 +121,7 @@ public class LoginActivity extends AppCompatActivity {
                         Toast.makeText(mContext, "No records found, create a account now", Toast.LENGTH_SHORT).show();
                     }
                 });
-
+                }catch (Exception e){}
             }
         });
         mobileLogin.setOnClickListener(new View.OnClickListener() {
@@ -223,7 +215,6 @@ public class LoginActivity extends AppCompatActivity {
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     try{
                                     if (task.isSuccessful()) {
-                                        sharedPreferences.edit().putString("user_id", email_id_login.getText().toString()).commit();
                                         // Sign in success, update UI with the signed-in user's information
                                         progressBar.setVisibility(View.INVISIBLE);
                                         Log.d(TAG, "signInWithEmail:success");
@@ -270,26 +261,30 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void setupFirebaseAuth(){
-        Log.d(TAG, "setupFirebaseAuth: setting up firebase auth.");
+        try {
+            Log.d(TAG, "setupFirebaseAuth: setting up firebase auth.");
 
-        mAuth = FirebaseAuth.getInstance();
+            mAuth = FirebaseAuth.getInstance();
 
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                try{
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    // User is signed in
-                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-                } else {
-                    // User is signed out
-                    Log.d(TAG, "onAuthStateChanged:signed_out");
+            mAuthListener = new FirebaseAuth.AuthStateListener() {
+                @Override
+                public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                    try {
+                        FirebaseUser user = firebaseAuth.getCurrentUser();
+                        if (user != null) {
+                            // User is signed in
+                            Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                        } else {
+                            // User is signed out
+                            Log.d(TAG, "onAuthStateChanged:signed_out");
+                        }
+                        // ...
+                    } catch (Exception e) {
+                        Log.d("error : ", e.getMessage());
+                    }
                 }
-                // ...
-                }catch (Exception e){Log.d("error : ",e.getMessage());}
-            }
-        };
+            };
+        }catch (Exception e){}
     }
 
     @Override

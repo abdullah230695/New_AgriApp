@@ -15,7 +15,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
@@ -26,16 +25,12 @@ import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.SystemClock;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.animation.BounceInterpolator;
-import android.view.animation.Interpolator;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -69,7 +64,6 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -104,7 +98,6 @@ import com.shivaconsulting.agriapp.Adapter.AddressAdapter;
 import com.shivaconsulting.agriapp.Adapter.AreaAdapter;
 import com.shivaconsulting.agriapp.Adapter.PlacesAutoCompleteAdapter;
 import com.shivaconsulting.agriapp.Adapter.TimeAdapterNew;
-import com.shivaconsulting.agriapp.RecyclerItemClick.RecyclerItemClickListener;
 import com.shivaconsulting.agriapp.History.BookingHistoryActivity;
 import com.shivaconsulting.agriapp.MainActivity;
 import com.shivaconsulting.agriapp.Models.AddressModel;
@@ -112,6 +105,7 @@ import com.shivaconsulting.agriapp.Models.TimeAmPm;
 import com.shivaconsulting.agriapp.Profile.LoginActivity;
 import com.shivaconsulting.agriapp.Profile.ProfileActivity;
 import com.shivaconsulting.agriapp.R;
+import com.shivaconsulting.agriapp.RecyclerItemClick.RecyclerItemClickListener;
 import com.vivekkaushik.datepicker.DatePickerTimeline;
 import com.vivekkaushik.datepicker.OnDateSelectedListener;
 
@@ -155,8 +149,36 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private List<Integer> areaList;
     private PlacesAutoCompleteAdapter mAutoCompleteAdapter;
     private AutocompleteSupportFragment autocompleteFragment;
-
+    private AreaAdapter.OnAreaItemSelectedListener areaItemSelectedListener;
+    private AddressAdapter AddressAdapter;
+    private ProgressBar progressBar;
+    ProgressDialog progressDialog;
+    ArrayList<GeoPoint> GeoPointList = new ArrayList<com.google.firebase.firestore.GeoPoint>();
+    MarkerOptions options = new MarkerOptions();
+    Marker optionsMarker;
+    private MarkerOptions LiveMarkerOptions = new MarkerOptions();
+    Marker liveMarkers;
+    SharedPreferences prefs ;
+    SharedPreferences.Editor spEditor ;
+    Marker dragMarker;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    String UUID = FirebaseAuth.getInstance().getUid();
+    DocumentReference dr = db.collection("Users").document(UUID);
+    final Map<String, Object> post1 = new HashMap<>();
+    final Map<String, Object> post2 = new HashMap<>();
     public static Date dateFormat;
+    String phone, custName;
+    public static String time;
+    public static String area;
+    String currentAddress, address, ServiceType, ServiceID, token, personName,LiveLatAddress;
+    static double lat, lon;
+    int count;
+    Random rnd = new Random(); //To generate random booking id
+    final Long ID = (long) rnd.nextInt(99999999); //To generate random booking id
+
+    //final Handler handler = new Handler();
+    double lastLat,lastLong;
+
     //Id's
     private ImageView home, booking_history, profile, imgAddLocation, imgSavedLocations, belt_Type, tot_Type, combine_Type,imgChatList;
     private Button booking_button;
@@ -167,37 +189,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public static RecyclerView time_picker_recyclerview, area_picker_recyclerview, map_search_recyler, rvAddress;
     private EditText autoCompleteTextView;
     public static DatePickerTimeline datePickerTimeline;
-    private AreaAdapter.OnAreaItemSelectedListener areaItemSelectedListener;
-    private AddressAdapter AddressAdapter;
-    private ProgressBar progressBar;
-    String phone, custName;
-    public static String time;
-    public static String area;
-    String currentAddress, address, ServiceType, ServiceID, token, personName,LiveLatAddress;
-    int SavedAddressID;
-    static double lat, lon;
-    Random rnd = new Random(); //To generate random booking id
-    final Long ID = (long) rnd.nextInt(99999999); //To generate random booking id
-    String UUID = FirebaseAuth.getInstance().getUid();
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
-    int count;
-    DocumentReference dr = db.collection("Users").document(UUID);
-    final Map<String, Object> post1 = new HashMap<>();
-    final Map<String, Object> post2 = new HashMap<>();
-    private static final String myTAG = "FCM check";
-    MarkerOptions options = new MarkerOptions();
-    Marker optionsMarker;
-    ProgressDialog progressDialog;
     ConstraintLayout constraintLayout;
-    Marker dragMarker;
-    ArrayList<GeoPoint> GeoPointList = new ArrayList<com.google.firebase.firestore.GeoPoint>();
-    private MarkerOptions LiveMarkerOptions = new MarkerOptions();
 
-    Marker liveMarkers;
-    //final Handler handler = new Handler();
-    SharedPreferences prefs ;
-    SharedPreferences.Editor spEditor ;
-    double lastLat,lastLong;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -630,7 +623,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         getDeviceLocation();
                         getAddress();
                         Toast.makeText(mContext, "Please select Date,Time,Area", Toast.LENGTH_SHORT).show();
-                    } else if (autoCompleteTextView.equals(null) || autoCompleteTextView.length()==0||autoCompleteTextView.equals("")) {
+                    } else if (autoCompleteTextView.equals(null) ||
+                            autoCompleteTextView.length()==0||autoCompleteTextView.equals("")) {
                         Toast.makeText(mContext, "Please check your delivery address above", Toast.LENGTH_SHORT).show();
                         getDeviceLocation();
                         getAddress();
@@ -796,14 +790,18 @@ imgChatList.setOnClickListener(new View.OnClickListener() {
     }
 
     private void getSharedPrefs() {
-       lastLat= Double.parseDouble(prefs.getString("lat", "0.0"));
-        lastLong= Double.parseDouble(prefs.getString("lon", "0.0"));
+        try {
+            lastLat = Double.parseDouble(prefs.getString("lat", "0.0"));
+            lastLong = Double.parseDouble(prefs.getString("lon", "0.0"));
 
-        LatLng latLng = new LatLng(lastLat, lastLong);
-        Marker lastMarker = mMap.addMarker(new MarkerOptions().position(latLng).title("Last Booking Address"));
-        lastMarker.setPosition(latLng);
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 19));
-        Log.d("lastLocations ", String.valueOf(lastLat+"\n"+lastLong));
+            LatLng latLng = new LatLng(lastLat, lastLong);
+            Marker lastMarker = mMap.addMarker(new MarkerOptions().position(latLng).title("Last Booking Address"));
+            lastMarker.setPosition(latLng);
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 19));
+            Log.d("lastLocations ", String.valueOf(lastLat + "\n" + lastLong));
+        }catch(Exception e){
+            Log.d("sp",e.getMessage());
+        }
     }
 
     private void getLiveLat() {
@@ -812,10 +810,12 @@ imgChatList.setOnClickListener(new View.OnClickListener() {
                 cr.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        try{
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             GeoPointList.add(document.getGeoPoint("geoPoint"));
                             addLiveLatMarkers();
                         }
+                        }catch(Exception e){}
                     }
                 });
 
@@ -824,74 +824,41 @@ imgChatList.setOnClickListener(new View.OnClickListener() {
     }
 
 private void addLiveLatMarkers(){
-        for(int i=0;i<GeoPointList.size();i++) {
+        try {
+            for (int i = 0; i < GeoPointList.size(); i++) {
 
-            Double lat1=GeoPointList.get(i).getLatitude();
-            Double lat2=GeoPointList.get(i).getLongitude();
+                Double lat1 = GeoPointList.get(i).getLatitude();
+                Double lat2 = GeoPointList.get(i).getLongitude();
 
            /* ListDoubleLat.add(GeoPointList.get(i).getLatitude());
             ListDoubleLng.add(GeoPointList.get(i).getLongitude());*/
-            Log.d("GeoPointList1","Available Live Locations :"+lat1+"/n"+lat2);
+                Log.d("GeoPointList1", "Available Live Locations :" + lat1 + "/n" + lat2);
 
-            Geocoder geocoder = new Geocoder(mContext, Locale.getDefault());
-            try {
-                List<Address> addresses = geocoder.getFromLocation(GeoPointList.get(i).getLatitude(),
-                        GeoPointList.get(i).getLongitude(), 1);
-                address = addresses.get(0).getAddressLine(0);
-                LiveLatAddress=address;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            LatLng ltlist = new LatLng(lat1, lat2);
-           // LiveLatLngList.add(new LatLng(ListDoubleLat.get(i), ListDoubleLng.get(i))); //some latitude and logitude value
+                Geocoder geocoder = new Geocoder(mContext, Locale.getDefault());
+                try {
+                    List<Address> addresses = geocoder.getFromLocation(GeoPointList.get(i).getLatitude(),
+                            GeoPointList.get(i).getLongitude(), 1);
+                    address = addresses.get(0).getAddressLine(0);
+                    LiveLatAddress = address;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                LatLng ltlist = new LatLng(lat1, lat2);
+                // LiveLatLngList.add(new LatLng(ListDoubleLat.get(i), ListDoubleLng.get(i))); //some latitude and logitude value
 
-            //for (LatLng point : ltlist) {
+                //for (LatLng point : ltlist) {
                 LiveMarkerOptions.position(ltlist);
                 LiveMarkerOptions.title(LiveLatAddress);
                 LiveMarkerOptions.snippet("Live Location");
-                LiveMarkerOptions.icon(bitmapDescriptorFromVector(mContext,(R.drawable.ic_baseline_agriculture_24)));
+                LiveMarkerOptions.icon(bitmapDescriptorFromVector(mContext, (R.drawable.ic_baseline_agriculture_24)));
 
                 liveMarkers = mMap.addMarker(LiveMarkerOptions);
-            //animateMarker(LiveMarkerOptions);
-                //mMap.addMarker(LiveMarkerOptions);
 
-           /* final LatLng target = ltlist;
-
-            final long duration = 40000;
-            final Handler handler = new Handler();
-            final long start = SystemClock.uptimeMillis();
-            Projection proj = mMap.getProjection();
-
-            Point startPoint = proj.toScreenLocation(LiveMarkerOptions.getPosition());
-            final LatLng startLatLng = proj.fromScreenLocation(startPoint);
-
-            final Interpolator interpolator = new LinearInterpolator();
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    long elapsed = SystemClock.uptimeMillis() - start;
-                    if (elapsed > duration) {
-                        elapsed = duration;
-                    }
-                    float t = interpolator.getInterpolation((float) elapsed / duration);
-                    double lng = t * target.longitude + (1 - t) * startLatLng.longitude;
-                    double lat = t * target.latitude + (1 - t) * startLatLng.latitude;
-                    LiveMarkerOptions.position(new LatLng(lat, lng));
-                    if (t < 1.0) {
-                        // Post again 10ms later.
-                        handler.postDelayed(this, 10);
-                    } else {
-                        // animation ended
-                    }
-                }
-            });
-*/
-
-            //}
-        }
+            }
+        }catch(Exception e){}
 }
 
-    private void animateMarker(final MarkerOptions LiveMarkerOptions) {
+ /*   private void animateMarker(final MarkerOptions LiveMarkerOptions) {
         final Handler handler = new Handler();
 
         final long startTime = SystemClock.uptimeMillis();
@@ -920,16 +887,19 @@ private void addLiveLatMarkers(){
                 }
             }
         });
-    }
+    }*/
 
 
     private BitmapDescriptor bitmapDescriptorFromVector(Context context, int vectorResId) {
-        Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorResId);
-        vectorDrawable.setBounds(0, 0, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
-        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        vectorDrawable.draw(canvas);
-        return BitmapDescriptorFactory.fromBitmap(bitmap);
+
+            Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorResId);
+            vectorDrawable.setBounds(0, 0, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
+            Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bitmap);
+            vectorDrawable.draw(canvas);
+
+            return BitmapDescriptorFactory.fromBitmap(bitmap);
+
     }
 
 
@@ -1057,40 +1027,6 @@ private void addLiveLatMarkers(){
                     }
                 });
 
-          /*  mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
-                @Override
-                public void onMarkerDragStart(Marker arg0) {
-                }
-
-                @SuppressWarnings("unchecked")
-                @Override
-                public void onMarkerDragEnd(Marker arg0) {
-                    Log.d("System out", "onMarkerDragEnd...");
-                    mMap.animateCamera(CameraUpdateFactory.newLatLng(arg0.getPosition()));
-                    markerLat=arg0.getPosition().latitude;
-                    markerLng=arg0.getPosition().longitude;
-                    Toast.makeText(MapsActivity.this, (int) arg0.getPosition().latitude, Toast.LENGTH_SHORT).show();
-                    Geocoder geocoder = new Geocoder(mContext, Locale.getDefault());
-                    try {
-
-                        List<Address> addresses = geocoder.getFromLocation
-                                (markerLat,markerLng, 1);
-                        currentAddress =addresses.get(0).getAddressLine(0);
-                        Toast.makeText(MapsActivity.this, (int) markerLat, Toast.LENGTH_SHORT).show();
-                        if(autoCompleteTextView.length()==0 ) {
-                            autoCompleteTextView.setText(currentAddress);
-                            autocompleteFragment.setText(currentAddress);
-                        }
-                        autocompleteFragment.setText(currentAddress);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                @Override
-                public void onMarkerDrag(Marker arg0) {
-                }
-            });*/
             }
         } catch (Exception e) {
 
@@ -1121,9 +1057,11 @@ private void addLiveLatMarkers(){
 
 
     private void initMap() {
+        try{
         Log.d(TAG, "initMap: initializing map");
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(MapsActivity.this);
+        }catch (Exception e){}
     }
 
     private void enableLoc() {
@@ -1343,6 +1281,7 @@ private void addLiveLatMarkers(){
             mAuthListener = new FirebaseAuth.AuthStateListener() {
                 @Override
                 public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                    try{
                     FirebaseUser user = firebaseAuth.getCurrentUser();
 
                     //check if the user is logged in
@@ -1356,6 +1295,7 @@ private void addLiveLatMarkers(){
                         Log.d(TAG, "onAuthStateChanged:signed_out");
                     }
                     // ...
+                    } catch (Exception e) {}
                 }
             };
         } catch (Exception e) {
@@ -1638,7 +1578,6 @@ private void addLiveLatMarkers(){
 
     //Prompting user to enable data connection
     public boolean isOnline() {
-
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         android.net.NetworkInfo datac = cm
                 .getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
@@ -1658,23 +1597,24 @@ private void addLiveLatMarkers(){
     public void enableData() {
         final AlertDialog.Builder builderExit = new AlertDialog.Builder(mContext);
 
-        if (!isOnline() == true) {
-            LayoutInflater factory = LayoutInflater.from(MapsActivity.this);
-            final View view = factory.inflate(R.layout.image_for_dialog, null);
-            builderExit.setTitle("No Data Connection Available");
-            builderExit.setMessage("Please Enable Internet or Wifi Connection To Continue.");
-            builderExit.setCancelable(false);
-            builderExit.setView(view);
-            builderExit.setIcon(R.drawable.no_wifi_foreground);
-            builderExit.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    finishAffinity();
-                }
-            });
-            builderExit.show();
-        }
-
+        try {
+            if (!isOnline() == true) {
+                LayoutInflater factory = LayoutInflater.from(MapsActivity.this);
+                final View view = factory.inflate(R.layout.image_for_dialog, null);
+                builderExit.setTitle("No Data Connection Available");
+                builderExit.setMessage("Please Enable Internet or Wifi Connection To Continue.");
+                builderExit.setCancelable(false);
+                builderExit.setView(view);
+                builderExit.setIcon(R.drawable.no_wifi_foreground);
+                builderExit.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finishAffinity();
+                    }
+                });
+                builderExit.show();
+            }
+        }catch (Exception e){}
     }
 
     private void GetToken() {
@@ -1683,6 +1623,7 @@ private void addLiveLatMarkers(){
                     .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
                         @Override
                         public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                            try{
                             if (!task.isSuccessful()) {
                                 Log.w(TAG, "getInstanceId failed", task.getException());
                                 return;
@@ -1693,6 +1634,7 @@ private void addLiveLatMarkers(){
 
                             // Log and toast
                             Log.d(TAG, token);
+                            } catch (Exception e) {}
                         }
                     });
         } catch (Exception e) {
@@ -1744,13 +1686,15 @@ private void addLiveLatMarkers(){
         return super.onOptionsItemSelected(item);
     }*/
     private void savedAddressCounter() {
-        db.collection("Bookings").document(UUID).collection("Saved Locations").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                count = task.getResult().size();
+        try {
+            db.collection("Bookings").document(UUID).collection("Saved Locations").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    count = task.getResult().size();
 
-            }
-        });
+                }
+            });
+        }catch (Exception e){}
     }
 }
 

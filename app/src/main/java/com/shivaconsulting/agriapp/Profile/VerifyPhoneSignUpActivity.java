@@ -1,8 +1,6 @@
 package com.shivaconsulting.agriapp.Profile;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -62,13 +60,6 @@ public class VerifyPhoneSignUpActivity extends AppCompatActivity {
 
         sendVerificationCode(phoneNumber);
 
-        // save phone number
-        SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF",
-                Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString("phoneNumber", phoneNumber);
-        editor.apply();
-
         buttonSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -89,8 +80,10 @@ try{
     }
 
     private void verifyCode(String code) {
+        try{
         PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, code);
         signInWithCredential(credential);
+        }catch (Exception e){}
     }
 
     private void signInWithCredential(PhoneAuthCredential credential) {
@@ -145,7 +138,8 @@ try{
                             startActivity(intent);
 
                         } else {
-                            Toast.makeText(VerifyPhoneSignUpActivity.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(VerifyPhoneSignUpActivity.this,
+                                    task.getException().getMessage(), Toast.LENGTH_LONG).show();
                             progressBar.setVisibility(View.GONE);
                         }
                     }
@@ -154,6 +148,7 @@ try{
     }
 
     private void sendVerificationCode(String number) {
+        try{
         progressBar.setVisibility(View.VISIBLE);
         PhoneAuthProvider.getInstance().verifyPhoneNumber(
                 number,
@@ -164,6 +159,7 @@ try{
         );
 
         progressBar.setVisibility(View.GONE);
+        }catch (Exception e){}
     }
 
     private PhoneAuthProvider.OnVerificationStateChangedCallbacks
