@@ -16,8 +16,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -171,18 +169,19 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
         Glide.with(img.getContext()).load(image).into(img);*/
             mapFragment = (SupportMapFragment) getSupportFragmentManager()
                     .findFragmentById(R.id.mapView);
+
             mapFragment.getMapAsync(this);
 
 
             if (status.equals("Confirmed") || status.equals("Arriving") ||status.equals("Reached")||
                     status.equals("Started") || status.equals("Completed")|| status.equals("Cancellation Request")) {
                 tvDriverName.setText(DriverName);
-                Animation anim = new AlphaAnimation(0.0f, 1.0f);
+               /* Animation anim = new AlphaAnimation(0.0f, 1.0f);
                 anim.setDuration(500); //You can manage the blinking time with this parameter
                 anim.setStartOffset(20);
                 anim.setRepeatMode(Animation.REVERSE);
                 anim.setRepeatCount(Animation.INFINITE);
-                tvDriverName.startAnimation(anim);
+                tvDriverName.startAnimation(anim);*/
             }
         } catch (Exception e) {
 
@@ -280,6 +279,9 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
             tvCurrentStatus.setTextSize(20);
             tvCurrentStatus.setTextColor(Color.RED);
             binding.spb.setVisibility(View.GONE);
+        }else if(status.equals("Started")){
+            btnReschedule.setVisibility(View.INVISIBLE);
+            btnCancel.setVisibility(View.INVISIBLE);
         }
 
         //Getting DriverLiveLocation
@@ -439,6 +441,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                             Map<String, Object> statusUpdate = new HashMap<>();
                             if (status.equals("Pending")) {
                                 statusUpdate.put("status", "Cancelled");
+                                statusUpdate.put("cancelledBy", "Farmer");
                                 Toast.makeText(ParticularBookingHistory.this, "Cancellation Successful", Toast.LENGTH_SHORT).show();
 
                             } else if (status.equals("Confirmed")) {
@@ -782,7 +785,11 @@ try {
                 homeLoc = new MarkerOptions().position(new LatLng(CustomerLatitude, CustomerLongitude)).title("Your's :"+CustAddress);
                 mMap.addMarker(homeLoc);
                 //LatLngBounds bounds = builder.build();
-                mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build() ,120));
+                final int width = getResources().getDisplayMetrics().widthPixels;
+                final int height = getResources().getDisplayMetrics().heightPixels;
+                final int minMetric = Math.min(width, height);
+                final int padding = (int) (minMetric /10);
+                mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build() ,width,height,padding));
             }
 
             @Override

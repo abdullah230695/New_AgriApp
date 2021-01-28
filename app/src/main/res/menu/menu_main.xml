@@ -1,10 +1,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:visibility="gone"
     tools:context="gujc.directtalk9.MainActivity">
     <item
         android:id="@+id/action_logout"
         android:orderInCategory="100"
         android:title="LogOut"
+        android:visibility="gone"
         app:showAsAction="never" />
 </menu>

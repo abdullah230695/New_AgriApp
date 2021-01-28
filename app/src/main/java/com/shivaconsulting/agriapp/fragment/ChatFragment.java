@@ -599,13 +599,15 @@ try{
         }
 
         public void stopListening() {
-            if (listenerRegistration != null) {
-                listenerRegistration.remove();
-                listenerRegistration = null;
-            }
+            try {
+                if (listenerRegistration != null) {
+                    listenerRegistration.remove();
+                    listenerRegistration = null;
+                }
 
-            messageList.clear();
-            notifyDataSetChanged();
+                messageList.clear();
+                notifyDataSetChanged();
+            }catch(Exception e){}
         }
 
         @Override
@@ -737,7 +739,11 @@ try{
 
         @Override
         public int getItemCount() {
-            return messageList.size();
+            if (messageList == null) {
+                return 0;
+            }else{
+                return messageList.size();
+            }
         }
 
 

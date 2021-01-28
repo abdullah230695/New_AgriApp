@@ -127,11 +127,11 @@ public class LoginActivity extends AppCompatActivity {
         mobileLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mobileLogin.setVisibility(View.GONE);
+                mobileLogin.setVisibility(View.INVISIBLE);
                 gmailLogin.setVisibility(View.VISIBLE);
-                email_id_login.setVisibility(View.GONE);
-                password_login.setVisibility(View.GONE);
-                login_button.setVisibility(View.GONE);
+                email_id_login.setVisibility(View.INVISIBLE);
+                password_login.setVisibility(View.INVISIBLE);
+                login_button.setVisibility(View.INVISIBLE);
                 phoneLayout.setVisibility(View.VISIBLE);
             }
         });
@@ -139,11 +139,11 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mobileLogin.setVisibility(View.VISIBLE);
-                gmailLogin.setVisibility(View.GONE);
+                gmailLogin.setVisibility(View.INVISIBLE);
                 email_id_login.setVisibility(View.VISIBLE);
                 password_login.setVisibility(View.VISIBLE);
                 login_button.setVisibility(View.VISIBLE);
-                phoneLayout.setVisibility(View.GONE);
+                phoneLayout.setVisibility(View.INVISIBLE);
             }
         });
         google_signup.setOnClickListener(new View.OnClickListener() {
@@ -171,7 +171,7 @@ public class LoginActivity extends AppCompatActivity {
         builderExit.setPositiveButton("YES", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                finish();
+                finishAffinity();
             }
         }).setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
             @Override

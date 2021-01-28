@@ -7,39 +7,6 @@
     android:orientation="vertical"
     tools:context=".ParticularBookingHistory">
 
-    <TextView
-        android:id="@+id/btnCancel"
-        style="@android:style/Widget.Material.Light.TextView.SpinnerItem"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="100dp"
-        android:layout_marginTop="2dp"
-        android:layout_marginEnd="88dp"
-        android:layout_marginBottom="36dp"
-        android:text="Cancel Booking"
-        android:textColor="#E60101"
-        android:textStyle="bold|italic"
-        app:layout_constraintBottom_toTopOf="@+id/spb"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/btnReschedule1"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout4" />
-
-    <TextView
-        android:id="@+id/btnReschedule1"
-        style="@android:style/Widget.Material.Light.TextView.SpinnerItem"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="17dp"
-        android:text="Reschedule"
-        android:textColor="#0902B1"
-        android:textStyle="bold|italic"
-        app:layout_constraintBottom_toTopOf="@+id/tvStatus"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.051"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout4" />
-
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="0dp"
@@ -53,7 +20,17 @@
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
+    <TextView
+        android:id="@+id/textView9"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Order Page"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteY="16dp" />
     <ImageView
         android:id="@+id/imgback1"
         android:layout_width="wrap_content"
@@ -63,272 +40,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_baseline_arrow_back_ios_24" />
-
-    <LinearLayout
-        android:id="@+id/linearLayout4"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@drawable/shape"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <androidx.cardview.widget.CardView
-                        android:id="@+id/cardView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginStart="6dp"
-                        android:layout_marginTop="5dp"
-                        android:background="@drawable/shape"
-                        app:cardCornerRadius="5dp">
-
-                        <de.hdodenhof.circleimageview.CircleImageView
-                            android:id="@+id/circleImage2"
-                            android:layout_width="56dp"
-                            android:layout_height="55dp"
-                            android:layout_gravity="center"
-                            android:src="@drawable/tractor" />
-                    </androidx.cardview.widget.CardView>
-
-                    <TextView
-                        android:id="@+id/svType"
-                        style="@android:style/Widget.Material.TextView.SpinnerItem"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center|center_horizontal"
-                        android:foregroundGravity="center_vertical|center|center_horizontal"
-                        android:gravity="center|center_horizontal|center_vertical"
-                        android:text="Service Type"
-                        android:textSize="10sp"
-                        android:textStyle="bold" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="2dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/svProvder"
-                        style="@android:style/Widget.Material.TextView.SpinnerItem"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Service Provider"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/BKid"
-                        style="@android:style/Widget.Material.TextView.SpinnerItem"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Booking ID"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/DVdate"
-                        style="@android:style/Widget.Material.TextView.SpinnerItem"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/date_time"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/DVtime"
-                        style="@android:style/Widget.Material.TextView.SpinnerItem"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/time"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-                    <TextView
-                        android:id="@+id/chatAdmin"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Chat With Admin"
-                        style="@android:style/Widget.Material.TextView.SpinnerItem"
-                        android:textSize="14sp"
-                        android:layout_marginTop="10dp"
-                        android:textColor="@color/white"
-                        android:background="@drawable/date_time_rounded"
-                        android:onClick="AdminChat"
-                        android:layout_gravity="bottom"
-                        android:textStyle="bold"/>
-                </LinearLayout>
-
-            </LinearLayout>
-
-
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="2dp"
-            android:orientation="vertical"
-            android:padding="2dp">
-
-            <TextView
-                android:id="@+id/textView2"
-                style="@android:style/Widget.Material.TextView.SpinnerItem"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="Driver Details"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tvDriverName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:background="@drawable/date_time_rounded"
-                android:gravity="center"
-                android:text="Not Allocated"
-                android:textColor="#FFFFFF"
-                android:textStyle="bold" />
-
-            <LinearLayout
-                android:id="@+id/LLDriverDetails"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="2dp"
-                android:background="@drawable/date_time_rounded"
-                android:orientation="horizontal"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/linearLayout">
-
-                <ImageView
-                    android:id="@+id/imgDrivCall"
-                    android:layout_width="72dp"
-                    android:layout_height="62dp"
-                    android:layout_weight="1"
-                    android:onClick="DriverCall"
-                    android:padding="5dp"
-                    app:srcCompat="@drawable/cust_call_foreground" />
-
-                <ImageView
-                    android:id="@+id/imgDrivChat"
-                    android:layout_width="72dp"
-                    android:layout_height="62dp"
-                    android:layout_weight="1"
-                    android:onClick="DriverChat"
-                    android:padding="5dp"
-                    app:srcCompat="@drawable/cust_chat_foreground" />
-            </LinearLayout>
-
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/textView9"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Order Page"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/toolbar" />
-
-    <com.anton46.stepsview.StepsView
-        android:id="@+id/spb"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="TextView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvStatus" />
-
-    <TextView
-        android:id="@+id/tvStatus"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_marginTop="8dp"
-        android:shadowColor="#EC0E0E"
-        android:text="Current Status"
-        android:textColor="#0902B1"
-        android:textSize="16sp"
-        android:textStyle="bold|italic"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnReschedule1" />
-
-    <fragment
-        android:id="@+id/mapView"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_margin="10dp"
-        android:layout_marginBottom="28dp"
-        android:padding="5dp"
-        app:layout_constraintBottom_toTopOf="@+id/ok"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/spb" />
-
-    <TextView
-        android:id="@+id/tvKmDist"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="3dp"
-        android:layout_marginTop="12dp"
-        android:background="@drawable/date_time_rounded"
-        android:gravity="center|center_horizontal"
-        android:padding="5dp"
-        android:text="0.0 km Away"
-        android:textColor="#FFFF73"
-        android:textSize="12sp"
-        android:textStyle="bold|italic"
-        app:layout_constraintStart_toStartOf="@+id/mapView"
-        app:layout_constraintTop_toTopOf="@+id/mapView" />
-
-    <TextView
-        android:id="@+id/tvArriveTime"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="4dp"
-        android:background="@drawable/date_time_rounded"
-        android:gravity="center|center_horizontal"
-        android:padding="5dp"
-        android:text="0 Min Away"
-        android:textColor="#FFFF73"
-        android:textSize="12sp"
-        android:textStyle="bold|italic"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/mapView" />
-
     <Button
         android:id="@+id/ok"
         android:layout_width="wrap_content"
@@ -343,6 +54,312 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/ok"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+       app:layout_constraintTop_toBottomOf="@id/toolbar">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/btnCancel"
+                    style="@android:style/Widget.Material.Light.TextView.SpinnerItem"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="100dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="88dp"
+                    android:text="Cancel Booking"
+                    android:textColor="#E60101"
+                    android:textStyle="bold|italic"
+                    app:layout_constraintBottom_toTopOf="@id/tvStatus"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/btnReschedule1"
+                    app:layout_constraintTop_toBottomOf="@+id/linearLayout4" />
+
+                <TextView
+                    android:id="@+id/btnReschedule1"
+                    style="@android:style/Widget.Material.Light.TextView.SpinnerItem"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="16dp"
+                    android:text="Reschedule"
+                    android:textColor="#0902B1"
+                    android:textStyle="bold|italic"
+                    app:layout_constraintBottom_toTopOf="@id/tvStatus"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.051"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/linearLayout4" />
+
+
+                <LinearLayout
+                    android:id="@+id/linearLayout4"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/shape"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical">
+
+                                <androidx.cardview.widget.CardView
+                                    android:id="@+id/cardView"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:layout_marginStart="6dp"
+                                    android:layout_marginTop="5dp"
+                                    android:background="@drawable/shape"
+                                    app:cardCornerRadius="5dp">
+
+                                    <de.hdodenhof.circleimageview.CircleImageView
+                                        android:id="@+id/circleImage2"
+                                        android:layout_width="56dp"
+                                        android:layout_height="55dp"
+                                        android:layout_gravity="center"
+                                        android:src="@drawable/tractor" />
+                                </androidx.cardview.widget.CardView>
+
+                                <TextView
+                                    android:id="@+id/svType"
+                                    style="@android:style/Widget.Material.TextView.SpinnerItem"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center|center_horizontal"
+                                    android:foregroundGravity="center_vertical|center|center_horizontal"
+                                    android:gravity="center|center_horizontal|center_vertical"
+                                    android:text="Service Type"
+                                    android:textSize="10sp"
+                                    android:textStyle="bold" />
+
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_marginStart="2dp"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/svProvder"
+                                    style="@android:style/Widget.Material.TextView.SpinnerItem"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="Service Provider"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/BKid"
+                                    style="@android:style/Widget.Material.TextView.SpinnerItem"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="Booking ID"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/DVdate"
+                                    style="@android:style/Widget.Material.TextView.SpinnerItem"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/date_time"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/DVtime"
+                                    style="@android:style/Widget.Material.TextView.SpinnerItem"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/time"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/chatAdmin"
+                                    style="@android:style/Widget.Material.TextView.SpinnerItem"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="bottom"
+                                    android:layout_marginTop="10dp"
+                                    android:background="@drawable/date_time_rounded"
+                                    android:onClick="AdminChat"
+                                    android:text="Chat With Admin"
+                                    android:textColor="@color/white"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="2dp"
+                        android:orientation="vertical"
+                        android:padding="2dp">
+
+                        <TextView
+                            android:id="@+id/textView2"
+                            style="@android:style/Widget.Material.TextView.SpinnerItem"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="Driver Details"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvDriverName"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="5dp"
+                            android:background="@drawable/date_time_rounded"
+                            android:gravity="center"
+                            android:text="Not Allocated"
+                            android:textColor="#FFFFFF"
+                            android:textStyle="bold" />
+
+                        <LinearLayout
+                            android:id="@+id/LLDriverDetails"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginTop="2dp"
+                            android:background="@drawable/date_time_rounded"
+                            android:orientation="horizontal"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintHorizontal_bias="0.0"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/linearLayout">
+
+                            <ImageView
+                                android:id="@+id/imgDrivCall"
+                                android:layout_width="72dp"
+                                android:layout_height="62dp"
+                                android:layout_weight="1"
+                                android:onClick="DriverCall"
+                                android:padding="5dp"
+                                app:srcCompat="@drawable/cust_call_foreground" />
+
+                            <ImageView
+                                android:id="@+id/imgDrivChat"
+                                android:layout_width="72dp"
+                                android:layout_height="62dp"
+                                android:layout_weight="1"
+                                android:onClick="DriverChat"
+                                android:padding="5dp"
+                                app:srcCompat="@drawable/cust_chat_foreground" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+
+                <com.anton46.stepsview.StepsView
+                    android:id="@+id/spb"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="11dp"
+                    android:text="TextView"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tvStatus" />
+
+                <TextView
+                    android:id="@+id/tvStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="8dp"
+                    android:shadowColor="#EC0E0E"
+                    android:text="Current Status"
+                    android:textColor="#0902B1"
+                    android:textSize="16sp"
+                    android:textStyle="bold|italic"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.498"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/btnReschedule1" />
+
+                <fragment
+                    android:id="@+id/mapView"
+                    android:name="com.google.android.gms.maps.SupportMapFragment"
+                    android:layout_width="0dp"
+                    android:layout_height="250dp"
+                    android:layout_margin="10dp"
+                    android:padding="5dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/spb" />
+
+                <TextView
+                    android:id="@+id/tvKmDist"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="3dp"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/date_time_rounded"
+                    android:gravity="center|center_horizontal"
+                    android:padding="5dp"
+                    android:text="0.0 km Away"
+                    android:textColor="#FFFF73"
+                    android:textSize="12sp"
+                    android:textStyle="bold|italic"
+                    app:layout_constraintStart_toStartOf="@+id/mapView"
+                    app:layout_constraintTop_toTopOf="@+id/mapView" />
+
+                <TextView
+                    android:id="@+id/tvArriveTime"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginEnd="4dp"
+                    android:background="@drawable/date_time_rounded"
+                    android:gravity="center|center_horizontal"
+                    android:padding="5dp"
+                    android:text="0 Min Away"
+                    android:textColor="#FFFF73"
+                    android:textSize="12sp"
+                    android:textStyle="bold|italic"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/mapView" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
+    </ScrollView>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
