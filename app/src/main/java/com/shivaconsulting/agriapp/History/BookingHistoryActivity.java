@@ -68,12 +68,12 @@ public class  BookingHistoryActivity extends AppCompatActivity implements View.O
                 RVbooking_history, new RecyclerItemClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                /*CircleImageView img=findViewById(R.id.circleImage1);
-                Glide.with(img.getContext()).load(adapter.getItem(position).getPicUrl()).into(img);*/
-try {
+                try {
                 Intent intent = new Intent(getApplicationContext(), ParticularBookingHistory.class);
                 intent.putExtra("id",adapter.getItem(position).getBooking_Id());
                 intent.putExtra("custName",adapter.getItem(position).getCustomer_Name());
+                intent.putExtra("area",adapter.getItem(position).getArea());
+                intent.putExtra("bookingDateTime",adapter.getItem(position).getBooking_Date().toDate().toString());
                 intent.putExtra("svType",adapter.getItem(position).getService_Type());
                 intent.putExtra("DvDate",adapter.getItem(position).getDelivery_Date().toDate().toString());
                 intent.putExtra("DvTime",adapter.getItem(position).getDelivery_Time());
@@ -88,9 +88,19 @@ try {
                 intent.putExtra("DriverID",adapter.getItem(position).getDriverId());
                 intent.putExtra("custAddress",adapter.getItem(position).getAddress());
 
+                String driverStartDateTime= String.valueOf(adapter.getItem(position).getDriverFromTime());
+                String driverReachedTime= String.valueOf(adapter.getItem(position).getDriverReachedTime());
+                String serviceStartTime= String.valueOf(adapter.getItem(position).getServiceStartTime());
+                String serviceStopDateTime= String.valueOf(adapter.getItem(position).getServiceStopTime());
+
+                if(driverStartDateTime!="null") { intent.putExtra("driverStartDateTime",adapter.getItem(position).getDriverFromTime().toDate().toString()); }
+                if(driverReachedTime!="null"){ intent.putExtra("driverReachedDateTime", adapter.getItem(position).getDriverReachedTime().toDate().toString()); }
+                if(serviceStartTime!="null"){ intent.putExtra("serviceStartDateTime", adapter.getItem(position).getServiceStartTime().toDate().toString()); }
+                if(serviceStopDateTime!="null"){ intent.putExtra("serviceStopDateTime",adapter.getItem(position).getServiceStopTime().toDate().toString()); }
+
+
                 startActivity(intent);
-}catch (Exception e){
-}
+}catch (Exception e){ }
             }
             @Override
             public void onLongItemClick(View view, int position) {

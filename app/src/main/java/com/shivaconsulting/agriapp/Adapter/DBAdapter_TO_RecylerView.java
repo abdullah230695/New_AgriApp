@@ -9,7 +9,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.shivaconsulting.agriapp.Models.DB_TO_RECYCLERVIEW;
@@ -42,7 +41,7 @@ public static String driverID;
         //holder.Contact_Number.setText("Contact No :"+model.getContact_Number());
         //holder.Location.setText("Location :"+model.getLocation());
         //holder.DeliveryTime.setText("Delivery Time :"+model.getDelivery_Time());
-       Glide.with(holder.img.getContext()).load(model.getPicUrl()).into(holder.img);
+       //Glide.with(holder.img.getContext()).load(model.getPicUrl()).into(holder.img);
     }
 
 

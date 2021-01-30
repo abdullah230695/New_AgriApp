@@ -56,7 +56,7 @@ public class LoginActivity1 extends AppCompatActivity {
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()) {
                         sharedPreferences.edit().putString("user_id", user_id.getText().toString()).commit();
-                        Intent  intent = new Intent(LoginActivity1.this, MainActivity.class);
+                        Intent  intent = new Intent(LoginActivity1.this, ChatMainActivity.class);
                         startActivity(intent);
                         finish();
                     } else {
@@ -91,7 +91,7 @@ public class LoginActivity1 extends AppCompatActivity {
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
-                                        Intent  intent = new Intent(LoginActivity1.this, MainActivity.class);
+                                        Intent  intent = new Intent(LoginActivity1.this, ChatMainActivity.class);
                                         startActivity(intent);
                                         finish();
                                         Log.d(String.valueOf(R.string.app_name), "DocumentSnapshot added with ID: " + uid);

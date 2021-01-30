@@ -1,9 +1,7 @@
 package com.shivaconsulting.agriapp.chat;
 
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.MenuItem;
-import android.view.View;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -40,7 +38,7 @@ public class ChatActivity extends AppCompatActivity {
             }
 
             // left drawer
-            drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+      /*      drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
             findViewById(R.id.rightMenuBtn).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -59,7 +57,7 @@ public class ChatActivity extends AppCompatActivity {
                     }
                     }catch (Exception e){}
                 }
-            });
+            });*/
             try{
             // chatting area
             chatFragment = ChatFragment.getInstance(toUid, roomID);

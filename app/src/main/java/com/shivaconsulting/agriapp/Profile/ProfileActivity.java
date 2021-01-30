@@ -94,12 +94,14 @@ FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     dr.addSnapshotListener(new EventListener<DocumentSnapshot>() {
         @Override
         public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+
             try{
             if (error != null) {
                 Toast.makeText(getApplicationContext(), "Unable to retrive " + error.getMessage(), Toast.LENGTH_SHORT).show();
                 return;
             }
             if (value != null && value.exists()) {
+
                 name_textview.setText(value.getData().get("user_name").toString());
                 phone_number.setText(value.getData().get("phone_number").toString());
                 Email.setText(value.getData().get("user_email_id").toString());
@@ -229,72 +231,75 @@ FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         return  mime.getExtensionFromMimeType(contentResolver.getType(uri));
     }
     private void uploadImage(){
-        final ProgressDialog pd = new ProgressDialog(ProfileActivity.this);
-        pd.setMessage("Uploading");
-        pd.show();
+             try {
+                 final ProgressDialog pd = new ProgressDialog(ProfileActivity.this);
+                 pd.setMessage("Uploading");
+                 pd.show();
 
-        if (imageUri != null){
-            final  StorageReference fileReference = storageReference.child(System.currentTimeMillis()
-                    + "." + getFileExtension(imageUri));
+                 if (imageUri != null) {
+                     final StorageReference fileReference = storageReference.child(System.currentTimeMillis()
+                             + "." + getFileExtension(imageUri));
 
-            uploadTask = fileReference.putFile(imageUri);
-            uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
-                @Override
-                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                     uploadTask = fileReference.putFile(imageUri);
+                     uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                         @Override
+                         public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
 
-                    if (!task.isSuccessful()){
-                        throw  task.getException();
-                    }
-                    return fileReference.getDownloadUrl();
-                }
-            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
-                @Override
-                public void onComplete(@NonNull Task<Uri> task) {
+                             if (!task.isSuccessful()) {
+                                 throw task.getException();
+                             }
+                             return fileReference.getDownloadUrl();
+                         }
+                     }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                         @Override
+                         public void onComplete(@NonNull Task<Uri> task) {
 
-                    if (task.isSuccessful()){
-                        try{
-                        Uri downloadUri = task.getResult();
-                        String muri = downloadUri.toString();
+                             if (task.isSuccessful()) {
+                                 try {
+                                     Uri downloadUri = task.getResult();
+                                     String muri = downloadUri.toString();
 
 
-                        // reference = FirebaseDatabase.getInstance().getReference("users").child(fuser.getUid());
-                        HashMap<String,Object> hashMap1 = new HashMap<>();
-                        hashMap1.put("user_image_url",muri);
-                        // reference.updateChildren(hashMap);
-                        db.collection("Users").document(UUID).update(hashMap1)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Toast.makeText(ProfileActivity.this, "Profile Changed", Toast.LENGTH_SHORT).show();
-                                pd.dismiss();
-                            }
-                        });
-                        HashMap<String,Object> hashMap2 = new HashMap<>();
-                        hashMap2.put("userphoto",muri);
-                        db.collection("users").document(UUID)
-                                .update(hashMap2)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Log.d(String.valueOf(R.string.app_name), "DocumentSnapshot added with ID: " + UUID);
-                                    }
-                                });
-                        }catch (Exception e){}
-                    } else {
-                        Toast.makeText(ProfileActivity.this, "Failed to upload", Toast.LENGTH_SHORT).show();
-                        pd.dismiss();
-                    }
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Toast.makeText(ProfileActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                    pd.dismiss();
-                }
-            });
-        }  else {
-            Toast.makeText(ProfileActivity.this, "No image selected", Toast.LENGTH_SHORT).show();
-        }
+                                     // reference = FirebaseDatabase.getInstance().getReference("users").child(fuser.getUid());
+                                     HashMap<String, Object> hashMap1 = new HashMap<>();
+                                     hashMap1.put("user_image_url", muri);
+                                     // reference.updateChildren(hashMap);
+                                     db.collection("Users").document(UUID).update(hashMap1)
+                                             .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                 @Override
+                                                 public void onSuccess(Void aVoid) {
+                                                     Toast.makeText(ProfileActivity.this, "Profile Changed", Toast.LENGTH_SHORT).show();
+                                                     pd.dismiss();
+                                                 }
+                                             });
+                                     HashMap<String, Object> hashMap2 = new HashMap<>();
+                                     hashMap2.put("userphoto", muri);
+                                     db.collection("users").document(UUID)
+                                             .update(hashMap2)
+                                             .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                 @Override
+                                                 public void onSuccess(Void aVoid) {
+                                                     Log.d(String.valueOf(R.string.app_name), "DocumentSnapshot added with ID: " + UUID);
+                                                 }
+                                             });
+                                 } catch (Exception e) {
+                                 }
+                             } else {
+                                 Toast.makeText(ProfileActivity.this, "Failed to upload", Toast.LENGTH_SHORT).show();
+                                 pd.dismiss();
+                             }
+                         }
+                     }).addOnFailureListener(new OnFailureListener() {
+                         @Override
+                         public void onFailure(@NonNull Exception e) {
+                             Toast.makeText(ProfileActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                             pd.dismiss();
+                         }
+                     });
+                 } else {
+                     Toast.makeText(ProfileActivity.this, "No image selected", Toast.LENGTH_SHORT).show();
+                 }
+             }catch(Exception e){}
     }
 
     @Override

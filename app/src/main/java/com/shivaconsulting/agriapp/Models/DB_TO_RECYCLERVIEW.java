@@ -4,8 +4,6 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.ServerTimestamp;
 
-import java.util.Date;
-
 public class DB_TO_RECYCLERVIEW {
     String customer_Name;
     String booking_Id;
@@ -16,7 +14,7 @@ public class DB_TO_RECYCLERVIEW {
     String status;
     String delivery_Time;
     String service_Provider;
-    Date booking_Date;
+
     Double latitude;
     Double longitude;
     Double driverLat;
@@ -24,30 +22,34 @@ public class DB_TO_RECYCLERVIEW {
     GeoPoint location;
     String driverNumber,driverName,driverToken,driverId,contact_Number;
     @ServerTimestamp
-    Timestamp delivery_Date;
-    public DB_TO_RECYCLERVIEW(String customer_Name,Timestamp delivery_Date,String address,String contact_Number,String driverToken,String driverName,String driverNumber,String driverId,String booking_Id, String area, String service_Type, String picUrl, String status, String delivery_Time, String service_Provider,
-                              Date booking_Date, Double latitude, Double longitude, Double driverLat, Double driverLng, GeoPoint location) {
-        this.delivery_Date=delivery_Date;
+    Timestamp booking_Date,delivery_Date,driverFromTime,driverReachedTime,serviceStartTime,serviceStopTime;
+
+    public DB_TO_RECYCLERVIEW(String customer_Name, String booking_Id, String area, String address, String service_Type, String picUrl, String status, String delivery_Time, String service_Provider, Double latitude, Double longitude, Double driverLat, Double driverLng, GeoPoint location, String driverNumber, String driverName, String driverToken, String driverId, String contact_Number, Timestamp booking_Date, Timestamp delivery_Date, Timestamp driverFromTime, Timestamp driverReachedTime, Timestamp serviceStartTime, Timestamp serviceStopTime) {
+        this.customer_Name = customer_Name;
         this.booking_Id = booking_Id;
         this.area = area;
+        this.address = address;
         this.service_Type = service_Type;
         this.picUrl = picUrl;
         this.status = status;
         this.delivery_Time = delivery_Time;
         this.service_Provider = service_Provider;
-        this.booking_Date = booking_Date;
         this.latitude = latitude;
         this.longitude = longitude;
         this.driverLat = driverLat;
         this.driverLng = driverLng;
         this.location = location;
-        this.driverNumber=driverNumber;
-        this.driverName=driverName;
-        this.driverToken=driverToken;
-        this.driverId=driverId;
-        this.contact_Number=contact_Number;
-        this.address=address;
-        this.customer_Name=customer_Name;
+        this.driverNumber = driverNumber;
+        this.driverName = driverName;
+        this.driverToken = driverToken;
+        this.driverId = driverId;
+        this.contact_Number = contact_Number;
+        this.booking_Date = booking_Date;
+        this.delivery_Date = delivery_Date;
+        this.driverFromTime = driverFromTime;
+        this.driverReachedTime = driverReachedTime;
+        this.serviceStartTime = serviceStartTime;
+        this.serviceStopTime = serviceStopTime;
     }
 
     public String getCustomer_Name() {
@@ -56,62 +58,6 @@ public class DB_TO_RECYCLERVIEW {
 
     public void setCustomer_Name(String customer_Name) {
         this.customer_Name = customer_Name;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getContact_Number() {
-        return contact_Number;
-    }
-
-    public void setContact_Number(String contact_Number) {
-        this.contact_Number = contact_Number;
-    }
-
-    public String getDriverId() {
-        return driverId;
-    }
-
-    public void setDriverId(String driverId) {
-        this.driverId = driverId;
-    }
-
-    public String getDriverName() {
-        return driverName;
-    }
-
-    public void setDriverName(String driverName) {
-        this.driverName = driverName;
-    }
-
-    public String getDriverToken() {
-        return driverToken;
-    }
-
-    public void setDriverToken(String driverToken) {
-        this.driverToken = driverToken;
-    }
-
-    public String getDriverNumber() {
-        return driverNumber;
-    }
-
-    public void setDriverNumber(String driverNumber) {
-        this.driverNumber = driverNumber;
-    }
-
-    public Timestamp getDelivery_Date() {
-        return delivery_Date;
-    }
-
-    public void setDelivery_Date(Timestamp delivery_Date) {
-        this.delivery_Date = delivery_Date;
     }
 
     public String getBooking_Id() {
@@ -128,6 +74,14 @@ public class DB_TO_RECYCLERVIEW {
 
     public void setArea(String area) {
         this.area = area;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public String getService_Type() {
@@ -170,14 +124,6 @@ public class DB_TO_RECYCLERVIEW {
         this.service_Provider = service_Provider;
     }
 
-    public Date getBooking_Date() {
-        return booking_Date;
-    }
-
-    public void setBooking_Date(Date booking_Date) {
-        this.booking_Date = booking_Date;
-    }
-
     public Double getLatitude() {
         return latitude;
     }
@@ -216,6 +162,94 @@ public class DB_TO_RECYCLERVIEW {
 
     public void setLocation(GeoPoint location) {
         this.location = location;
+    }
+
+    public String getDriverNumber() {
+        return driverNumber;
+    }
+
+    public void setDriverNumber(String driverNumber) {
+        this.driverNumber = driverNumber;
+    }
+
+    public String getDriverName() {
+        return driverName;
+    }
+
+    public void setDriverName(String driverName) {
+        this.driverName = driverName;
+    }
+
+    public String getDriverToken() {
+        return driverToken;
+    }
+
+    public void setDriverToken(String driverToken) {
+        this.driverToken = driverToken;
+    }
+
+    public String getDriverId() {
+        return driverId;
+    }
+
+    public void setDriverId(String driverId) {
+        this.driverId = driverId;
+    }
+
+    public String getContact_Number() {
+        return contact_Number;
+    }
+
+    public void setContact_Number(String contact_Number) {
+        this.contact_Number = contact_Number;
+    }
+
+    public Timestamp getBooking_Date() {
+        return booking_Date;
+    }
+
+    public void setBooking_Date(Timestamp booking_Date) {
+        this.booking_Date = booking_Date;
+    }
+
+    public Timestamp getDelivery_Date() {
+        return delivery_Date;
+    }
+
+    public void setDelivery_Date(Timestamp delivery_Date) {
+        this.delivery_Date = delivery_Date;
+    }
+
+    public Timestamp getDriverFromTime() {
+        return driverFromTime;
+    }
+
+    public void setDriverFromTime(Timestamp driverFromTime) {
+        this.driverFromTime = driverFromTime;
+    }
+
+    public Timestamp getDriverReachedTime() {
+        return driverReachedTime;
+    }
+
+    public void setDriverReachedTime(Timestamp driverReachedTime) {
+        this.driverReachedTime = driverReachedTime;
+    }
+
+    public Timestamp getServiceStartTime() {
+        return serviceStartTime;
+    }
+
+    public void setServiceStartTime(Timestamp serviceStartTime) {
+        this.serviceStartTime = serviceStartTime;
+    }
+
+    public Timestamp getServiceStopTime() {
+        return serviceStopTime;
+    }
+
+    public void setServiceStopTime(Timestamp serviceStopTime) {
+        this.serviceStopTime = serviceStopTime;
     }
 
     DB_TO_RECYCLERVIEW() {

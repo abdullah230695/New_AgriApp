@@ -99,7 +99,7 @@ import com.shivaconsulting.agriapp.Adapter.AreaAdapter;
 import com.shivaconsulting.agriapp.Adapter.PlacesAutoCompleteAdapter;
 import com.shivaconsulting.agriapp.Adapter.TimeAdapterNew;
 import com.shivaconsulting.agriapp.History.BookingHistoryActivity;
-import com.shivaconsulting.agriapp.MainActivity;
+import com.shivaconsulting.agriapp.ChatMainActivity;
 import com.shivaconsulting.agriapp.Models.AddressModel;
 import com.shivaconsulting.agriapp.Models.TimeAmPm;
 import com.shivaconsulting.agriapp.Profile.LoginActivity;
@@ -130,7 +130,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     //Const
     private static final String TAG = "MapsActivity";
     private Context mContext = MapsActivity.this;
+    @NotNull
     private static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
+    @NotNull
     private static final String COURSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
     private static final int LOCATION_SETTINGS_REQUEST = 4548;
@@ -144,7 +146,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private LatLng mCenterLatLong;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    public static String selectedDate;
     private AreaAdapter areaAdapter;
     private List<Integer> areaList;
     private PlacesAutoCompleteAdapter mAutoCompleteAdapter;
@@ -153,27 +154,39 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private AddressAdapter AddressAdapter;
     private ProgressBar progressBar;
     ProgressDialog progressDialog;
+    @NotNull
     ArrayList<GeoPoint> GeoPointList = new ArrayList<com.google.firebase.firestore.GeoPoint>();
+    @NotNull
     MarkerOptions options = new MarkerOptions();
+    @NotNull
     Marker optionsMarker;
+    @NotNull
     private MarkerOptions LiveMarkerOptions = new MarkerOptions();
+    @NotNull
     Marker liveMarkers;
+    @NotNull
     SharedPreferences prefs ;
     SharedPreferences.Editor spEditor ;
     Marker dragMarker;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
+    @NotNull
     String UUID = FirebaseAuth.getInstance().getUid();
+
     DocumentReference dr = db.collection("Users").document(UUID);
     final Map<String, Object> post1 = new HashMap<>();
     final Map<String, Object> post2 = new HashMap<>();
     public static Date dateFormat;
+    @NotNull
     String phone, custName;
-    public static String time;
-    public static String area;
+    @NotNull
+    public static String time,area,selectedDate;
+    @NotNull
     String currentAddress, address, ServiceType, ServiceID, token, personName,LiveLatAddress;
     static double lat, lon;
     int count;
+    @NotNull
     Random rnd = new Random(); //To generate random booking id
+    @NotNull
     final Long ID = (long) rnd.nextInt(99999999); //To generate random booking id
 
     //final Handler handler = new Handler();
@@ -191,7 +204,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public static DatePickerTimeline datePickerTimeline;
     ConstraintLayout constraintLayout;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -205,6 +217,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         savedAddressCounter();
         getLiveLat();
         //Getting Customer Phone Number
+
+
         dr.addSnapshotListener(new EventListener<DocumentSnapshot>() {
 
             @Override
@@ -373,6 +387,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         autoCompleteTextView.setError("Please enter address to save location");
                         Toast.makeText(mContext, "Please enter a address", Toast.LENGTH_SHORT).show();
                     } else {
+                        @NotNull
+                        @Nullable
+                        @NonNull
                         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
                         builder.setTitle("Add New Location ?");
                         builder.setMessage("Please enter name of person in that address ?");
@@ -384,35 +401,37 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 personName = input2.getText().toString();
-                                Query query = db.collection("Bookings").document(UUID)
-                                        .collection("Saved Locations");
-                                try {
-                                    query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                            if (task.isSuccessful()) {
-                                                Map<String, Object> createNewID = new HashMap<>();
-                                                createNewID.put("address", autoCompleteTextView.getText().toString());
-                                                createNewID.put("latitude", lat);
-                                                createNewID.put("longitude", lon);
-                                                createNewID.put("name", personName);
-                                                db.collection("Bookings").document(UUID)
-                                                        .collection("Saved Locations").document()
-                                                        .set(createNewID);
-                                                Toast.makeText(mContext, "Your new address is \n" + autoCompleteTextView.getText().toString() +
-                                                        "\n Saved Successful", Toast.LENGTH_LONG).show();
-                                                autoCompleteTextView.setText(null);
-                                                autoCompleteTextView.setVisibility(View.GONE);
-                                                autocompleteFragment.setText(null);
+                                if (UUID!=null) {
+                                    Query query = db.collection("Bookings").document(UUID)
+                                            .collection("Saved Locations");
+                                    try {
+                                        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                if (task.isSuccessful()) {
+                                                    Map<String, Object> createNewID = new HashMap<>();
+                                                    createNewID.put("address", autoCompleteTextView.getText().toString());
+                                                    createNewID.put("latitude", lat);
+                                                    createNewID.put("longitude", lon);
+                                                    createNewID.put("name", personName);
+                                                    db.collection("Bookings").document(UUID)
+                                                            .collection("Saved Locations").document()
+                                                            .set(createNewID);
+                                                    Toast.makeText(mContext, "Your new address is \n" + autoCompleteTextView.getText().toString() +
+                                                            "\n Saved Successful", Toast.LENGTH_LONG).show();
+                                                    autoCompleteTextView.setText(null);
+                                                    autoCompleteTextView.setVisibility(View.GONE);
+                                                    autocompleteFragment.setText(null);
 
 
-                                            } else {
+                                                } else {
 
+                                                }
                                             }
-                                        }
-                                    });
-                                } catch (Exception e) {
+                                        });
+                                    } catch (Exception e) {
 
+                                    }
                                 }
                             }
                         }).setNegativeButton("NO", new DialogInterface.OnClickListener() {
@@ -629,6 +648,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         getDeviceLocation();
                         getAddress();
                     } else {
+                        @NotNull
+                        @NonNull
                         final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
                         builder.setTitle("Confirm Booking");
                         builder.setMessage("Selected service type is " + ServiceType + ". Do you want to proceed ?");
@@ -740,55 +761,62 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        Query queryAddress = db.collection("Bookings").document(UUID).collection("Saved Locations");
-        LinearLayoutManager linearLayoutManager2 = new LinearLayoutManager(mContext,
-                LinearLayoutManager.HORIZONTAL, false);
+        if(UUID!=null) {
+            Query queryAddress = db.collection("Bookings").document(UUID).collection("Saved Locations");
 
-        rvAddress.setLayoutManager(linearLayoutManager2);
-        rvAddress.setHasFixedSize(true);
+            LinearLayoutManager linearLayoutManager2 = new LinearLayoutManager(mContext,
+                    LinearLayoutManager.HORIZONTAL, false);
+
+            rvAddress.setLayoutManager(linearLayoutManager2);
+            rvAddress.setHasFixedSize(true);
 
 
-        FirestoreRecyclerOptions<AddressModel> options1 = new FirestoreRecyclerOptions.Builder<AddressModel>()
-                .setQuery(queryAddress, AddressModel.class)
-                .build();
+            FirestoreRecyclerOptions<AddressModel> options1 = new FirestoreRecyclerOptions.Builder<AddressModel>()
+                    .setQuery(queryAddress, AddressModel.class)
+                    .build();
 
-        AddressAdapter = new AddressAdapter(options1);
-        rvAddress.setAdapter(AddressAdapter);
-        AddressAdapter.startListening();
-        AddressAdapter.getItemCount();
-        rvAddress.addOnItemTouchListener(new RecyclerItemClickListener(mContext, rvAddress, new RecyclerItemClickListener.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                try {
-                    autoCompleteTextView.setVisibility(View.VISIBLE);
-                    autoCompleteTextView.setText(AddressAdapter.getItem(position).getAddress());
-                    lat = AddressAdapter.getItem(position).getLatitude();
-                    lon = AddressAdapter.getItem(position).getLongitude();
-                    LatLng latLng = new LatLng(lat, lon);
-                    Marker savedMarker = mMap.addMarker(new MarkerOptions().position(latLng).title("Saved Location"));
-                    savedMarker.setPosition(latLng);
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 19));
+            AddressAdapter = new AddressAdapter(options1);
+            rvAddress.setAdapter(AddressAdapter);
+            AddressAdapter.startListening();
+            AddressAdapter.getItemCount();
+            rvAddress.addOnItemTouchListener(new RecyclerItemClickListener(mContext, rvAddress, new RecyclerItemClickListener.OnItemClickListener() {
+                @Override
+                public void onItemClick(View view, int position) {
 
-                } catch (Exception e) {
+                    try {
+
+                        autoCompleteTextView.setVisibility(View.VISIBLE);
+                        autoCompleteTextView.setText(AddressAdapter.getItem(position).getAddress());
+                        lat = AddressAdapter.getItem(position).getLatitude();
+                        lon = AddressAdapter.getItem(position).getLongitude();
+                        LatLng latLng = new LatLng(lat, lon);
+                        Marker savedMarker = mMap.addMarker(new MarkerOptions().position(latLng).title("Saved Location"));
+                        savedMarker.setPosition(latLng);
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 19));
+
+                    } catch (Exception e) {
+
+                    }
+                }
+
+                @Override
+                public void onLongItemClick(View view, int position) {
 
                 }
-            }
-
-            @Override
-            public void onLongItemClick(View view, int position) {
-
-            }
-        }));
+            }));
+        }
 imgChatList.setOnClickListener(new View.OnClickListener() {
     @Override
     public void onClick(View v) {
-        startActivity(new Intent(getApplicationContext(), MainActivity.class));
+        startActivity(new Intent(getApplicationContext(), ChatMainActivity.class));
 
     }
 });
 
     }
 
+    @NotNull
+    @NonNull
     private void getSharedPrefs() {
         try {
             lastLat = Double.parseDouble(prefs.getString("lat", "0.0"));
@@ -803,7 +831,8 @@ imgChatList.setOnClickListener(new View.OnClickListener() {
             Log.d("sp",e.getMessage());
         }
     }
-
+    @NotNull
+    @NonNull
     private void getLiveLat() {
             try {
                 CollectionReference cr= db.collection("LiveLocation");
@@ -822,7 +851,8 @@ imgChatList.setOnClickListener(new View.OnClickListener() {
             }catch(Exception e){
             }
     }
-
+    @NotNull
+    @NonNull
 private void addLiveLatMarkers(){
         try {
             for (int i = 0; i < GeoPointList.size(); i++) {
@@ -847,12 +877,15 @@ private void addLiveLatMarkers(){
                 // LiveLatLngList.add(new LatLng(ListDoubleLat.get(i), ListDoubleLng.get(i))); //some latitude and logitude value
 
                 //for (LatLng point : ltlist) {
+
                 LiveMarkerOptions.position(ltlist);
                 LiveMarkerOptions.title(LiveLatAddress);
                 LiveMarkerOptions.snippet("Live Location");
                 LiveMarkerOptions.icon(bitmapDescriptorFromVector(mContext, (R.drawable.ic_baseline_agriculture_24)));
 
+
                 liveMarkers = mMap.addMarker(LiveMarkerOptions);
+
 
             }
         }catch(Exception e){}
@@ -1121,7 +1154,8 @@ private void addLiveLatMarkers(){
         }
     }
 
-
+    @NotNull
+    @NonNull
     private void getDeviceLocation() {
         Log.d(TAG, "getDeviceLocation: getting the devices current location");
 
@@ -1167,6 +1201,8 @@ private void addLiveLatMarkers(){
     }
 
 
+    @NotNull
+    @NonNull
     private void getLocationPermission() {
         try {
             Log.d(TAG, "getLocationPermission: getting location permissions");
@@ -1375,34 +1411,36 @@ private void addLiveLatMarkers(){
 
     //ID setups
     public void setupID() {
-        home = findViewById(R.id.home);
-        booking_history = findViewById(R.id.booking_history);
-        profile = findViewById(R.id.profile);
-        gps_button = findViewById(R.id.gps_button);
-        booking_button = findViewById(R.id.book_button);
-        datePickerTimeline = findViewById(R.id.datePickerTimeline);
-        bookContraint = findViewById(R.id.booking_constraint);
-        cardView1 = findViewById(R.id.tot_type_cardview);
-        cardView2 = findViewById(R.id.belt_type_cardview);
-        cardView3 = findViewById(R.id.combine_type_cardview);
-        combine_Type = findViewById(R.id.combine_type);
-        pick_time_text = findViewById(R.id.pick_time_text);
-        time_picker_recyclerview = findViewById(R.id.time_picker_recyclerview);
-        area_picker_recyclerview = findViewById(R.id.area_picker_recyclerview);
-        pick_date_text = findViewById(R.id.pick_date_text);
-        pick_area_text = findViewById(R.id.pick_area_text);
-        rvAddress = findViewById(R.id.rvSavedLoc);
-        map_search_recyler = findViewById(R.id.map_search_recyler);
-        autoCompleteTextView = findViewById(R.id.autoCompleteTextView);
-        tot_Type = findViewById(R.id.tot_type);
-        belt_Type = findViewById(R.id.belt_type);
-        progressBar = findViewById(R.id.pb1);
-        imgAddLocation = findViewById(R.id.imgAddLoc);
-        imgSavedLocations = findViewById(R.id.imgSavedLoc);
-        constraintLayout = findViewById(R.id.parent_layout);
-        imgChatList=findViewById(R.id.imgChat);
-        prefs = getSharedPreferences("locations", MODE_PRIVATE);
-        spEditor = getSharedPreferences("locations", MODE_PRIVATE).edit();
+        try {
+            home = findViewById(R.id.home);
+            booking_history = findViewById(R.id.booking_history);
+            profile = findViewById(R.id.profile);
+            gps_button = findViewById(R.id.gps_button);
+            booking_button = findViewById(R.id.book_button);
+            datePickerTimeline = findViewById(R.id.datePickerTimeline);
+            bookContraint = findViewById(R.id.booking_constraint);
+            cardView1 = findViewById(R.id.tot_type_cardview);
+            cardView2 = findViewById(R.id.belt_type_cardview);
+            cardView3 = findViewById(R.id.combine_type_cardview);
+            combine_Type = findViewById(R.id.combine_type);
+            pick_time_text = findViewById(R.id.pick_time_text);
+            time_picker_recyclerview = findViewById(R.id.time_picker_recyclerview);
+            area_picker_recyclerview = findViewById(R.id.area_picker_recyclerview);
+            pick_date_text = findViewById(R.id.pick_date_text);
+            pick_area_text = findViewById(R.id.pick_area_text);
+            rvAddress = findViewById(R.id.rvSavedLoc);
+            map_search_recyler = findViewById(R.id.map_search_recyler);
+            autoCompleteTextView = findViewById(R.id.autoCompleteTextView);
+            tot_Type = findViewById(R.id.tot_type);
+            belt_Type = findViewById(R.id.belt_type);
+            progressBar = findViewById(R.id.pb1);
+            imgAddLocation = findViewById(R.id.imgAddLoc);
+            imgSavedLocations = findViewById(R.id.imgSavedLoc);
+            constraintLayout = findViewById(R.id.parent_layout);
+            imgChatList = findViewById(R.id.imgChat);
+            prefs = getSharedPreferences("locations", MODE_PRIVATE);
+            spEditor = getSharedPreferences("locations", MODE_PRIVATE).edit();
+        }catch(Exception e){}
     }//ID setups
 
 
@@ -1424,6 +1462,9 @@ private void addLiveLatMarkers(){
     }
 
     //Adding Booking details to firestore if Booking id exist
+
+    @NotNull
+    @NonNull
     private void InsertData1() {
         try {
 
@@ -1447,7 +1488,6 @@ private void addLiveLatMarkers(){
             post1.put("latitude", lat);
             post1.put("longitude", lon);
             post1.put("address", autoCompleteTextView.getText().toString());
-            post1.put("picUrl", "https://i.pinimg.com/originals/c9/f5/fb/c9f5fba683ab296eb94c62de0b0e703c.png");
             post1.put("status", "Pending");
             post1.put("service_Provider", "Not Assigned");
             post1.put("unique_ID", UUID1);
@@ -1493,14 +1533,18 @@ private void addLiveLatMarkers(){
             });
         } catch (Exception e) {
 
-        }
-        spEditor.putString("lat", String.valueOf(lat));
-        spEditor.putString("lon", String.valueOf(lon));
-        spEditor.apply();
+        }try {
+            spEditor.putString("lat", String.valueOf(lat));
+            spEditor.putString("lon", String.valueOf(lon));
+            spEditor.apply();
+        }catch(Exception e){}
     } //Adding Booking details to firestore if Bookig id exist
 
 
     //Adding Booking details to firestore
+
+    @NotNull
+    @NonNull
     private void InsertData2() {
         try {
             Toast.makeText(MapsActivity.this, "Processing", Toast.LENGTH_SHORT).show();
@@ -1521,8 +1565,6 @@ private void addLiveLatMarkers(){
             post2.put("latitude", lat);
             post2.put("longitude", lon);
             post2.put("address", autoCompleteTextView.getText().toString());
-
-            post2.put("picUrl", "https://i.pinimg.com/originals/c9/f5/fb/c9f5fba683ab296eb94c62de0b0e703c.png");
             post2.put("status", "Pending");
             post2.put("service_Provider", "Not Assigned");
             post2.put("unique_ID", UUID1);
@@ -1571,9 +1613,11 @@ private void addLiveLatMarkers(){
         } catch (Exception e) {
 
         }
+        try{
         spEditor.putString("lat", String.valueOf(lat));
         spEditor.putString("lon", String.valueOf(lon));
         spEditor.apply();
+        }catch(Exception e){}
     } //Adding Booking details to firestore
 
     //Prompting user to enable data connection
@@ -1593,6 +1637,7 @@ private void addLiveLatMarkers(){
         }
 
     }   //Prompting user to enable data connection
+
 
     public void enableData() {
         final AlertDialog.Builder builderExit = new AlertDialog.Builder(mContext);
@@ -1617,6 +1662,8 @@ private void addLiveLatMarkers(){
         }catch (Exception e){}
     }
 
+    @NotNull
+    @NonNull
     private void GetToken() {
         try {
             FirebaseInstanceId.getInstance().getInstanceId()
@@ -1655,6 +1702,9 @@ private void addLiveLatMarkers(){
     }
 
     //Sending notification after a booking has made
+
+    @NotNull
+    @NonNull
     private void sendNotification() {
         try {
             Intent intent = new Intent(this, BookingHistoryActivity.class);
@@ -1685,6 +1735,9 @@ private void addLiveLatMarkers(){
             return true;
         return super.onOptionsItemSelected(item);
     }*/
+
+    @NotNull
+    @NonNull
     private void savedAddressCounter() {
         try {
             db.collection("Bookings").document(UUID).collection("Saved Locations").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
