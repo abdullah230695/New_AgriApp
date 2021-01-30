@@ -225,6 +225,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     public void onBackPressed() {
         startActivity(new Intent(mContext,LoginActivity.class));
+        overridePendingTransition(R.anim.fade_in, R.anim.push_out_down);
         finish();
     }
     @Override

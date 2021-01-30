@@ -284,6 +284,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                         Intent intent = new Intent(getApplicationContext(), DriverProfile.class);
                         intent.putExtra("driverID", DriverID);
                         startActivity(intent);
+                        overridePendingTransition(R.anim.fade_in, R.anim.push_out_down);
                     }
                 }
             }
@@ -511,6 +512,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                     intent.putExtra("CustAddress", CustAddress);
                     intent.putExtra("status", status);
                     startActivity(intent);
+                    overridePendingTransition(R.anim.fade_in, R.anim.push_out_down);
                 } catch (Exception e) {
 
                 }
@@ -709,6 +711,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                 Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
                 intent.putExtra("toUid", DriverID);
                 startActivity(intent);
+                overridePendingTransition(R.anim.fade_in, R.anim.push_out_down);
             }
 
     }
@@ -768,6 +771,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                                 Intent intent = new Intent(ParticularBookingHistory.this, ChatActivity.class);
                                 intent.putExtra("toUid", adminUID);
                                 startActivity(intent);
+                                overridePendingTransition(R.anim.fade_in, R.anim.push_out_down);
                                 finish();
 
                             }

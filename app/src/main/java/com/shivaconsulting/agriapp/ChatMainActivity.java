@@ -90,6 +90,7 @@ public class ChatMainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(v.getContext(), SelectUserActivity.class));
+                overridePendingTransition(R.anim.fade_in, R.anim.push_out_down);
             }
         });
     }

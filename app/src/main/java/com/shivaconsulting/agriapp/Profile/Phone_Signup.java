@@ -73,6 +73,8 @@ public class Phone_Signup extends AppCompatActivity {
                             intent.putExtra("phoneNumber", phoneNumber);
                             intent.putExtra("name", sName);
                             startActivity(intent);
+                            overridePendingTransition(R.anim.fade_in, R.anim.push_out_down);
+
                         }
                         }catch (Exception e){Log.d("error : ",e.getMessage());}
                     }
@@ -85,6 +87,7 @@ public class Phone_Signup extends AppCompatActivity {
                         intent.putExtra("phoneNumber", phoneNumber);
                         intent.putExtra("name", sName);
                         startActivity(intent);
+                        overridePendingTransition(R.anim.fade_in, R.anim.push_out_down);
                     }
                 });
                 }catch (Exception e){
@@ -97,6 +100,7 @@ public class Phone_Signup extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
         startActivity(new Intent(getApplicationContext(),LoginActivity.class));
+        overridePendingTransition(R.anim.fade_in, R.anim.push_out_down);
         finish();
     }
     private void ProgeressDialog(){

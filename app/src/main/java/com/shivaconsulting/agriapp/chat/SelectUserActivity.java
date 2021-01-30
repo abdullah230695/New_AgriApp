@@ -124,6 +124,7 @@ public class SelectUserActivity extends AppCompatActivity {
                     Intent intent = new Intent(SelectUserActivity.this, ChatActivity.class);
                     intent.putExtra("roomID", room.getId());
                     startActivity(intent);
+                    overridePendingTransition(R.anim.fade_in, R.anim.push_out_down);
                     SelectUserActivity.this.finish();
                 }
             }

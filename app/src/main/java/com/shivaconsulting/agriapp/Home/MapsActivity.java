@@ -31,6 +31,8 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -98,8 +100,8 @@ import com.shivaconsulting.agriapp.Adapter.AddressAdapter;
 import com.shivaconsulting.agriapp.Adapter.AreaAdapter;
 import com.shivaconsulting.agriapp.Adapter.PlacesAutoCompleteAdapter;
 import com.shivaconsulting.agriapp.Adapter.TimeAdapterNew;
-import com.shivaconsulting.agriapp.History.BookingHistoryActivity;
 import com.shivaconsulting.agriapp.ChatMainActivity;
+import com.shivaconsulting.agriapp.History.BookingHistoryActivity;
 import com.shivaconsulting.agriapp.Models.AddressModel;
 import com.shivaconsulting.agriapp.Models.TimeAmPm;
 import com.shivaconsulting.agriapp.Profile.LoginActivity;
@@ -209,6 +211,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+        View view = findViewById(android.R.id.content);
+        Animation mLoadAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.push_out_down);
+        mLoadAnimation.setDuration(1000);
+        view.startAnimation(mLoadAnimation);
         GetToken();
         enableData();
         setupID();
@@ -231,6 +237,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     if (value != null && value.exists()) {
                         phone = value.getData().get("phone_number").toString();
                         custName = value.getData().get("user_name").toString();
+                        Log.d("userData",phone+"\n"+custName);
 
                     }
                 } catch (Exception e) {
@@ -241,6 +248,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
         if(getIntent().getExtras()!=null){
             startActivity(new Intent(mContext,BookingHistoryActivity.class));
+            overridePendingTransition(R.anim.fade_in, R.anim.push_out_down);
+            finish();
         }
 
 
@@ -809,6 +818,8 @@ imgChatList.setOnClickListener(new View.OnClickListener() {
     @Override
     public void onClick(View v) {
         startActivity(new Intent(getApplicationContext(), ChatMainActivity.class));
+        overridePendingTransition(R.anim.fade_in, R.anim.push_out_down);
+        finish();
 
     }
 });
@@ -1297,6 +1308,8 @@ private void addLiveLatMarkers(){
             if (user == null) {
                 Intent intent = new Intent(mContext, LoginActivity.class);
                 startActivity(intent);
+                overridePendingTransition(R.anim.fade_in, R.anim.push_out_down);
+                finish();
             }
         } catch (Exception e) {
 

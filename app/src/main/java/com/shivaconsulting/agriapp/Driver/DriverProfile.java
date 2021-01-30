@@ -32,6 +32,7 @@ import com.google.firebase.firestore.SetOptions;
 import com.shivaconsulting.agriapp.Adapter.FeedbacksListAdapter;
 import com.shivaconsulting.agriapp.History.BookingHistoryActivity;
 import com.shivaconsulting.agriapp.Home.MapsActivity;
+import com.shivaconsulting.agriapp.ParticularBookingHistory;
 import com.shivaconsulting.agriapp.Profile.ProfileActivity;
 import com.shivaconsulting.agriapp.R;
 import com.shivaconsulting.agriapp.databinding.ActivityDriverProfileBinding;
@@ -345,5 +346,13 @@ try{
     lvFeebackList=binding.feedbackList;
     cvProduct=binding.cvProduct;
     profileimage=binding.driverProfileImage;
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        startActivity(new Intent(getApplicationContext(), ParticularBookingHistory.class));
+        overridePendingTransition(R.anim.fade_in, R.anim.push_out_down);
+        finish();
     }
 }

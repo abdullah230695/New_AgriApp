@@ -841,6 +841,7 @@ try {
         if (user == null) {
             Intent intent = new Intent(mContext, LoginActivity.class);
             startActivity(intent);
+            overridePendingTransition(R.anim.fade_in, R.anim.push_out_down);
         }
     }
 

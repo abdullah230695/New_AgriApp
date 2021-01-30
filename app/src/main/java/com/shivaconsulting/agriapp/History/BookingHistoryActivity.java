@@ -98,8 +98,9 @@ public class  BookingHistoryActivity extends AppCompatActivity implements View.O
                 if(serviceStartTime!="null"){ intent.putExtra("serviceStartDateTime", adapter.getItem(position).getServiceStartTime().toDate().toString()); }
                 if(serviceStopDateTime!="null"){ intent.putExtra("serviceStopDateTime",adapter.getItem(position).getServiceStopTime().toDate().toString()); }
 
-
                 startActivity(intent);
+                overridePendingTransition(R.anim.fade_in, R.anim.push_out_down);
+                finish();
 }catch (Exception e){ }
             }
             @Override

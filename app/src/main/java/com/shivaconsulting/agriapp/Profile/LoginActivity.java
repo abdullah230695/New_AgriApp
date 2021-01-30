@@ -108,6 +108,8 @@ public class LoginActivity extends AppCompatActivity {
                             Intent intent = new Intent(LoginActivity.this, VerifyPhoneLoginActivity.class);
                             intent.putExtra("phoneNumber", phoneNumber);
                             startActivity(intent);
+                            overridePendingTransition(R.anim.fade_in, R.anim.push_out_down);
+                            finish();
                         } else {
                             progressDialog.dismiss();
                             editTextPhone.setError("This number not registered, Please create an account");
@@ -150,6 +152,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(mContext,SignUpActivity.class));
+                overridePendingTransition(R.anim.fade_in, R.anim.push_out_down);
                 finish();
             }
         });
@@ -157,6 +160,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(mContext,Phone_Signup.class));
+                overridePendingTransition(R.anim.fade_in, R.anim.push_out_down);
                 finish();
             }
         });
