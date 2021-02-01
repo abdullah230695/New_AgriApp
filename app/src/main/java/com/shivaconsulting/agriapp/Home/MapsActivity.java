@@ -31,8 +31,6 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -211,10 +209,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-        View view = findViewById(android.R.id.content);
-        Animation mLoadAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.push_out_down);
-        mLoadAnimation.setDuration(1000);
-        view.startAnimation(mLoadAnimation);
         GetToken();
         enableData();
         setupID();

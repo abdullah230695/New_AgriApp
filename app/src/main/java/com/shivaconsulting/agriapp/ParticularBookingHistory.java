@@ -541,11 +541,18 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                                     statusUpdate.put("status", "Cancelled");
                                     statusUpdate.put("cancelledBy", "Farmer");
                                     Toast.makeText(ParticularBookingHistory.this, "Cancellation Successful", Toast.LENGTH_SHORT).show();
-
+                                    btnCancel.setText("Cancellation Request Under Process ... ");
+                                    tvCurrentStatus.setTextSize(20);
+                                    tvCurrentStatus.setTextColor(Color.RED);
+                                    binding.spb.setVisibility(View.GONE);
                                 } else if (status.equals("Confirmed")) {
                                     statusUpdate.put("status", "Cancellation Request");
                                     statusUpdate.put("cancellationReqFrom", "Farmer");
                                     Toast.makeText(ParticularBookingHistory.this, "Cancellation Request sent successful", Toast.LENGTH_SHORT).show();
+                                    btnCancel.setText("Cancellation Request Under Process ... ");
+                                    tvCurrentStatus.setTextSize(20);
+                                    tvCurrentStatus.setTextColor(Color.RED);
+                                    binding.spb.setVisibility(View.GONE);
                                 }
                                 dr.set(statusUpdate, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
@@ -558,7 +565,12 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                                 AllBookingIDUpdateReschedule.set(statusUpdate, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
-
+                                        Toast.makeText(ParticularBookingHistory.this,
+                                                "Cancellation request sent successful", Toast.LENGTH_SHORT).show();
+                                        btnCancel.setText("Cancellation Request Under Process ... ");
+                                        tvCurrentStatus.setTextSize(20);
+                                        tvCurrentStatus.setTextColor(Color.RED);
+                                        binding.spb.setVisibility(View.GONE);
                                     }
                                 });
                                 sendNotification();
