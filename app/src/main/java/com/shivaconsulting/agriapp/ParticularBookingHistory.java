@@ -9,6 +9,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -166,35 +167,47 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
             CustAddress = getIntent().getStringExtra("custAddress");
             BookingId = getIntent().getStringExtra("id");
             area=getIntent().getStringExtra("area");
-            tvArea.setText("Area : "+area);
-            BKid.setText(BookingId);
+            if (area != null) {
+                tvArea.setText("Area : "+area);
+            }
+            if (BookingId != null) {
+                BKid.setText(BookingId);
+            }
             ServiceName = getIntent().getStringExtra("svType");
-            svType.setText(ServiceName);
+            if (ServiceName != null) {
+                svType.setText(ServiceName);
+            }
 
             //To convert date into string
             String dvDate = getIntent().getStringExtra("DvDate");
-            String search = "00:00:00 GMT+05:30";
-            int index = dvDate.indexOf(search);
-            //int year = ZonedDateTime.now(  ZoneId.of( "Asia/Kolkata" )  ).getYear() ;
-            if (index > 0) {
-                dvDate = dvDate.substring(0, index);
+            if (dvDate != null) {
+                String search = "00:00:00 GMT+05:30";
+                int index = dvDate.indexOf(search);
+                //int year = ZonedDateTime.now(  ZoneId.of( "Asia/Kolkata" )  ).getYear() ;
+                if (index > 0) {
+                    dvDate = dvDate.substring(0, index);
+                }
+                DVdate.setText("Date : " + dvDate);
             }
-            DVdate.setText("Date : " + dvDate);
-
             //To convert date into string
            BookingDateTime= getIntent().getStringExtra("bookingDateTime");
             String BKDate = getIntent().getStringExtra("bookingDateTime");
-            String bkDatesearch = "00:00:00 GMT+05:30";
-            int bkDateindex = BKDate.indexOf(bkDatesearch);
-            if (bkDateindex >0) {
-                BKDate = BKDate.substring(0, bkDateindex);
+            if (BKDate != null) {
+                String bkDatesearch = "00:00:00 GMT+05:30";
+                int bkDateindex = BKDate.indexOf(bkDatesearch);
+                if (bkDateindex > 0) {
+                    BKDate = BKDate.substring(0, bkDateindex);
+                }
+                tvBKdate.setText("Date : " + BKDate);
             }
-            tvBKdate.setText("Date : " + BKDate);
-
             final String dvTime = getIntent().getStringExtra("DvTime");
-            DvTime.setText("Time : " + dvTime);
+            if (dvTime != null) {
+                DvTime.setText("Time : " + dvTime);
+            }
             final String svProvider = getIntent().getStringExtra("svProv");
-            svProv.setText(svProvider);
+            if (svProvider != null) {
+                svProv.setText(svProvider);
+            }
 
             DriverName = getIntent().getStringExtra("DriverName");
             DriverToken = getIntent().getStringExtra("DriverToken");
@@ -209,8 +222,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
             CustomerLatitude = Double.valueOf((getIntent().getStringExtra("CustomerLat")));
             CustomerLongitude = Double.valueOf((getIntent().getStringExtra("CustomerLng")));
             CustomerLocation = new LatLng(CustomerLatitude, CustomerLongitude);
-        /* final String image = getIntent().getParcelableExtra("img");
-        Glide.with(img.getContext()).load(image).into(img);*/
+
             mapFragment = (SupportMapFragment) getSupportFragmentManager()
                     .findFragmentById(R.id.mapView);
 
@@ -219,7 +231,9 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
 
             if (status.equals("Confirmed") || status.equals("Arriving") ||status.equals("Reached")||
                     status.equals("Started") || status.equals("Completed")|| status.equals("Cancellation Request")) {
-                tvDriverName.setText(DriverName);
+                if (DriverName != null) {
+                    tvDriverName.setText(DriverName);
+                }
                /* Animation anim = new AlphaAnimation(0.0f, 1.0f);
                 anim.setDuration(500); //You can manage the blinking time with this parameter
                 anim.setStartOffset(20);
@@ -280,7 +294,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
         }else if(status.equals("Cancelled")){
                     Toast.makeText(ParticularBookingHistory.this, "Driver details not available", Toast.LENGTH_SHORT).show();
                 }else {
-                    if(DriverID.length()>0) {
+                    if(DriverID!=null) {
                         Intent intent = new Intent(getApplicationContext(), DriverProfile.class);
                         intent.putExtra("driverID", DriverID);
                         startActivity(intent);
@@ -298,7 +312,6 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                     .setCompletedPosition(0).drawView();
             binding.spb.setCompletedPosition(0);
         } catch (ArrayIndexOutOfBoundsException e3) {
-            Toast.makeText(this, e3.getMessage(), Toast.LENGTH_SHORT).show();
         }
 
         bookingStatusIndicator();
@@ -321,7 +334,6 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                 }
 
         } catch (ArrayIndexOutOfBoundsException e4) {
-            Toast.makeText(this, e4.getMessage(), Toast.LENGTH_SHORT).show();
         }
 
 
@@ -429,29 +441,32 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                     }
                     if (status.equals("Arriving") || status.equals("Reached") ||
                             status.equals("Started") || status.equals("Completed")) {
-                        db.collection("LiveLocation").document(DriverID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                            @Override
-                            public void onEvent(@Nullable DocumentSnapshot data2, @Nullable FirebaseFirestoreException e) {
-                                if (data2 != null & data2.exists()) {
-                                    DriverLiveLatLng = data2.getGeoPoint("geoPoint");
-                                    DriverLiveLat = DriverLiveLatLng.getLatitude();
-                                    DriverLiveLng = DriverLiveLatLng.getLongitude();
-                                    markerDriverLiveLoc = new MarkerOptions().position(new LatLng(DriverLiveLat,
-                                            DriverLiveLng)).title("Driver Live Location")
-                                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.truck_png_1));
-                                    if (DriverLiveMarker != null) {
-                                        DriverLiveMarker.remove();
+                        if (DriverID != null) {
+                            db.collection("LiveLocation").document(DriverID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                                @Override
+                                public void onEvent(@Nullable DocumentSnapshot data2, @Nullable FirebaseFirestoreException e) {
+                                    if (data2 != null & data2.exists()) {
+                                        DriverLiveLatLng = data2.getGeoPoint("geoPoint");
+                                        if (DriverLiveLatLng != null) {
+                                            DriverLiveLat = DriverLiveLatLng.getLatitude();
+                                            DriverLiveLng = DriverLiveLatLng.getLongitude();
+                                            markerDriverLiveLoc = new MarkerOptions().position(new LatLng(DriverLiveLat,
+                                                    DriverLiveLng)).title("Driver Live Location")
+                                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.truck_png_1));
+                                            if (DriverLiveMarker != null) {
+                                                DriverLiveMarker.remove();
+                                            }
+                                            DriverLiveMarker = mMap.addMarker(markerDriverLiveLoc);
+                                            LatLng origin = new LatLng(DriverLiveLat, DriverLiveLng);
+                                            LatLng destination = new LatLng(CustomerLatitude, CustomerLongitude);
+                                            getDirection(origin, destination);
+                                        }
+                                        //MapImplement();
+                                        bookingStatusIndicator();
                                     }
-                                    DriverLiveMarker = mMap.addMarker(markerDriverLiveLoc);
-                                    LatLng origin = new LatLng(DriverLiveLat, DriverLiveLng);
-                                    LatLng destination = new LatLng(CustomerLatitude, CustomerLongitude);
-                                    getDirection(origin, destination);
-
-                                    //MapImplement();
-                                    bookingStatusIndicator();
                                 }
-                            }
-                        });
+                            });
+                        }
                     }
                 } catch (Exception e) {
                 }
@@ -474,13 +489,15 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                                     if (status.equals("Confirmed")) {
                                         DriverHomeLat = data1.getDouble("driverHomeLat");
                                         DriverHomeLng = data1.getDouble("driverHomeLng");
-                                        markerDriverHomeLoc = new MarkerOptions().position(new LatLng(DriverHomeLat,
-                                                DriverHomeLng)).title("Driver Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.truck_png_1));
-                                        mMap.addMarker(markerDriverHomeLoc);
-                                        DriverLocation = new LatLng(DriverHomeLat, DriverHomeLng);
-                                        LatLng origin = new LatLng(DriverHomeLat, DriverHomeLng);
-                                        LatLng destination = new LatLng(CustomerLatitude, CustomerLongitude);
-                                        getDirection(origin, destination);
+                                        if (DriverHomeLat!=null &&DriverHomeLng != null) {
+                                            markerDriverHomeLoc = new MarkerOptions().position(new LatLng(DriverHomeLat,
+                                                    DriverHomeLng)).title("Driver Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.truck_png_1));
+                                            mMap.addMarker(markerDriverHomeLoc);
+                                            DriverLocation = new LatLng(DriverHomeLat, DriverHomeLng);
+                                            LatLng origin = new LatLng(DriverHomeLat, DriverHomeLng);
+                                            LatLng destination = new LatLng(CustomerLatitude, CustomerLongitude);
+                                            getDirection(origin, destination);
+                                        }
                                     } else if (status.equals("Pending") || status.equals("Waiting")) {
                                         bookingStatusIndicator();
 
@@ -534,46 +551,48 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
 
-                                DocumentReference dr = db.collection("Bookings").document(UUID)
-                                        .collection("Booking Details").document(BookingId);
-                                Map<String, Object> statusUpdate = new HashMap<>();
-                                if (status.equals("Pending")) {
-                                    statusUpdate.put("status", "Cancelled");
-                                    statusUpdate.put("cancelledBy", "Farmer");
-                                    Toast.makeText(ParticularBookingHistory.this, "Cancellation Successful", Toast.LENGTH_SHORT).show();
-                                    btnCancel.setText("Cancellation Request Under Process ... ");
-                                    tvCurrentStatus.setTextSize(20);
-                                    tvCurrentStatus.setTextColor(Color.RED);
-                                    binding.spb.setVisibility(View.GONE);
-                                } else if (status.equals("Confirmed")) {
-                                    statusUpdate.put("status", "Cancellation Request");
-                                    statusUpdate.put("cancellationReqFrom", "Farmer");
-                                    Toast.makeText(ParticularBookingHistory.this, "Cancellation Request sent successful", Toast.LENGTH_SHORT).show();
-                                    btnCancel.setText("Cancellation Request Under Process ... ");
-                                    tvCurrentStatus.setTextSize(20);
-                                    tvCurrentStatus.setTextColor(Color.RED);
-                                    binding.spb.setVisibility(View.GONE);
-                                }
-                                dr.set(statusUpdate, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-
-                                    }
-                                });
-
-                                DocumentReference AllBookingIDUpdateReschedule = db.collection("All Booking ID").document(BookingId);
-                                AllBookingIDUpdateReschedule.set(statusUpdate, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Toast.makeText(ParticularBookingHistory.this,
-                                                "Cancellation request sent successful", Toast.LENGTH_SHORT).show();
+                                if (UUID != null&&BookingId!=null) {
+                                    DocumentReference dr = db.collection("Bookings").document(UUID)
+                                            .collection("Booking Details").document(BookingId);
+                                    Map<String, Object> statusUpdate = new HashMap<>();
+                                    if (status.equals("Pending")) {
+                                        statusUpdate.put("status", "Cancelled");
+                                        statusUpdate.put("cancelledBy", "Farmer");
+                                        Toast.makeText(ParticularBookingHistory.this, "Cancellation Successful", Toast.LENGTH_SHORT).show();
+                                        btnCancel.setText("Cancellation Request Under Process ... ");
+                                        tvCurrentStatus.setTextSize(20);
+                                        tvCurrentStatus.setTextColor(Color.RED);
+                                        binding.spb.setVisibility(View.GONE);
+                                    } else if (status.equals("Confirmed")) {
+                                        statusUpdate.put("status", "Cancellation Request");
+                                        statusUpdate.put("cancellationReqFrom", "Farmer");
+                                        Toast.makeText(ParticularBookingHistory.this, "Cancellation Request sent successful", Toast.LENGTH_SHORT).show();
                                         btnCancel.setText("Cancellation Request Under Process ... ");
                                         tvCurrentStatus.setTextSize(20);
                                         tvCurrentStatus.setTextColor(Color.RED);
                                         binding.spb.setVisibility(View.GONE);
                                     }
-                                });
-                                sendNotification();
+                                    dr.set(statusUpdate, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+
+                                        }
+                                    });
+
+                                    DocumentReference AllBookingIDUpdateReschedule = db.collection("All Booking ID").document(BookingId);
+                                    AllBookingIDUpdateReschedule.set(statusUpdate, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Toast.makeText(ParticularBookingHistory.this,
+                                                    "Cancellation request sent successful", Toast.LENGTH_SHORT).show();
+                                            btnCancel.setText("Cancellation Request Under Process ... ");
+                                            tvCurrentStatus.setTextSize(20);
+                                            tvCurrentStatus.setTextColor(Color.RED);
+                                            binding.spb.setVisibility(View.GONE);
+                                        }
+                                    });
+                                    sendNotification();
+                                }
                             }
                         }).setNegativeButton("NO", new DialogInterface.OnClickListener() {
                             @Override
@@ -602,7 +621,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getApplicationContext(), MapsActivity.class));
+                startActivity(new Intent(getApplicationContext(), BookingHistoryActivity.class));
                 finish();
             }
         });
@@ -687,77 +706,74 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
     }
 
     public void DriverCall(View view) {
-
-            if (status.equals("Confirmed") || status.equals("Arriving") || status.equals("Reached") ||
-                    status.equals("Started") || status.equals("Completed") || status.equals("Cancellation Request")) {
-                Intent callIntent = new Intent(Intent.ACTION_CALL); //use ACTION_CALL class
-                callIntent.setData(Uri.parse("tel:" + Drivphone));
-                //this is the phone number calling
-                //check permission
-                //If the device is running Android 6.0 (API level 23) and the app's targetSdkVersion is 23 or higher,
-                //the system asks the user to grant approval.
-                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-                    //request permission from user if the app hasn't got the required permission
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.CALL_PHONE},   //request specific permission from user
-                            10);
-                    return;
-                } else {     //have got permission
-                    try {
-                        startActivity(callIntent);  //call activity and make phone call
-                    } catch (android.content.ActivityNotFoundException ex) {
-                        Toast.makeText(getApplicationContext(), "yourActivity is not founded", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            } else {
-                Toast.makeText(this, "Driver not allocated yet", Toast.LENGTH_SHORT).show();
+if (Drivphone == null) {
+            Toast.makeText(getApplicationContext(), "Driver Not Allocated Yet", Toast.LENGTH_SHORT).show();
+        } else {
+        Intent callIntent = new Intent(Intent.ACTION_CALL); //use ACTION_CALL class
+        callIntent.setData(Uri.parse("tel:" + Drivphone));
+        //this is the phone number calling
+        //check permission
+        //If the device is running Android 6.0 (API level 23) and the app's targetSdkVersion is 23 or higher,
+        //the system asks the user to grant approval.
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            //request permission from user if the app hasn't got the required permission
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.CALL_PHONE},   //request specific permission from user
+                    10);
+            return;
+        } else {     //have got permission
+            try {
+                startActivity(callIntent);  //call activity and make phone call
+            } catch (android.content.ActivityNotFoundException ex) {
+                Toast.makeText(getApplicationContext(), "yourActivity is not founded", Toast.LENGTH_SHORT).show();
             }
-
+        }
+    }
     }
 
     public  void DriverChat(View view){
-
-            if (tvDriverName.getText().equals("Not Allocated") || status.equals("Cancelled")) {
-                Toast.makeText(ParticularBookingHistory.this, "Driver Not Allocated Yet", Toast.LENGTH_SHORT).show();
-            } else {
-                Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
-                intent.putExtra("toUid", DriverID);
-                startActivity(intent);
-                overridePendingTransition(R.anim.fade_in, R.anim.push_out_down);
-            }
-
+ if (DriverID==null) {
+            Toast.makeText(getApplicationContext(), "Driver Not Allocated Yet", Toast.LENGTH_SHORT).show();
+        }else {
+         Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
+         intent.putExtra("toUid", DriverID);
+         startActivity(intent);
+         overridePendingTransition(R.anim.fade_in, R.anim.push_out_down);
+ }
     }
     public  void AdminChat(View view){
         try {
             ProgeressDialog();
             progressDialog.show();
             //Checking Booking id Existance
-        db.collection("Chat Requests").document("Farmer")
-                .collection("Requests").document(BookingId)
-                .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            if (BookingId != null) {
+                db.collection("Chat Requests").document("Farmer")
+                        .collection("Requests").document(BookingId)
+                        .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         try {
-                        if(documentSnapshot.exists()){
-                            checkStatus();
+                            if (documentSnapshot.exists()) {
+                                checkStatus();
 
-                            progressDialog.dismiss();
+                                progressDialog.dismiss();
 
-                        } else {
-                            sendChatRequest();
-                            progressDialog.dismiss();
-                            Log.d(TAG," This is new Request ID");
-                        }
-                           }catch(Exception e) {
-                                Log.d(TAG,e.getMessage());
+                            } else {
+                                sendChatRequest();
+                                progressDialog.dismiss();
+                                Log.d(TAG, " This is new Request ID");
                             }
+                        } catch (Exception e) {
+                            Log.d(TAG, e.getMessage());
+                        }
                     }
                 }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.d(TAG,e.getMessage());
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, e.getMessage());
+                    }
+                });
             }
-        });
         }catch(Exception e) {
             Log.d(TAG,e.getMessage());
         }
@@ -765,37 +781,51 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
     }
 
     private void checkStatus() {
-        try{
-        //Checking Request Status
-        DocumentReference dr = db.collection("Chat Requests")
-                .document("Farmer").collection("Requests").document(BookingId);
-        dr.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                try {
-                    if (value.exists()) {
-                       chatStatus=value.getData().get("chat_status").toString();
-                        if(chatStatus!=null) {
-                            if (chatStatus.equals("Pending")) {
-                                Toast.makeText(ParticularBookingHistory.this, "Admin Not Allocated Yet", Toast.LENGTH_SHORT).show();
-                            } else if (chatStatus.equals("Accepted")) {
-                                adminUID = value.getData().get("adminUID").toString();
-                                Intent intent = new Intent(ParticularBookingHistory.this, ChatActivity.class);
-                                intent.putExtra("toUid", adminUID);
-                                startActivity(intent);
-                                overridePendingTransition(R.anim.fade_in, R.anim.push_out_down);
-                                finish();
+        try {
+            //Checking Request Status
+            if (BookingId != null) {
+                DocumentReference dr = db.collection("Chat Requests")
+                        .document("Farmer").collection("Requests").document(BookingId);
+                dr.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                        try {
+                            if (value.exists()) {
+                                chatStatus = value.getData().get("chat_status").toString();
+                                if (chatStatus != null) {
+                                    if (chatStatus.equals("Pending")) {
+                                        Toast.makeText(ParticularBookingHistory.this, "Admin Not Allocated Yet", Toast.LENGTH_SHORT).show();
+                                    } else if (chatStatus.equals("Accepted")) {
+                                        adminUID = value.getData().get("adminUID").toString();
+                                        if (adminUID != null) {
+                                            Intent intent = new Intent(ParticularBookingHistory.this, ChatActivity.class);
+                                            intent.putExtra("toUid", adminUID);
+                                            startActivity(intent);
+                                            overridePendingTransition(R.anim.fade_in, R.anim.push_out_down);
+                                            finish();
+                                        }
 
+
+                                    }
+                                }
+                            } else {
+                                Toast.makeText(ParticularBookingHistory.this, "Admin Not Allocated Yet", Toast.LENGTH_SHORT).show();
                             }
+                        } catch (Exception e) {
                         }
-                    } else{Toast.makeText(ParticularBookingHistory.this, "Admin Not Allocated Yet", Toast.LENGTH_SHORT).show();}
-                } catch (Exception e) {} }
-        });} catch (Exception e) {}
+                    }
+                });
+            }
+            } catch(Exception e){
+            }
+
     }
 
+    @NonNull
     private void sendChatRequest() {
 try {
-        chatRequest.put("name",CustName);
+    if (BookingId != null) {
+        chatRequest.put("name", CustName);
         chatRequest.put("uid", UUID);
         chatRequest.put("booking_Id", BookingId);
         chatRequest.put("chat_status", "Pending");
@@ -808,11 +838,11 @@ try {
             @Override
             public void onSuccess(Void aVoid) {
                 try {
-                Toast.makeText(ParticularBookingHistory.this,
-                        "Admin Chat Request Sent Successful, Please Check Back Later", Toast.LENGTH_SHORT).show();
-                  }catch(Exception e) {
-                                Log.d(TAG,e.getMessage());
-                            }
+                    Toast.makeText(ParticularBookingHistory.this,
+                            "Admin Chat Request Sent Successful, Please Check Back Later", Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                    Log.d(TAG, e.getMessage());
+                }
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -821,6 +851,7 @@ try {
                 Toast.makeText(ParticularBookingHistory.this, "Failed to send request!", Toast.LENGTH_SHORT).show();
             }
         });
+    }
            }catch(Exception e) {
                                 Log.d(TAG,e.getMessage());
                             }
@@ -869,60 +900,64 @@ try {
     @NotNull
     @NonNull
     private void getDirection(final LatLng origin,final LatLng destination) {
-        Call<Result> call = apiClient.getDirection("driving",
-                origin.latitude + "," + origin.longitude, destination.latitude + ","
-                        + destination.longitude, getResources().getString(R.string.api_key));
+        try {
+            Call<Result> call = apiClient.getDirection("driving",
+                    origin.latitude + "," + origin.longitude, destination.latitude + ","
+                            + destination.longitude, getResources().getString(R.string.api_key));
 
-        call.enqueue(new Callback<Result>() {
-            @RequiresApi(api = Build.VERSION_CODES.M)
-            @Override
-            public void onResponse(Call<Result> call, Response<Result> response) {
+            call.enqueue(new Callback<Result>() {
+                @RequiresApi(api = Build.VERSION_CODES.M)
+                @Override
+                public void onResponse(Call<Result> call, Response<Result> response) {
 
-                Log.i(TAG, "getDirection : Success got Result from API");
+                    Log.i(TAG, "getDirection : Success got Result from API");
 
-                listPolyline = new ArrayList<>();
-                polylineOptions = new PolylineOptions();
+                    listPolyline = new ArrayList<>();
+                    polylineOptions = new PolylineOptions();
 
-                Result result = response.body();
-                List<Routes> routesList = result.getRoutes();
+                    Result result = response.body();
+                    List<Routes> routesList = result.getRoutes();
 
-                for (int i = 0; i < routesList.size(); i++) {
-                    String polyline = routesList.get(i).getOverview_polyline().getPoints();
-                    listPolyline.addAll(new DataParser().decodePoly(polyline));
+                    for (int i = 0; i < routesList.size(); i++) {
+                        String polyline = routesList.get(i).getOverview_polyline().getPoints();
+                        listPolyline.addAll(new DataParser().decodePoly(polyline));
+                    }
+
+                    polylineOptions.color(getColor(R.color.quantum_googgreen));
+                    polylineOptions.width(20F);
+                    polylineOptions.startCap(new ButtCap());
+                    polylineOptions.endCap(new ButtCap());
+                    polylineOptions.jointType(JointType.ROUND);
+                    polylineOptions.addAll(listPolyline);
+                    mMap.addPolyline(polylineOptions);
+                    LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                    builder.include(origin);
+                    builder.include(destination);
+
+                    String duration = routesList.get(0).getLegs().get(0).getDuration().getText();
+                    String distance = routesList.get(0).getLegs().get(0).getDistance().getText();
+                    tvKMDistance.setText(distance);
+                    tvArrivingTime.setText(duration);
+
+                    homeLoc = new MarkerOptions().position(new LatLng(CustomerLatitude, CustomerLongitude)).title("Your's :"+CustAddress);
+                    mMap.addMarker(homeLoc);
+                    //LatLngBounds bounds = builder.build();
+                    final int width = getResources().getDisplayMetrics().widthPixels;
+                    final int height = getResources().getDisplayMetrics().heightPixels;
+                    final int minMetric = Math.min(width, height);
+                    final int padding = (int) (minMetric /10);
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build() ,width,height,padding));
                 }
 
-                polylineOptions.color(getColor(R.color.quantum_googgreen));
-                polylineOptions.width(20F);
-                polylineOptions.startCap(new ButtCap());
-                polylineOptions.endCap(new ButtCap());
-                polylineOptions.jointType(JointType.ROUND);
-                polylineOptions.addAll(listPolyline);
-                mMap.addPolyline(polylineOptions);
-                LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                builder.include(origin);
-                builder.include(destination);
-
-                String duration = routesList.get(0).getLegs().get(0).getDuration().getText();
-                String distance = routesList.get(0).getLegs().get(0).getDistance().getText();
-                tvKMDistance.setText(distance);
-                tvArrivingTime.setText(duration);
-
-                homeLoc = new MarkerOptions().position(new LatLng(CustomerLatitude, CustomerLongitude)).title("Your's :"+CustAddress);
-                mMap.addMarker(homeLoc);
-                //LatLngBounds bounds = builder.build();
-                final int width = getResources().getDisplayMetrics().widthPixels;
-                final int height = getResources().getDisplayMetrics().heightPixels;
-                final int minMetric = Math.min(width, height);
-                final int padding = (int) (minMetric /10);
-                mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build() ,width,height,padding));
-            }
-
-            @Override
-            public void onFailure(Call<Result> call, Throwable t) {
-                Log.e(TAG, " getDirection : Failed to get Result from API", t);
-                Toast.makeText(getApplicationContext(), "Failed" + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+                @Override
+                public void onFailure(Call<Result> call, Throwable t) {
+                    Log.e(TAG, " getDirection : Failed to get Result from API", t);
+                    Toast.makeText(getApplicationContext(), "Failed" + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        } catch (Resources.NotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     private void SetupID() {
