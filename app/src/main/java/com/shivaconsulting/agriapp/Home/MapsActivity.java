@@ -130,9 +130,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     //Const
     private static final String TAG = "MapsActivity";
     private Context mContext = MapsActivity.this;
-    @NotNull
+    
     private static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
-    @NotNull
+    
     private static final String COURSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
     private static final int LOCATION_SETTINGS_REQUEST = 4548;
@@ -154,39 +154,39 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private AddressAdapter AddressAdapter;
     private ProgressBar progressBar;
     ProgressDialog progressDialog;
-    @NotNull
+    
     ArrayList<GeoPoint> GeoPointList = new ArrayList<com.google.firebase.firestore.GeoPoint>();
-    @NotNull
+    
     MarkerOptions options = new MarkerOptions();
-    @NotNull
+    
     Marker optionsMarker;
-    @NotNull
+    
     private MarkerOptions LiveMarkerOptions = new MarkerOptions();
-    @NotNull
+    
     Marker liveMarkers;
-    @NotNull
+    
     SharedPreferences prefs ;
     SharedPreferences.Editor spEditor ;
     Marker dragMarker;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
-    @NotNull
+    
     String UUID = FirebaseAuth.getInstance().getUid();
 
     DocumentReference dr = db.collection("Users").document(UUID);
     final Map<String, Object> post1 = new HashMap<>();
     final Map<String, Object> post2 = new HashMap<>();
     public static Date dateFormat;
-    @NotNull
+    
     String phone, custName;
-    @NotNull
+    
     public static String time,area,selectedDate;
-    @NotNull
+    
     String currentAddress, address, ServiceType, ServiceID, token, personName,LiveLatAddress;
     static double lat, lon;
     int count;
-    @NotNull
+    
     Random rnd = new Random(); //To generate random booking id
-    @NotNull
+    
     final Long ID = (long) rnd.nextInt(99999999); //To generate random booking id
 
     //final Handler handler = new Handler();
@@ -651,8 +651,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         getDeviceLocation();
                         getAddress();
                     } else {
-                        @NotNull
-                        @NonNull
                         final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
                         builder.setTitle("Confirm Booking");
                         builder.setMessage("Selected service type is " + ServiceType + ". Do you want to proceed ?");

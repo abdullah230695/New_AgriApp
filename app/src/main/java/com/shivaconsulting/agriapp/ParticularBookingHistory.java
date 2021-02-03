@@ -372,7 +372,10 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
         } else if (status.equals("Arriving")) {
             btnCancel.setVisibility(View.INVISIBLE);
             btnReschedule.setVisibility(View.INVISIBLE);
-        } else if (status.equals("Cancellation Request")) {
+        }  else if (status.equals("Reached")) {
+            btnCancel.setVisibility(View.INVISIBLE);
+            btnReschedule.setVisibility(View.INVISIBLE);
+        }else if (status.equals("Cancellation Request")) {
             btnCancel.setVisibility(View.INVISIBLE);
             btnReschedule.setVisibility(View.INVISIBLE);
             tvCurrentStatus.setText("Cancellation Request Under Process ...");

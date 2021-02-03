@@ -73,7 +73,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.SetOptions;
 import com.shivaconsulting.agriapp.Adapter.AreaAdapter;
 import com.shivaconsulting.agriapp.Adapter.PlacesAutoCompleteAdapter;
 import com.shivaconsulting.agriapp.Adapter.TimeAdapterNew;
@@ -155,7 +154,7 @@ public class RescheduleBooking extends AppCompatActivity implements OnMapReadyCa
     private  EditText ChangeContact;
     private ToggleButton tbChangeContact,tbChangeAddress;
     CardView cvAddressSearch;
-    @Override
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reschedule_booking);
@@ -426,12 +425,12 @@ tbChangeContact.setOnClickListener(new View.OnClickListener() {
         });
 
 
-        //Booking Event
+        //Reschedule Button
         Reschedule1.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View view) {
-                    try {
+                try {
                 if (selectedDate == null | time2 == null | area2 == null |
                         autocompleteFragment==null | autoCompleteTextView.length()==0) {
                  if (selectedDate == null | time2 == null | area2 == null ) {
@@ -446,15 +445,14 @@ tbChangeContact.setOnClickListener(new View.OnClickListener() {
                     Toast.makeText(mContext, "Please select service type", Toast.LENGTH_SHORT).show();
                 }  else {
 
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
                     builder.setTitle("Confirm Booking");
                     builder.setMessage("Selected service type is " + ServiceType + ". Do you want to proceed ?");
                     builder.setCancelable(false);
-                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-
-                            RecheduleCurrentBooking();
+                            RescheduleCurrentBooking();
                         }
                     }).setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
                         @Override
@@ -469,9 +467,7 @@ tbChangeContact.setOnClickListener(new View.OnClickListener() {
                     alert.show();
 
                 }
-}catch (Exception e){
-
-}
+                 }catch (Exception e){}
             }
 
 
@@ -951,14 +947,16 @@ try {
     }
 
     //Rescheduling Current Booking
-    private void RecheduleCurrentBooking(){
+    private void RescheduleCurrentBooking(){
         try {
-        post.put("reschedule_Date", new Timestamp(new Date()));
-        post.put("delivery_Date", dateFormat);
+        ProgeressDialog();
+        progressDialog.show();
+        post.put("timeOfReschedule", new Timestamp(new Date()));
+        post.put("farmerReScheduleDate", dateFormat);
         post.put("contact_Number",ChangeContact.getText().toString());
-        post.put("delivery_Time", time2);
-        post.put("area", area2);
-        post.put("service_Type", ServiceType);
+        post.put("farmerReScheduleTime", time2);
+        post.put("farmerReScheduleArea", area2);
+        post.put("farmerReScheduleSVType", ServiceType);
         if(!tbChangeAddress.isChecked()) {
             post.put("address", autoCompleteTextView.getText().toString());
             post.put("latitude", lat);
@@ -966,41 +964,42 @@ try {
         }else{
             post.put("address", oldAddress);
         }
-        if(status.equals("Confirmed")) {
+        if(status.equals("Confirmed")||status.equals("Reschedule Request")) {
             post.put("status", "Reschedule Request");
-            post.put("rescheduleReqFrom", "Farmer");
+            post.put("requestedFrom", "Farmer");
         }
 
         DocumentReference RescheduleUpdate = db.collection("Bookings")
                 .document(UUID).collection("Booking Details").document(BookingId);
-        RescheduleUpdate.set(post, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
+        RescheduleUpdate.update(post).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                if(status.equals("Confirmed")) {
-                    Toast.makeText(RescheduleBooking.this, "Successfully Rescheduled", Toast.LENGTH_SHORT).show();
-                    Reschedule1.setText("Rescheduled ✔");
-                    Reschedule1.setTextColor(Color.WHITE);
-                    Reschedule1.setEnabled(false);
-                } else if(status.equals("Pending")){
-                    Toast.makeText(RescheduleBooking.this, "Successfully Changed", Toast.LENGTH_SHORT).show();
-                    Reschedule1.setText("Changed ✔");
-                    Reschedule1.setTextColor(Color.WHITE);
-                    Reschedule1.setEnabled(false);
-                }
 
             }
         });
 
         DocumentReference AllBookingIDUpdateReschedule = db.collection("All Booking ID").document(BookingId);
-        AllBookingIDUpdateReschedule.set(post, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
+        AllBookingIDUpdateReschedule.update(post).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
+                if(status.equals("Confirmed")) {
+                    Toast.makeText(mContext, "Successfully Requested", Toast.LENGTH_SHORT).show();
+                    Reschedule1.setText("Rescheduled ✔");
+
+                } else if(status.equals("Pending")){
+                    Toast.makeText(mContext, "Successfully Changed", Toast.LENGTH_SHORT).show();
+                    Reschedule1.setText("Changed ✔");
+                }else{
+                    Toast.makeText(mContext, "Successfully Requested", Toast.LENGTH_SHORT).show();
+                }
+                Reschedule1.setTextColor(Color.WHITE);
+                Reschedule1.setEnabled(false);
+                sendNotification();
+                progressDialog.dismiss();
             }
         });
-            sendNotification();
-        }catch (Exception e){
 
-        }
+     }catch (Exception e){}
 
     } //--------------------------------------------------------------------------
 
@@ -1049,7 +1048,7 @@ try {
         progressDialog=new ProgressDialog(mContext);
         progressDialog.setCancelable(false);
         progressDialog.setMessage("Processing please wait");
-
+        progressDialog.show();
     }
 
     @Override
