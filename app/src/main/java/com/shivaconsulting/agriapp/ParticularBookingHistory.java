@@ -563,7 +563,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                                         statusUpdate.put("cancelledBy", "Farmer");
                                         Toast.makeText(ParticularBookingHistory.this, "Cancellation Successful", Toast.LENGTH_SHORT).show();
                                         btnCancel.setText("Cancellation Request Under Process ... ");
-                                        tvCurrentStatus.setTextSize(20);
+                                        btnCancel.setEnabled(false);
                                         tvCurrentStatus.setTextColor(Color.RED);
                                         binding.spb.setVisibility(View.GONE);
                                     } else if (status.equals("Confirmed")) {
@@ -571,7 +571,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                                         statusUpdate.put("cancellationReqFrom", "Farmer");
                                         Toast.makeText(ParticularBookingHistory.this, "Cancellation Request sent successful", Toast.LENGTH_SHORT).show();
                                         btnCancel.setText("Cancellation Request Under Process ... ");
-                                        tvCurrentStatus.setTextSize(20);
+                                        btnCancel.setEnabled(false);
                                         tvCurrentStatus.setTextColor(Color.RED);
                                         binding.spb.setVisibility(View.GONE);
                                     }

@@ -597,7 +597,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             @Override
             public void onDisabledDateSelected(int year, int month, int day, int dayOfWeek, boolean isDisabled) {
-
             }
         });
         Log.d(TAG, "onClick: Booked Date :" + selectedDate);

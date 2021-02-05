@@ -100,7 +100,7 @@ public class RescheduleBooking extends AppCompatActivity implements OnMapReadyCa
         AreaAdapter.OnAreaItemSelectedListener, PlacesAutoCompleteAdapter.ClickListener {
 
     //Const
-    private static final String TAG = "MapsActivity";
+    private static final String TAG = "RescheduleBooking";
     private Context mContext = RescheduleBooking.this;
     private static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
     private static final String COURSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
