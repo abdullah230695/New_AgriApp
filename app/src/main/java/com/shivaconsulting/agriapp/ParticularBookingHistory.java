@@ -402,26 +402,10 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                             if (task.isSuccessful()) {
                                 try {
                                     DocumentSnapshot snapshot = task.getResult();
-                                    driverHomeLocationMap = (Map<String, Object>) snapshot.getData().get("home");
-                                    DriverHomeLat = (Double) driverHomeLocationMap.get("lat");
-                                    DriverHomeLng = (Double) driverHomeLocationMap.get("lng");
-                                    DriverLocation = new LatLng(DriverHomeLat, DriverHomeLng);
-
                                     Drivphone = snapshot.getData().get("phoneNo").toString();
-
-                               /* markerDriverHomeLoc = new MarkerOptions().position(new LatLng(DriverHomeLat,DriverHomeLng))
-                                .title("Driver Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.truck_png_1));
-
-                                DriverHomeMarker = mMap.addMarker(markerDriverHomeLoc);
-                                DriverLocation = new LatLng(DriverHomeLat, DriverHomeLng);
-                                LatLng origin = new LatLng(DriverHomeLat, DriverHomeLng);
-                                LatLng destination = new LatLng(CustomerLatitude, CustomerLongitude);
-                                getDirection(origin, destination);*/
                                 } catch (NullPointerException npe) {
                                     Log.d("driverLoc", npe.getMessage());
                                 }
-
-                                //MapImplement();
                                 bookingStatusIndicator();
 
                             } else {
@@ -442,8 +426,8 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                     if (status.equals("Confirmed")) {
                         btnReschedule.setVisibility(View.VISIBLE);
                     }
-                    if (status.equals("Arriving") || status.equals("Reached") ||
-                            status.equals("Started") || status.equals("Completed")) {
+                    if (status.equals("Confirmed")||status.equals("Arriving") || status.equals("Reached") ||
+                            status.equals("Started") /*|| status.equals("Completed")*/) {
                         if (DriverID != null) {
                             db.collection("LiveLocation").document(DriverID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
                                 @Override
@@ -486,32 +470,8 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                 public void onEvent(@Nullable DocumentSnapshot data1, @Nullable FirebaseFirestoreException e) {
                     try {
                         if (data1 != null && data1.exists()) {
-                            try {
                                 status = data1.getString("status");
-                                if (status != null) {
-                                    if (status.equals("Confirmed")) {
-                                        DriverHomeLat = data1.getDouble("driverHomeLat");
-                                        DriverHomeLng = data1.getDouble("driverHomeLng");
-                                        if (DriverHomeLat!=null &&DriverHomeLng != null) {
-                                            markerDriverHomeLoc = new MarkerOptions().position(new LatLng(DriverHomeLat,
-                                                    DriverHomeLng)).title("Driver Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.truck_png_1));
-                                            mMap.addMarker(markerDriverHomeLoc);
-                                            DriverLocation = new LatLng(DriverHomeLat, DriverHomeLng);
-                                            LatLng origin = new LatLng(DriverHomeLat, DriverHomeLng);
-                                            LatLng destination = new LatLng(CustomerLatitude, CustomerLongitude);
-                                            getDirection(origin, destination);
-                                        }
-                                    } else if (status.equals("Pending") || status.equals("Waiting")) {
-                                        bookingStatusIndicator();
-
-                                    }
-                                }
-                            } catch (NullPointerException npe) {
-                                Log.d("driverLoc", npe.getMessage());
-                            }
-                            //MapImplement();
-                            bookingStatusIndicator();
-
+                                if (status != null) { bookingStatusIndicator(); }
                         }
                     } catch (ArrayIndexOutOfBoundsException e2) {
 
@@ -866,6 +826,7 @@ try {
     }
 
     public void onBackPressed() {
+        startActivity(new Intent(getApplicationContext(),BookingHistoryActivity.class));
         finish();
     }
 

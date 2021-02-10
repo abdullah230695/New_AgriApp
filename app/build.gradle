@@ -1,6 +1,8 @@
 apply plugin: 'com.android.application'
 
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.crashlytics'
+
 
 android {
     signingConfigs {
@@ -55,6 +57,8 @@ dependencies {
     implementation 'androidx.coordinatorlayout:coordinatorlayout:1.1.0'
     implementation 'org.jetbrains:annotations-java5:15.0'
     implementation 'com.google.firebase:firebase-messaging:20.3.0'
+    implementation 'com.google.firebase:firebase-crashlytics:17.3.1'
+
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
@@ -129,7 +133,7 @@ dependencies {
 
     implementation 'com.firebaseui:firebase-ui-storage:4.1.0'
     implementation 'com.google.firebase:firebase-storage:15.0.2'
-    //For java date time
+    //For date time conversions
     implementation 'com.jakewharton.threetenabp:threetenabp:1.2.1'
 
 }
