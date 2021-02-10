@@ -337,7 +337,8 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
         }
 
 
-        if (status.equals("Pending") || status.equals("Waiting")) {
+        if (status.equals("Pending") || status.equals("Waiting")|| status.equals("Cancelled")
+                || status.equals("Cancellation Request")||status.equals("Completed")) {
             try {
                 tvArrivingTime.setVisibility(View.INVISIBLE);
                 tvKMDistance.setVisibility(View.INVISIBLE);
@@ -349,9 +350,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                 if (status.equals("Waiting")) {
                     btnReschedule.setVisibility(View.INVISIBLE);
                 }
-            } catch (Exception e) {
-
-            }
+            } catch (Exception e) {}
         }
 
         if (status.equals("Confirmed")) {
@@ -392,7 +391,8 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
         //Getting DriverLiveLocation
 
         if (status.equals("Confirmed")||status.equals("Arriving")|| status.equals("Reached")||
-                status.equals("Started") ||status.equals("Completed")||status.equals("Cancellation Request")) {
+                status.equals("Started") ||status.equals("Completed")||status.equals("Reschedule Request")
+                || status.equals("Cancellation Request")) {
             if(DriverID!=null) {
                 DocumentReference dr = db.collection("OperatorUsers").document(DriverID);
                 dr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -613,7 +613,8 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         if(status!=null) {
-            if (status.equals("Pending") | status.equals("Waiting")) {
+            if (status.equals("Pending") | status.equals("Waiting")
+                    |status.equals("Cancellation Request") | status.equals("Cancelled")|status.equals("Completed")) {
                 try {
                     mMap.addMarker(homeLoc);
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(CustomerLocation, 19));  //move camera to location
