@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_gravity="center"
     tools:context=".Profile.LoginActivity">
 
     <ScrollView
@@ -38,6 +37,7 @@
                     <ImageView
                         android:layout_width="220dp"
                         android:layout_height="220dp"
+                        android:contentDescription="TODO"
                         android:src="@drawable/img_number_verification" />
 
                     <TextView

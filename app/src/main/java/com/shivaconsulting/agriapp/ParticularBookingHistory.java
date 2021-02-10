@@ -54,6 +54,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.SetOptions;
+import com.jakewharton.threetenabp.AndroidThreeTen;
 import com.shivaconsulting.agriapp.Driver.DriverProfile;
 import com.shivaconsulting.agriapp.History.BookingHistoryActivity;
 import com.shivaconsulting.agriapp.Home.MapsActivity;
@@ -69,8 +70,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -153,6 +152,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
         super.onCreate(savedInstanceState);
         binding = ActivityParticularBookingHistoryBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        AndroidThreeTen.init(this);
 
         //api client with api
         apiClient = new RetrofitClient().getClient().create(Api.class);
@@ -251,35 +251,35 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                 date0 = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy").parse(BookingDateTime);
                 parseTime0 = new SimpleDateFormat("HH:mm:ss").format(date0);
                 time0 = parseTime0;
-                actualTime0 = LocalTime.parse(time0).format(DateTimeFormatter.ofPattern("h:mma"));
+                actualTime0 = org.threeten.bp.LocalTime.parse(time0).format(org.threeten.bp.format.DateTimeFormatter.ofPattern("h:mma"));
                 tvBKtime.setText("Time : "+actualTime0);
             }
             if(driverStartDateTime!=null) {
                 date1 = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy").parse(driverStartDateTime);
                 parseTime1 = new SimpleDateFormat("HH:mm:ss").format(date1);
                 time1 = parseTime1;
-                actualTime1 = LocalTime.parse(time1).format(DateTimeFormatter.ofPattern("h:mma"));
+                actualTime1 = org.threeten.bp.LocalTime.parse(time1).format(org.threeten.bp.format.DateTimeFormatter.ofPattern("h:mma"));
                 tvArvlStartTime.setText(actualTime1);
             }
             if(driverReachedDateTime!=null) {
                 date2 = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy").parse(driverReachedDateTime);
                 parseTime2 = new SimpleDateFormat("HH:mm:ss").format(date2);
                 time2=parseTime2;
-                actualTime2= LocalTime.parse(time2).format(DateTimeFormatter.ofPattern("h:mma"));
+                actualTime2= org.threeten.bp.LocalTime.parse(time2).format(org.threeten.bp.format.DateTimeFormatter.ofPattern("h:mma"));
                 tvArvlReachedTime.setText(actualTime2);
             }
             if(serviceStartDateTime!=null) {
                 date3 = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy").parse(serviceStartDateTime);
                 parseTime3 = new SimpleDateFormat("HH:mm:ss").format(date3);
                 time3=parseTime3;
-                actualTime3= LocalTime.parse(time3).format(DateTimeFormatter.ofPattern("h:mma"));
+                actualTime3= org.threeten.bp.LocalTime.parse(time3).format(org.threeten.bp.format.DateTimeFormatter.ofPattern("h:mma"));
                 tvSVStartTime.setText(actualTime3);
             }
             if(serviceStopDateTime!=null) {
                 date4 = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy").parse(serviceStopDateTime);
                 parseTime4 = new SimpleDateFormat("HH:mm:ss").format(date4);
                 time4=parseTime4;
-                actualTime4= LocalTime.parse(time4).format(DateTimeFormatter.ofPattern("h:mma"));
+                actualTime4= org.threeten.bp.LocalTime.parse(time4).format(org.threeten.bp.format.DateTimeFormatter.ofPattern("h:mma"));
                 tvSVEndTime.setText(actualTime4);
             }
         } catch (ParseException e) {
@@ -758,7 +758,6 @@ if (Drivphone == null) {
                         try {
                             if (documentSnapshot.exists()) {
                                 checkStatus();
-
                                 progressDialog.dismiss();
 
                             } else {

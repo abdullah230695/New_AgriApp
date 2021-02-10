@@ -82,7 +82,6 @@ import com.google.android.libraries.places.widget.listener.PlaceSelectionListene
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
@@ -172,7 +171,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     
     String UUID = FirebaseAuth.getInstance().getUid();
 
-    DocumentReference dr = db.collection("Users").document(UUID);
+
     final Map<String, Object> post1 = new HashMap<>();
     final Map<String, Object> post2 = new HashMap<>();
     public static Date dateFormat;
@@ -216,30 +215,28 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         getDeviceLocation();
         savedAddressCounter();
         getLiveLat();
+
+
         //Getting Customer Phone Number
-
-
-        dr.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-
+        db.collection("Users").document(UUID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
-            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException e) {
                 try {
-                    if (error != null) {
-                        Log.d(TAG, error.getMessage());
+                    if(e!=null){
                         return;
                     }
-                    if (value != null && value.exists()) {
+                    if(value.exists()){
                         phone = value.getData().get("phone_number").toString();
                         custName = value.getData().get("user_name").toString();
                         Log.d("userData",phone+"\n"+custName);
-
                     }
-                } catch (Exception e) {
-
+                } catch (Exception exception) {
+                    exception.printStackTrace();
                 }
             }
-
         });
+
+
         if(getIntent().getExtras()!=null){
             startActivity(new Intent(mContext,BookingHistoryActivity.class));
             overridePendingTransition(R.anim.fade_in, R.anim.push_out_down);
@@ -1480,23 +1477,26 @@ private void addLiveLatMarkers(){
             cardView3.setVisibility(View.VISIBLE);
             bookContraint.setVisibility(View.GONE);
             String UUID1 = FirebaseAuth.getInstance().getUid();
-
-            post1.put("booking_Date", FieldValue.serverTimestamp());
-            post1.put("delivery_Date", dateFormat);
-            post1.put("booking_Id", ServiceID + id);
-            post1.put("contact_Number", phone);
-            post1.put("customer_Name", custName);
-            post1.put("delivery_Time", time);
-            post1.put("area", area);
-            post1.put("service_Type", ServiceType);
-            post1.put("latitude", lat);
-            post1.put("longitude", lon);
-            post1.put("address", autoCompleteTextView.getText().toString());
-            post1.put("status", "Pending");
-            post1.put("service_Provider", "Not Assigned");
-            post1.put("unique_ID", UUID1);
-            post1.put("custToken", token);
-
+            if (phone != null&&custName!=null&&UUID1!=null&&token!=null) {
+                post1.put("booking_Date", FieldValue.serverTimestamp());
+                post1.put("delivery_Date", dateFormat);
+                post1.put("booking_Id", ServiceID + id);
+                post1.put("contact_Number", phone);
+                post1.put("customer_Name", custName);
+                post1.put("delivery_Time", time);
+                post1.put("area", area);
+                post1.put("service_Type", ServiceType);
+                post1.put("latitude", lat);
+                post1.put("longitude", lon);
+                post1.put("address", autoCompleteTextView.getText().toString());
+                post1.put("status", "Pending");
+                post1.put("service_Provider", "Not Assigned");
+                post1.put("unique_ID", UUID1);
+                post1.put("custToken", token);
+            }else{
+                Toast.makeText(mContext, "Something wrong", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             ProgeressDialog();
             progressDialog.show();
@@ -1557,7 +1557,7 @@ private void addLiveLatMarkers(){
             cardView3.setVisibility(View.VISIBLE);
             bookContraint.setVisibility(View.GONE);
             String UUID1 = FirebaseAuth.getInstance().getUid();
-
+            if (phone != null&&custName!=null&&UUID1!=null&&token!=null) {
             post2.put("booking_Date", FieldValue.serverTimestamp());
             post2.put("delivery_Date", dateFormat);
             post2.put("booking_Id", ServiceID + ID);
@@ -1573,7 +1573,10 @@ private void addLiveLatMarkers(){
             post2.put("service_Provider", "Not Assigned");
             post2.put("unique_ID", UUID1);
             post2.put("custToken", token);
-
+        }else{
+            Toast.makeText(mContext, "Something wrong", Toast.LENGTH_SHORT).show();
+            return;
+        }
             ProgeressDialog();
             progressDialog.show();
 
