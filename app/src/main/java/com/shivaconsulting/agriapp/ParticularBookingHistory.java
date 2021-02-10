@@ -314,31 +314,12 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
         } catch (ArrayIndexOutOfBoundsException e3) {
         }
 
-        bookingStatusIndicator();
+             bookingStatusIndicator();
 
-        try {
-
-                if (status.equals("Pending") || status.equals("Waiting")) {
-                    binding.spb.setCompletedPosition(0).drawView();
-                } else if (status.equals("Confirmed")) {
-                    binding.spb.setCompletedPosition(1).drawView();
-                } else if (status.equals("Arriving")) {
-                    binding.spb.setCompletedPosition(2).drawView();
-                } else if (status.equals("Completed")) {
-                    binding.spb.setCompletedPosition(3).drawView();
-                    btnReschedule.setVisibility(View.INVISIBLE);
-                    btnCancel.setVisibility(View.INVISIBLE);
-                } else if (status.equals("Reschedule Request")) {
-                    binding.spb.setCompletedPosition(1).drawView();
-                    data[1] = "Reshedule...";
-                }
-
-        } catch (ArrayIndexOutOfBoundsException e4) {
-        }
 
 
         if (status.equals("Pending") || status.equals("Waiting")|| status.equals("Cancelled")
-                || status.equals("Cancellation Request")||status.equals("Completed")) {
+                || status.equals("Cancellation Request")|| status.equals("Reschedule Request")||status.equals("Completed")) {
             try {
                 tvArrivingTime.setVisibility(View.INVISIBLE);
                 tvKMDistance.setVisibility(View.INVISIBLE);
@@ -378,10 +359,20 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
             btnCancel.setVisibility(View.INVISIBLE);
             btnReschedule.setVisibility(View.INVISIBLE);
             tvCurrentStatus.setText("Cancellation Request Under Process ...");
-            tvCurrentStatus.setTextSize(20);
+            tvCurrentStatus.setTextSize(16);
             tvCurrentStatus.setTextColor(Color.RED);
-            binding.spb.setVisibility(View.GONE);
-        }else if(status.equals("Started")){
+
+
+        }else if (status.equals("Reschedule Request")) {
+            btnCancel.setVisibility(View.VISIBLE);
+            btnCancel.setText("Make Cancellation\n" + "Request");
+            btnReschedule.setVisibility(View.INVISIBLE);
+            tvCurrentStatus.setText("Reschedule Request Under Process ...");
+            tvCurrentStatus.setTextSize(16);
+            tvCurrentStatus.setTextColor(Color.RED);
+
+        }
+        else if(status.equals("Started")){
             btnReschedule.setVisibility(View.INVISIBLE);
             btnCancel.setVisibility(View.INVISIBLE);
         }
@@ -661,7 +652,10 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                     data[3] = "Over";
                 } else if (status.equals("Reschedule Request")) {
                     binding.spb.setCompletedPosition(1).drawView();
-                    data[1] = "Recshedule...";
+                    data[1] = "Reschedule...";
+                }else if (status.equals("Cancellation Request")) {
+                    binding.spb.setCompletedPosition(1).drawView();
+                    data[1] = "Cancellation ...";
                 }
             } catch (ArrayIndexOutOfBoundsException e4) {
                 Toast.makeText(this, e4.getMessage(), Toast.LENGTH_SHORT).show();
