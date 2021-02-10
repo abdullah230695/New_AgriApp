@@ -81,7 +81,7 @@ public class ChatActivity extends AppCompatActivity {
 
         @Override
         public void onBackPressed () {
-
-        }
+finish();
+    }
 
 }
