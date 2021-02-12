@@ -90,7 +90,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
     @NotNull
     public static TextView tvKMDistance, tvArrivingTime;
     TextView BKid, svType, svProv, DVdate, DvTime,tvBKdate,tvBKtime, tvDriverName, btnReschedule, btnCancel, tvCurrentStatus,tvChatAdmin;
-    @NotNull
+    Boolean fromNotification=false;
     String status,area, BookingId,BookingDateTime, Drivphone, DriverName = "Not Allocated", DriverToken,ServiceName, DriverID, CustPhone, CustAddress,CustName,chatStatus,adminUID;
     @NotNull
     String   driverStartDateTime,driverReachedDateTime,serviceStartDateTime,serviceStopDateTime;
@@ -159,91 +159,94 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
 
             SetupID();
 
-        //Retrieving Particular booking details
-        try {
-            status = getIntent().getStringExtra("status");
-            CustName = getIntent().getStringExtra("custName");
-            CustPhone = getIntent().getStringExtra("CustPhone");
-            CustAddress = getIntent().getStringExtra("custAddress");
-            BookingId = getIntent().getStringExtra("id");
-            area=getIntent().getStringExtra("area");
-            if (area != null) {
-                tvArea.setText("Area : "+area);
-            }
-            if (BookingId != null) {
-                BKid.setText(BookingId);
-            }
-            ServiceName = getIntent().getStringExtra("svType");
-            if (ServiceName != null) {
-                svType.setText(ServiceName);
-            }
 
-            //To convert date into string
-            String dvDate = getIntent().getStringExtra("DvDate");
-            if (dvDate != null) {
-                String search = "00:00:00 GMT+05:30";
-                int index = dvDate.indexOf(search);
-                //int year = ZonedDateTime.now(  ZoneId.of( "Asia/Kolkata" )  ).getYear() ;
-                if (index > 0) {
-                    dvDate = dvDate.substring(0, index);
+            //Retrieving booking details from Particular List
+            try {
+                if(getIntent().getExtras()!=null) {
+                        status = getIntent().getStringExtra("status");
+                        CustName = getIntent().getStringExtra("custName");
+                        CustPhone = getIntent().getStringExtra("CustPhone");
+                        CustAddress = getIntent().getStringExtra("custAddress");
+                        BookingId = getIntent().getStringExtra("id");
+                        area = getIntent().getStringExtra("area");
+                        if (area != null) {
+                            tvArea.setText("Area : " + area);
+                        }
+                        if (BookingId != null) {
+                            BKid.setText(BookingId);
+                        }
+                        ServiceName = getIntent().getStringExtra("svType");
+                        if (ServiceName != null) {
+                            svType.setText(ServiceName);
+                        }
+
+                        //To convert date into string
+                        String dvDate = getIntent().getStringExtra("DvDate");
+                        if (dvDate != null) {
+                            String search = "00:00:00 GMT+05:30";
+                            int index = dvDate.indexOf(search);
+                            //int year = ZonedDateTime.now(  ZoneId.of( "Asia/Kolkata" )  ).getYear() ;
+                            if (index > 0) {
+                                dvDate = dvDate.substring(0, index);
+                            }
+                            DVdate.setText("Date : " + dvDate);
+                        }
+                        //To convert date into string
+                        BookingDateTime = getIntent().getStringExtra("bookingDateTime");
+                        String BKDate = getIntent().getStringExtra("bookingDateTime");
+                        if (BKDate != null) {
+                            String bkDatesearch = "00:00:00 GMT+05:30";
+                            int bkDateindex = BKDate.indexOf(bkDatesearch);
+                            if (bkDateindex > 0) {
+                                BKDate = BKDate.substring(0, bkDateindex);
+                            }
+                            tvBKdate.setText("Date : " + BKDate);
+                        }
+                        final String dvTime = getIntent().getStringExtra("DvTime");
+                        if (dvTime != null) {
+                            DvTime.setText("Time : " + dvTime);
+                        }
+                        final String svProvider = getIntent().getStringExtra("svProv");
+                        if (svProvider != null) {
+                            svProv.setText(svProvider);
+                        }
+
+                        DriverName = getIntent().getStringExtra("DriverName");
+                        DriverToken = getIntent().getStringExtra("DriverToken");
+                        DriverID = getIntent().getStringExtra("DriverID");
+
+
+                        driverStartDateTime = getIntent().getStringExtra("driverStartDateTime");
+                        driverReachedDateTime = getIntent().getStringExtra("driverReachedDateTime");
+                        serviceStartDateTime = getIntent().getStringExtra("serviceStartDateTime");
+                        serviceStopDateTime = getIntent().getStringExtra("serviceStopDateTime");
+
+                        CustomerLatitude = Double.valueOf((getIntent().getStringExtra("CustomerLat")));
+                        CustomerLongitude = Double.valueOf((getIntent().getStringExtra("CustomerLng")));
+                        CustomerLocation = new LatLng(CustomerLatitude, CustomerLongitude);
+
                 }
-                DVdate.setText("Date : " + dvDate);
-            }
-            //To convert date into string
-           BookingDateTime= getIntent().getStringExtra("bookingDateTime");
-            String BKDate = getIntent().getStringExtra("bookingDateTime");
-            if (BKDate != null) {
-                String bkDatesearch = "00:00:00 GMT+05:30";
-                int bkDateindex = BKDate.indexOf(bkDatesearch);
-                if (bkDateindex > 0) {
-                    BKDate = BKDate.substring(0, bkDateindex);
-                }
-                tvBKdate.setText("Date : " + BKDate);
-            }
-            final String dvTime = getIntent().getStringExtra("DvTime");
-            if (dvTime != null) {
-                DvTime.setText("Time : " + dvTime);
-            }
-            final String svProvider = getIntent().getStringExtra("svProv");
-            if (svProvider != null) {
-                svProv.setText(svProvider);
-            }
+                mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                        .findFragmentById(R.id.mapView);
 
-            DriverName = getIntent().getStringExtra("DriverName");
-            DriverToken = getIntent().getStringExtra("DriverToken");
-            DriverID = getIntent().getStringExtra("DriverID");
+                mapFragment.getMapAsync(this);
 
 
-            driverStartDateTime = getIntent().getStringExtra("driverStartDateTime");
-            driverReachedDateTime = getIntent().getStringExtra("driverReachedDateTime");
-            serviceStartDateTime = getIntent().getStringExtra("serviceStartDateTime");
-            serviceStopDateTime = getIntent().getStringExtra("serviceStopDateTime");
-
-            CustomerLatitude = Double.valueOf((getIntent().getStringExtra("CustomerLat")));
-            CustomerLongitude = Double.valueOf((getIntent().getStringExtra("CustomerLng")));
-            CustomerLocation = new LatLng(CustomerLatitude, CustomerLongitude);
-
-            mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.mapView);
-
-            mapFragment.getMapAsync(this);
-
-
-            if (status.equals("Confirmed") || status.equals("Arriving") ||status.equals("Reached")||
-                    status.equals("Started") || status.equals("Completed")|| status.equals("Cancellation Request")) {
-                if (DriverName != null) {
-                    tvDriverName.setText(DriverName);
-                }
+                if (status.equals("Confirmed") || status.equals("Arriving") || status.equals("Reached") ||
+                        status.equals("Started") || status.equals("Completed") || status.equals("Cancellation Request")) {
+                    if (DriverName != null) {
+                        tvDriverName.setText(DriverName);
+                    }
                /* Animation anim = new AlphaAnimation(0.0f, 1.0f);
                 anim.setDuration(500); //You can manage the blinking time with this parameter
                 anim.setStartOffset(20);
                 anim.setRepeatMode(Animation.REVERSE);
                 anim.setRepeatCount(Animation.INFINITE);
                 tvDriverName.startAnimation(anim);*/
-            }
-        } catch (Exception e) {
+                }
 
-        }
+            } catch (Exception e) {}
+
 
 
         try {
@@ -315,7 +318,6 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
         }
 
              bookingStatusIndicator();
-
 
 
         if (status.equals("Pending") || status.equals("Waiting")|| status.equals("Cancelled")
@@ -418,7 +420,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                         btnReschedule.setVisibility(View.VISIBLE);
                     }
                     if (status.equals("Confirmed")||status.equals("Arriving") || status.equals("Reached") ||
-                            status.equals("Started") /*|| status.equals("Completed")*/) {
+                            status.equals("Started") || status.equals("Completed")) {
                         if (DriverID != null) {
                             db.collection("LiveLocation").document(DriverID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
                                 @Override
@@ -450,7 +452,6 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                 }
             }
         }
-
 //Getting DriverLiveLocation
 
         //Getting DriverHomeLocation and connecting customer and driver locations
@@ -563,13 +564,11 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
             }
         });
 
-        ok.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(getApplicationContext(), MapsActivity.class));
-                finish();
-            }
+        ok.setOnClickListener(v -> {
+            startActivity(new Intent(getApplicationContext(), MapsActivity.class));
+            finish();
         });
+
 
 
         back.setOnClickListener(new View.OnClickListener() {
@@ -580,6 +579,159 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
             }
         });
     }
+
+  /*  private void getBookingDetails(String BookingID) {
+        DocumentReference dr=db.collection("All Booking ID").document(BookingID);
+
+        dr.collection("All Booking ID").document(BookingID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@com.google.firebase.database.annotations.Nullable Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot snapshot = task.getResult();
+                    if (snapshot.exists()) {
+                        String dvDate = null, BKDate = null;
+                        Date dt1, dt2, dt3;
+                        status = snapshot.getString("status");
+                        Toast.makeText(ParticularBookingHistory.this, status, Toast.LENGTH_SHORT).show();
+
+                        CustName = snapshot.getString("customer_Name");
+                        CustPhone = snapshot.getString("contact_Number");
+                        CustAddress = snapshot.getString("address");
+                        BookingId = snapshot.getString("booking_Id");
+                        area = snapshot.getString("area");
+                        ServiceName = snapshot.getString("service_Type");
+                        dt1 = snapshot.getDate("booking_Date");
+                        if (dt1 != null) {
+                            BookingDateTime = dt1.toString();
+                        }
+                        dt2 = snapshot.getDate("delivery_Date");
+                        if (dt2 != null) {
+                            dvDate = dt2.toString();
+                        }
+                        dt3 = snapshot.getDate("booking_Date");
+                        if (dt3 != null) {
+                            BKDate = dt3.toString();
+                        }
+
+                        String dvTime = snapshot.getString("delivery_Time");
+                        String svProvider = snapshot.getString("service_Provider");
+                        CustomerLatitude = Double.valueOf((snapshot.getDouble("latitude")));
+                        CustomerLongitude = Double.valueOf((snapshot.getDouble("longitude")));
+                        CustomerLocation = new LatLng(CustomerLatitude, CustomerLongitude);
+
+                        DriverName = snapshot.getString("driverName");
+                        DriverToken = snapshot.getString("driverToken");
+                        DriverID = snapshot.getString("driverId");
+                        driverStartDateTime = snapshot.getDate("driverFromTime").toString();
+                        driverReachedDateTime = snapshot.getDate("driverReachedTime").toString();
+                        serviceStartDateTime = snapshot.getDate("serviceStartTime").toString();
+                        serviceStopDateTime = snapshot.getDate("serviceStopTime").toString();
+
+
+                        if (DriverName != null) {
+                            tvDriverName.setText(DriverName);
+                        }
+
+                        if (svProvider != null) {
+                            svProv.setText(svProvider);
+                        }
+
+                        if (dvTime != null) {
+                            DvTime.setText("Time : " + dvTime);
+                        }
+
+                        if (BKDate != null) {
+                            String bkDatesearch = "00:00:00 GMT+05:30";
+                            int bkDateindex = BKDate.indexOf(bkDatesearch);
+                            if (bkDateindex > 0) {
+                                BKDate = BKDate.substring(0, bkDateindex);
+                            }
+                            tvBKdate.setText("Date : " + BKDate);
+                        }
+
+                        if (dvDate != null) {
+                            String search = "00:00:00 GMT+05:30";
+                            int index = dvDate.indexOf(search);
+                            //int year = ZonedDateTime.now(  ZoneId.of( "Asia/Kolkata" )  ).getYear() ;
+                            if (index > 0) {
+                                dvDate = dvDate.substring(0, index);
+                            }
+                            DVdate.setText("Date : " + dvDate);
+                        }
+                    }
+                }
+            }
+        });
+      *//*  dr.addSnapshotListener((snapshot, e) -> {
+            if(e!=null){
+                Toast.makeText(ParticularBookingHistory.this, "Error", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if(snapshot.exists()){
+
+                status = snapshot.getData().get("user_name").toString();
+                Toast.makeText(ParticularBookingHistory.this, status, Toast.LENGTH_SHORT).show();
+
+                CustName = snapshot.getString("customer_Name");
+                CustPhone = snapshot.getString("contact_Number");
+                CustAddress = snapshot.getString("address");
+                BookingId = snapshot.getString("booking_Id");
+                area = snapshot.getString("area");
+                ServiceName = snapshot.getString("service_Type");
+                BookingDateTime = snapshot.getDate("booking_Date").toString();
+                String dvDate = snapshot.getDate("delivery_Date").toString();
+                String BKDate = snapshot.getDate("booking_Date").toString();
+                String dvTime = snapshot.getString("delivery_Time");
+                String svProvider = snapshot.getString("service_Provider");
+                CustomerLatitude = Double.valueOf((snapshot.getDouble("latitude")));
+                CustomerLongitude = Double.valueOf((snapshot.getDouble("longitude")));
+                CustomerLocation = new LatLng(CustomerLatitude, CustomerLongitude);
+
+                DriverName = snapshot.getString("driverName");
+                DriverToken = snapshot.getString("driverToken");
+                DriverID = snapshot.getString("driverId");
+                driverStartDateTime = snapshot.getDate("driverFromTime").toString();
+                driverReachedDateTime = snapshot.getDate("driverReachedTime").toString();
+                serviceStartDateTime = snapshot.getDate("serviceStartTime").toString();
+                serviceStopDateTime = snapshot.getDate("serviceStopTime").toString();
+
+
+                if (DriverName != null) {
+                    tvDriverName.setText(DriverName);
+                }
+
+                if (svProvider != null) {
+                    svProv.setText(svProvider);
+                }
+
+                if (dvTime != null) {
+                    DvTime.setText("Time : " + dvTime);
+                }
+
+                if (BKDate != null) {
+                    String bkDatesearch = "00:00:00 GMT+05:30";
+                    int bkDateindex = BKDate.indexOf(bkDatesearch);
+                    if (bkDateindex > 0) {
+                        BKDate = BKDate.substring(0, bkDateindex);
+                    }
+                    tvBKdate.setText("Date : " + BKDate);
+                }
+
+                if (dvDate != null) {
+                    String search = "00:00:00 GMT+05:30";
+                    int index = dvDate.indexOf(search);
+                    //int year = ZonedDateTime.now(  ZoneId.of( "Asia/Kolkata" )  ).getYear() ;
+                    if (index > 0) {
+                        dvDate = dvDate.substring(0, index);
+                    }
+                    DVdate.setText("Date : " + dvDate);
+                }
+
+            }
+        });*//*
+    }*/
+
 
 
 
@@ -631,6 +783,7 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
 
 
     private void bookingStatusIndicator() {
+        if(status!=null) {
 
             try {
                 if (status.equals("Pending") | status.equals("Waiting")) {
@@ -653,13 +806,14 @@ public class ParticularBookingHistory extends AppCompatActivity implements OnMap
                 } else if (status.equals("Reschedule Request")) {
                     binding.spb.setCompletedPosition(1).drawView();
                     data[1] = "Reschedule...";
-                }else if (status.equals("Cancellation Request")) {
+                } else if (status.equals("Cancellation Request")) {
                     binding.spb.setCompletedPosition(1).drawView();
                     data[1] = "Cancellation ...";
                 }
             } catch (ArrayIndexOutOfBoundsException e4) {
                 Toast.makeText(this, e4.getMessage(), Toast.LENGTH_SHORT).show();
             }
+        }
 
     }
 
@@ -946,6 +1100,7 @@ try {
         tvBKtime=binding.tvBKtime;
         // ID Setup
     }
+
 
 }
 

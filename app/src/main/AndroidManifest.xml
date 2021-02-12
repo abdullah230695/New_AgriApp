@@ -112,18 +112,16 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBNS5C6OLlfFIG-1VjwfuUm73mG8HqW-wI" />
-        <!--
   <service
-            android:name=".FCM.MyFirebaseMessagingService"
+            android:name=".FCM.FirebaseMessaging"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-        -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@drawable/tractor" />
+            android:resource="@drawable/combine" />
         <!--
  Set color used with incoming notification messages. This is used when no color is set for the incoming
              notification message. See README(https://goo.gl/6BKBk7) for more.

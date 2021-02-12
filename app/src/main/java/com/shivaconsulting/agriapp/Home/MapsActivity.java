@@ -237,11 +237,19 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
 
 
-        if(getIntent().getExtras()!=null){
-            startActivity(new Intent(mContext,BookingHistoryActivity.class));
+       /* if(getIntent().getExtras()!=null){
+            Bundle b=getIntent().getExtras();
+            ArrayList list=b.getStringArrayList("Default");
+            String BukingId=list.get(0).toString();
+            Toast.makeText(mContext, "Booking ID : "+BukingId, Toast.LENGTH_SHORT).show();
+            Log.d("fcmdata",BukingId);
+            Intent i=new Intent(getApplicationContext(),ParticularBookingHistory.class);
+            i.putExtra("bukingId",BukingId);
+            startActivity(i);
             overridePendingTransition(R.anim.fade_in, R.anim.push_out_down);
             finish();
-        }
+        }*/
+
 
 
         Places.initialize(this, getResources().getString(R.string.api_key));
