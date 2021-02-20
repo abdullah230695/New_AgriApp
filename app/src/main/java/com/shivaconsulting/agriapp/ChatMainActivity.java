@@ -1,8 +1,6 @@
 package com.shivaconsulting.agriapp;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -11,13 +9,10 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.shivaconsulting.agriapp.chat.SelectUserActivity;
 import com.shivaconsulting.agriapp.fragment.ChatRoomFragment;
 
 import java.util.HashMap;
@@ -40,7 +35,7 @@ public class ChatMainActivity extends AppCompatActivity {
      */
     private ViewPager mViewPager;
 
-    private FloatingActionButton makeRoomBtn;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +52,7 @@ public class ChatMainActivity extends AppCompatActivity {
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
-        TabLayout tabLayout = findViewById(R.id.tabs);
+     /*   TabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -78,12 +73,12 @@ public class ChatMainActivity extends AppCompatActivity {
         });
 
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-        tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
+        tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));*/
 
         sendRegistrationToServer();
 
 
-        makeRoomBtn = findViewById(R.id.makeRoomBtn);
+       /* makeRoomBtn = findViewById(R.id.makeRoomBtn);
         makeRoomBtn.setVisibility(View.INVISIBLE);
         makeRoomBtn.setOnClickListener( new View.OnClickListener(){
 
@@ -92,7 +87,7 @@ public class ChatMainActivity extends AppCompatActivity {
                 startActivity(new Intent(v.getContext(), SelectUserActivity.class));
                 overridePendingTransition(R.anim.fade_in, R.anim.push_out_down);
             }
-        });
+        });*/
     }
 
     void sendRegistrationToServer() {
@@ -151,7 +146,7 @@ public class ChatMainActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return 3;
+            return 1;
         }
     }
 }

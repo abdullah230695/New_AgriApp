@@ -52,7 +52,7 @@ private ImageView imgProductType,homeMain,pendingMain,profileMain;
 private RecyclerView rvOtherProducts;
 private CardView cvProduct;
 private CircleImageView profileimage;
-String DriverID,imageURL,myFeedback,othersFeedback;
+private String DriverID,imageURL,myFeedback,othersFeedback;
 float currentRatings,setTotalCurrentRatings;
 float totalRating,setRating,myPrevRating=0;
 private String UUID,sFeedback;
